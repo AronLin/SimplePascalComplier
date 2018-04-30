@@ -105,7 +105,9 @@ sqrt {
 sqr {
     return SYS_FUNCT;
 }
-string {return STRING;}
+string {
+    return SYS_TYPE;
+}
 succ {
     return SYS_FUNCT;
 }
