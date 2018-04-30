@@ -24,14 +24,22 @@ PLUS MINUS MUL DIVI GE GT LE UNEQUAL LT AND SYS_FUNCT
 ARRAY BEGIN SYS_TYPE CASE CONST DOWNTO DO DIV END 
 ELSE FALSEFIR FUNCTION GOTO IF INTEGER NOT OF OR
 PROGRAM PROCEDURE RECORD REPEAT STRING TO THEN TRUE
-UNTIL VAR WHILE SYS_PROC CHAR STRING ID REAL
+UNTIL VAR WHILE SYS_PROC CHAR ID REAL
+%start program
 
 //运算符优先级部分
 
 
 %%
+program: program_head routine DOT
+program_head : PROGRAM ID SEMI
+routine : routine_head routine_body
+routine_head: BEGIN
+routine_body: END
+ /* 上边这个错误的，暂时不想继续写了 */
 
 %%
+
 void yyerror(char const *str)
 {
     fprintf(stderr,"%s\n",str);

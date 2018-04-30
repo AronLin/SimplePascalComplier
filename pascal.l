@@ -9,15 +9,16 @@ DIGIT [0-9]
 DIGITS {DIGIT}+
 LETTER [a-zA-Z]
 ID {LETTER}({LETTER}|{DIGIT})*
-NAME {LETTER}+ //是ID的子集，就很蛋疼，如何处理ID和NAME
+NAME ({LETTER})+ 
+  /*跟ID啥区别，怎么区分*/
 POINT "."{DIGITS}
 EXPONENT (e|E)("+"|"-")?{DIGITS}
 INTNUM {DIGITS}
-REALNUM {DIGITS}{POINT}?{EXPONENT}? //需要区分int和real的话重写这条
+REALNUM {DIGITS}({POINT})?({EXPONENT})?
 %%
 COMMENT {}//do nothing
 
-//符号部分
+ /* 符号部分 */
 
 ":=" {return ASSIGN;}//赋值
 "=" {return EQUAL;}
@@ -40,7 +41,7 @@ COMMENT {}//do nothing
 "<>" {return UNEQUAL;}//不等
 "<" {return LT;}//小于
 
-//关键字部分
+ /* 关键字部分 */
 
 and {return AND;}
 abs {
@@ -88,7 +89,7 @@ ord {
     return SYS_FUNCT;
 }
 or {return OR;}
-pred{
+pred {
     return SYS_FUNCT;
 }
 program {return PROGRAM;}
@@ -98,17 +99,17 @@ real {
 }
 record {return RECORD;}
 repeat {return REPEAT;}
-sqrt{
+sqrt {
     return SYS_FUNCT;
 }
-sqr{
+sqr {
     return SYS_FUNCT;
 }
 string {return STRING;}
-succ{
+succ {
     return SYS_FUNCT;
 }
-to {return TO;}
+to { return TO;}
 then {return THEN;}
 true {
     yyval.boolean_value=1;
@@ -117,14 +118,14 @@ true {
 until {return UNTIL;}
 var {return VAR;}
 while {return WHILE;}
-writeln{
+writeln {
     return SYS_PROC;
 }
-write{
+write {
     return SYS_PROC;
 }
 
-//数字，变量名，字符和字符串
+ /* 数字，变量名，字符和字符串 */
 
 "'"{ANY}"'" {
     return CHAR;
@@ -132,7 +133,7 @@ write{
 "'"{ANY}{ANY}+"'" {
     return STRING;
 }
-{NAME} {//待议
+{NAME} { //待议
     return NAME;
 }
 {ID} {
