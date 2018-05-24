@@ -7,10 +7,8 @@ ANY .
 COMMENT "{"{ANY}*"}" 
 DIGIT [0-9]
 DIGITS {DIGIT}+
-LETTER [a-zA-Z]
+LETTER [_a-zA-Z]
 ID {LETTER}({LETTER}|{DIGIT})*
-NAME ({LETTER})+ 
-  /*跟ID啥区别，怎么区分*/
 POINT "."{DIGITS}
 EXPONENT (e|E)("+"|"-")?{DIGITS}
 INTNUM {DIGITS}
@@ -67,7 +65,7 @@ end {return END;}
 else {return ELSE;}
 false {
     yyvalue.boolean_value=0;
-    return FALSE;//待定
+    return SYS_BOOL;//待定
     }
 for {return FOR;}
 function {return FUNCTION;}
@@ -78,7 +76,7 @@ integer {
 if {return IF;}
 maxint {
     yyval.int_value=32767;
-    return INTEGER;//返回整数类型
+    return SYS_CON;//返回整数类型
 }
 not {return NOT;}
 odd {
@@ -94,6 +92,9 @@ pred {
 }
 program {return PROGRAM;}
 procedure {return PROCEDURE;}
+read {
+    return READ;
+}
 real {
     return SYS_TYPE;
 }
@@ -105,9 +106,7 @@ sqrt {
 sqr {
     return SYS_FUNCT;
 }
-string {
-    return SYS_TYPE;
-}
+string {return STRING;}
 succ {
     return SYS_FUNCT;
 }
@@ -115,8 +114,11 @@ to { return TO;}
 then {return THEN;}
 true {
     yyval.boolean_value=1;
-    return TRUE;//待定
+    return SYS_BOOL;//待定
     }
+type {
+    return TYPE;
+}
 until {return UNTIL;}
 var {return VAR;}
 while {return WHILE;}
@@ -135,10 +137,7 @@ write {
 "'"{ANY}{ANY}+"'" {
     return STRING;
 }
-{NAME} { //待议
-    return NAME;
-}
-{ID} {
+{ID} { //和NAME一个形式，不区分
     return ID;
 }
 [ \t]+ ;//分隔符
