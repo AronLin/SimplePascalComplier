@@ -122,6 +122,9 @@ enum {
     class StmtNode:public Node{
         string ProcCall;
         string argument;
+        StmtNode(){
+
+        }
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
 
