@@ -4,6 +4,10 @@
 #include <math.h>
 #include <string.h>
 #include "lex.yy.c"
+
+#include "AbstracTree.h"
+
+Node* ast_root;
 int yylex(void);
 void yyerror(char const *str);
 
@@ -11,6 +15,19 @@ void yyerror(char const *str);
 
 
 %}
+
+%union{
+    
+    Node*               ast_Node; 
+    StmtList*           ast_StmtList;
+    ProgramNode*        ast_Program;
+    RoutineNode*        ast_Routine;
+    Stmt*               ast_Stmt;
+    Id*                 ast_Id;
+    
+}
+
+
 //设置类型集合
 %union {
     short int_value;//pascal 中int是2个字节,这里用short了
@@ -18,6 +35,11 @@ void yyerror(char const *str);
     char* string_value;
     char boolean_value;
 }
+
+
+
+
+
 //终结符集合
 %token ASSIGN LP RP LB RB DOT COMMA COLON SEMI
 ARRAY BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
@@ -30,14 +52,19 @@ PROCEDURE RECORD VAR ID TYPE
 IF ELSE CASE OF GOTO //语句
 %start program
 
+%type <ast_Program> program
+%type <ast_Id> program_head
+%type <ast_Routine> routine
+
+
 
 %%
 // 注意NAME和ID其实是一样的，所以我将语法中的NAME全换成了ID
 program: program_head routine DOT {}
 ;
-program_head : PROGRAM ID SEMI {}
+program_head : PROGRAM ID SEMI {} | {}
 ;
-routine: routine_head routine_body {}
+routine: routine_head routine_body {$$->child.push_back($2);}
 ;
 sub_routine: routine_head routine_body {}
 ;
@@ -155,17 +182,17 @@ val_para_list:
 ;
 
 routine_body:  
-	compound_stmt {}
+	compound_stmt {$$ = $1}
 ;
 compound_stmt: 
-	BEGIN stmt_list END {}
+	BEGIN stmt_list END {$$ = $2}
 ;
 stmt_list: 
-	stmt_list  stmt  SEMI {}
+	stmt_list  stmt  SEMI {$$ = $1;$$->child.push_back($2);}
     | 	{}
     ;
 stmt: 
-	non_label_stmt {}
+	non_label_stmt {$$=$1}
     | INTEGER COLON non_label_stmt {}
 ;
 non_label_stmt: 
