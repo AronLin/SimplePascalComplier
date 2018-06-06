@@ -12,6 +12,7 @@
 #include <string>
 #include <map>
 #include <list>
+#include <vector>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -103,6 +104,7 @@ enum {
 
     class RoutineNode:public Node{
     public:
+        RoutineBodyNode* routineBody;
 
         RoutineNode(){
             this->type = ROUTINE;
@@ -112,6 +114,7 @@ enum {
             this->type = ROUTINE;
             // this->child.push_back(routine_head);
             this->child.push_back(routine_body);
+            routineBody = routine_body;
 
         }
         virtual std::string info(){
@@ -120,7 +123,13 @@ enum {
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
 
-
+    class IdNode: public Node
+    {
+    public:
+        std::string name;
+        IdNode(const std::string& name): name(name){};
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    }
 
     class StmtListNode:public Node{
         StmtListNode():type(STMT_LIST){}
@@ -133,6 +142,30 @@ enum {
         string argument;
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
+
+    class VarDeclListNode: public Node
+    {
+        std::vector<VarDeclNode*> list;
+        void insert(VarDeclNode* node)
+        {
+            list.push_back(node);
+        }
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    }; 
+
+    class VarDeclNode: public Node
+    {
+        IdNode* name;
+        TypeDeclNode* type;
+        VarDeclNode* (IdNode* name, TypeDeclNode* type): name(name), type(type)
+        {
+            //Put Children
+        };
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+
+    };
+
+    
 
 };
 

@@ -15,6 +15,10 @@
 
 llvm::Value* AbstractTree::ProgramNode::CodeGen(CodeGenContext& context)
 {
-    return this->routine->CodeGen();
+    return this->routine->CodeGen(context);
 }
 
+llvm::Value* AbstractTree::RoutineNode::CodeGen(CodeGenContext& context)
+{
+    return this->routineBody->CodeGen(context);
+}
