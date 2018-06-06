@@ -44,7 +44,7 @@ public:
     llvm::Value *returnValue;
     CodeGenBlock * parent;
     std::map<std::string, llvm::Value*> locals;
-}
+};
 
 class CodeGenContext
 {
@@ -55,7 +55,7 @@ public:
     llvm::Function* curFunc;
     llvm::IRBuilder<> Builder;
     llvm::Value* getValue(std::string name);
-    std::map<std::string, Value*>& locals() { return blocks.top()->locals; }
+    std::map<std::string, llvm::Value*>& locals() { return blocks.top()->locals; }
     void putValue(std::string name, llvm::Value* value);
     llvm::BasicBlock* curBlock() {return blocks.top()->block;};
     void pushBlock(llvm::BasicBlock *block);
