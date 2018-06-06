@@ -110,6 +110,7 @@ enum {
 
     class RoutineNode:public Node{
     public:
+        RoutineHeadNode* routineHead;
         RoutineBodyNode* routineBody;
 
         RoutineNode(){
@@ -121,13 +122,20 @@ enum {
             // this->child.push_back(routine_head);
             this->child.push_back(routine_body);
             routineBody = routine_body;
-
+            routineHead = routine_head;
         }
         virtual std::string info(){
             return "Routine:";
         }
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
+
+    class RoutineHeadNode : public Node
+    {
+    public:
+        VarDeclListNode* varDeclList;
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    }
 
     class IdNode: public Node
     {
@@ -177,7 +185,7 @@ enum {
     {
     public:
         std::string rawName = "";
-        auto sysName = TypeName::error;
+        TypeName sysName = TypeName::error;
         TypeDeclNode(const std::string &str) : rawNname(str){init();}
         TypeDeclNode(const char * ptr_c) : rawNname(*(new std::string(ptr_c))) {init();}
 

@@ -71,3 +71,9 @@ llvm::Value* AbstractTree::VarDeclListNode::CodeGen(CodeGenContext& context)
     }
     return ret;
 }
+
+llvm::Value* AbstractTree::RoutineHeadNode::CodeGen(CodeGenContext& context)
+{
+    return this->varDeclList->CodeGen(context);
+}
+
