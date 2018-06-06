@@ -26,13 +26,13 @@ llvm::Value* AbstractTree::RoutineNode::CodeGen(CodeGenContext& context)
 void AbstractTree::TypeDeclNode::init()
 {
     if (rawName == "integer")          
-        sysName = AbstractTree::TypeName::integer;
+        sysName = AbstractTree::TypeDeclNode::TypeName::integer;
     else if (rawName == "real")        
-        sysName = AbstractTree::TypeName::real;
+        sysName = AbstractTree::TypeDeclNode::TypeName::real;
     else if (rawName == "char")        
-        sysName = AbstractTree::TypeName::character;
+        sysName = AbstractTree::TypeDeclNode::TypeName::character;
     else if (rawName == "boolean")     
-        sysName = AbstractTree::TypeName::boolean;
+        sysName = AbstractTree::TypeDeclNode::TypeName::boolean;
 }
 
 llvm::Type* AbstractTree::TypeDeclNode::toLLVMType()

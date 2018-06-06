@@ -37,13 +37,28 @@ public:
     void operator=(GlobalLLVMContext const&) = delete;
 };
 
-class CodeGenContext
+class CodeGenBlock
 {
 public:
-    llvm::Module* module;
+    llvm::BasicBlock *block;
+    llvm::Value *returnValue;
+    CodeGenBlock * parent;
     std::map<std::string, llvm::Value*> locals;
+}
+
+class CodeGenContext
+{
+private:
+    std::stack<CodeGenBlock*> blocks;
+public:
+    llvm::Module* module;
+    llvm::Function* curFunc;
     llvm::IRBuilder<> Builder;
     llvm::Value* getValue(std::string name);
+    std::map<std::string, Value*>& locals() { return blocks.top()->locals; }
     void putValue(std::string name, llvm::Value* value);
+    llvm::BasicBlock* curBlock() {return blocks.top()->block;};
+    void pushBlock(llvm::BasicBlock *block);
+    void popBlock() { CodeGenBlock *top = blocks.top(); blocks.pop(); delete top; }
     CodeGenContext();
 };

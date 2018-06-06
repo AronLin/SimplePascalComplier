@@ -41,8 +41,10 @@ class RecordTypeDeclNode;
 class StmtListNode;
 class StmtNode;
 class AssignStmtNode;
+class SysProcStmtNode;
 class ProcStmtNode;
 class ExpNode;
+class ExpListNode;
 class ConstValueNode;
 class IntegerTypeNode;
 class CharTypeNode;
@@ -147,6 +149,7 @@ enum {
     public:
         std::string name;
         IdNode(const std::string& name): name(name){};
+        IdNode(const char* name): name(*(new std::string(name))){};
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     }
 
@@ -252,12 +255,28 @@ enum {
 
     class AssignStmtNode: public StmtNode
     {
+    public:
         IdNode* lhs;
         ExpNode* rhs;
         AssignStmtNode(IdNode* lhs, ExpNode* rhs): lhs(lhs), rhs(rhs) {};
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
+    class ProcStmtNode: public StmtNode
+    {
+    public:
+        IdNode* id;
+        ExpListNode* args;
+    }
+
+    class SysProcStmtNode: public ProcStmtNode
+    {
+    public:
+        SysProcStmtNode(IdNode* idd): id(idd){};
+        SysProcStmtNode(IdNode* idd, ExpListNode* arg): id(idd), args(arg){};
+        llvm::Value* SysProc_write(CodeGenContext& context, bool writeln);
+        virtual llvm::Value *CodeGen(CodeGenContext& context);
+    }    
     
 
 
