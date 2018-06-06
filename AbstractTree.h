@@ -83,6 +83,8 @@ enum {
     class ProgramNode:public Node{
     public:
 
+        RoutineNode* routine;
+
         ProgramNode(){
             this->type = PROGRAM;
         }
@@ -90,6 +92,7 @@ enum {
             this->type = PROGRAM;
             this->child.push_back(program_head);
             this->child.push_back(routine);
+            this->routine = routine;
         }
 
         virtual std::string info(){
