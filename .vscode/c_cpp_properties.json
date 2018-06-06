@@ -10,7 +10,8 @@
             },
             "includePath": [
                 "${workspaceFolder}",
-                "/usr/include/llvm-6.0"
+                "/usr/include/llvm-6.0",
+                "/usr/include/llvm-c-6.0"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang++-6.0",
