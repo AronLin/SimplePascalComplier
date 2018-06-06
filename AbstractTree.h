@@ -40,6 +40,14 @@ class ArrayTypeDeclNode;
 class RecordTypeDeclNode;
 class StmtListNode;
 class StmtNode;
+class AssignStmtNode;
+class ProcStmtNode;
+class ExpNode;
+class ConstValueNode;
+class IntegerTypeNode;
+class CharTypeNode;
+class RealTypeNode;
+class BooleanTypeNode;
 
 //list node
 class ConstExprListNode;
@@ -57,10 +65,7 @@ enum {
     NODE=0,PROGRAM,ID,ROUTINE,ROUTINE_HEAD,LABEL_PART,CONST_EXPR_LIST,CONST_EXPR,CONST_VALUE,TYPE_DEFINE_LIST,TYPE_DEFINITION,TYPE_DECL,SIMPLE_TYPE_DECL,ARRAY_TYPE_DECL,RECORD_TYPE_DECL,STMT_LIST
 }NodeType;
 
-    enum class TypeName
-        {
-            integer, real, character, boolean, error
-        };
+
 
     class Node {
     public:
@@ -146,16 +151,22 @@ enum {
     }
 
     class StmtListNode:public Node{
+    public:
         StmtListNode():type(STMT_LIST){}
 
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
 
     class StmtNode:public Node{
-        string ProcCall;
-        string argument;
+    public:
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
+
+    class ExpNode: public Node
+    {
+    public:
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    }
 
     class VarDeclListNode: public Node
     {
@@ -184,6 +195,10 @@ enum {
     class TypeDeclNode: public Node
     {
     public:
+        enum class TypeName
+        {
+            integer, real, character, boolean, error
+        };
         std::string rawName = "";
         TypeName sysName = TypeName::error;
         TypeDeclNode(const std::string &str) : rawNname(str){init();}
@@ -192,9 +207,59 @@ enum {
         void init();
         virtual llvm::Value* CodeGen(CodeGenContext& context) {};
         llvm::Type* toLLVMType();
-    }
+    };
+
+    class ConstValueNode: public ExpNode
+    {
+    public:
+        TypeDeclNode::TypeName type;
+        TypeDeclNode::TypeName getConstType() {return type;};
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    };
+
+    class IntegerTypeNode: public ConstValueNode
+    {
+    public:
+        int val;
+        IntegerTypeNode(int value):val(value) {type = TypeDeclNode::TypeName::integer;};
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    };
+
+    class RealTypeNode: public ConstValueNode
+    {
+    public:
+        double val;
+        RealTypeNode(double value):val(value) {type = TypeDeclNode::TypeName::real;};
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    };
+
+    class CharTypeNode: public ConstValueNode
+    {
+    public:
+        char val;
+        CharTypeNode(const char * p_str) : val(*(p_str)) {type = TypeDeclNode::TypeName::character;};
+        virtual llvm::Value* CodeGen(CodeGenContext& context); 
+    };
+
+    class BooleanTypeNode: public ConstValueNode
+    {
+    public:
+        int val;
+        BooleanTypeNode(const char * str) : val(std::string(str) == "true" ? 1 : 0) {type = TypeDeclNode::TypeName::boolean;};
+        virtual llvm::Value* CodeGen(CodeGenContext& context);   
+    };
+
+
+    class AssignStmtNode: public StmtNode
+    {
+        IdNode* lhs;
+        ExpNode* rhs;
+        AssignStmtNode(IdNode* lhs, ExpNode* rhs): lhs(lhs), rhs(rhs) {};
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    };
 
     
+
 
 };
 

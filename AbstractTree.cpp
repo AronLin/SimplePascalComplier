@@ -39,16 +39,16 @@ llvm::Type* AbstractTree::TypeDeclNode::toLLVMType()
 {
     this->init();    
     switch(this->sysName) {
-        case AbstractTree::TypeName::integer:  
+        case AbstractTree::TypeDeclNode::TypeName::integer:  
             return llvm::Type::getInt32Ty(GlobalLLVMContext::getGlobalContext());    
             break;
-        case AbstractTree::TypeName::real:     
+        case AbstractTree::TypeDeclNode::TypeName::real:     
             return llvm::Type::getDoubleTy(GlobalLLVMContext::getGlobalContext());    
             break;
-        case AbstractTree::TypeName::character:
+        case AbstractTree::TypeDeclNode::TypeName::character:
             return llvm::Type::getInt8Ty(GlobalLLVMContext::getGlobalContext());     
             break;
-        case AbstractTree::TypeName::boolean:  
+        case AbstractTree::TypeDeclNode::TypeName::boolean:  
             return llvm::Type::getInt1Ty(GlobalLLVMContext::getGlobalContext());     
             break;
     }
