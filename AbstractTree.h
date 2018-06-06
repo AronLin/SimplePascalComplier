@@ -151,6 +151,7 @@ enum {
 
     class VarDeclListNode: public Node
     {
+    public:
         std::vector<VarDeclNode*> list;
         void insert(VarDeclNode* node)
         {
@@ -161,6 +162,7 @@ enum {
 
     class VarDeclNode: public Node
     {
+    public:
         IdNode* name;
         TypeDeclNode* type;
         VarDeclNode* (IdNode* name, TypeDeclNode* type): name(name), type(type)
@@ -173,6 +175,7 @@ enum {
 
     class TypeDeclNode: public Node
     {
+    public:
         std::string rawName = "";
         auto sysName = TypeName::error;
         TypeDeclNode(const std::string &str) : rawNname(str){init();}
