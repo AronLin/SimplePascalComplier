@@ -4,7 +4,8 @@
 
 CodeGenContext::CodeGenContext(): Builder(GlobalLLVMContext::getGlobalContext())
 {
-   
+   module = new llvm::Module("Pascal", GlobalLLVMContext::getGlobalContext());
+
 }
 
 llvm::Value* CodeGenContext::getValue(std::string name)
