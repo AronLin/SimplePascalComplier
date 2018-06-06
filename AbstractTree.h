@@ -144,6 +144,7 @@ enum {
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     }
 
+    //TODO: Codegen
     class IdNode: public Node
     {
     public:
@@ -212,6 +213,7 @@ enum {
         llvm::Type* toLLVMType();
     };
 
+    //TODO:: all func below need codegen
     class ConstValueNode: public ExpNode
     {
     public:

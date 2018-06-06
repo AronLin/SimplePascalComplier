@@ -15,6 +15,7 @@
 
 llvm::Value* AbstractTree::ProgramNode::CodeGen(CodeGenContext& context)
 {
+    //TODO: create initial func and bb in context
     return this->routine->CodeGen(context);
 }
 
