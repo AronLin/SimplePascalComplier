@@ -56,6 +56,12 @@ namespace AbstractTree {
 enum {
     NODE=0,PROGRAM,ID,ROUTINE,ROUTINE_HEAD,LABEL_PART,CONST_EXPR_LIST,CONST_EXPR,CONST_VALUE,TYPE_DEFINE_LIST,TYPE_DEFINITION,TYPE_DECL,SIMPLE_TYPE_DECL,ARRAY_TYPE_DECL,RECORD_TYPE_DECL,STMT_LIST
 }NodeType;
+
+    enum class TypeName
+        {
+            integer, real, character, boolean, error
+        };
+
     class Node {
     public:
         std::list<Node*> child;
@@ -164,6 +170,18 @@ enum {
         virtual llvm::Value* CodeGen(CodeGenContext& context);
 
     };
+
+    class TypeDeclNode: public Node
+    {
+        std::string rawName = "";
+        auto sysName = TypeName::error;
+        TypeDeclNode(const std::string &str) : rawNname(str){init();}
+        TypeDeclNode(const char * ptr_c) : rawNname(*(new std::string(ptr_c))) {init();}
+
+        void init();
+        virtual llvm::Value* CodeGen(CodeGenContext& context) {};
+        llvm::Type* toLLVMType();
+    }
 
     
 

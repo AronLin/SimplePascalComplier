@@ -20,5 +20,37 @@ llvm::Value* AbstractTree::ProgramNode::CodeGen(CodeGenContext& context)
 
 llvm::Value* AbstractTree::RoutineNode::CodeGen(CodeGenContext& context)
 {
-    return this->routineBody->CodeGen(context);
+    //return this->routineBody->CodeGen(context);
 }
+
+void AbstractTree::TypeDeclNode::init()
+{
+    if (rawName == "integer")          
+        sysName = AbstractTree::TypeName::integer;
+    else if (rawName == "real")        
+        sysName = AbstractTree::TypeName::real;
+    else if (rawName == "char")        
+        sysName = AbstractTree::TypeName::character;
+    else if (rawName == "boolean")     
+        sysName = AbstractTree::TypeName::boolean;
+}
+
+llvm::Type* AbstractTree::TypeDeclNode::toLLVMType()
+{
+    this->init();    
+    switch(this->sysName) {
+        case AbstractTree::TypeName::integer:  
+            return llvm::Type::getInt32Ty(GlobalLLVMContext::getGlobalContext());    
+            break;
+        case AbstractTree::TypeName::real:     
+            return llvm::Type::getDoubleTy(GlobalLLVMContext::getGlobalContext());    
+            break;
+        case AbstractTree::TypeName::character:
+            return llvm::Type::getInt8Ty(GlobalLLVMContext::getGlobalContext());     
+            break;
+        case AbstractTree::TypeName::boolean:  
+            return llvm::Type::getInt1Ty(GlobalLLVMContext::getGlobalContext());     
+            break;
+    }
+}
+
