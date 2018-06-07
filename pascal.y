@@ -5,9 +5,9 @@
 #include <string.h>
 #include "lex.yy.c"
 
-#include "AbstracTree.h"
+#include "AbstractTree.h"
 
-Node* ast_root;
+Node* astRoot;
 int yylex(void);
 void yyerror(char const *str);
 
@@ -18,13 +18,26 @@ void yyerror(char const *str);
 
 %union{
     
-    Node*               ast_Node; 
-    StmtList*           ast_StmtList;
-    ProgramNode*        ast_Program;
-    RoutineNode*        ast_Routine;
-    Stmt*               ast_Stmt;
-    Id*                 ast_Id;
-    
+    AbstractTree::Node*               ast_Node; 
+    AbstractTree::IdNode*             ast_Id;
+    AbstractTree::ProgramNode*        ast_Program;
+    AbstractTree::RoutineNode*        ast_Routine;
+    AbstractTree::RoutineHeadNode*    ast_RoutineHead;
+    AbstractTree::StmtNode*           ast_Stmt;
+    AbstractTree::StmtListNode*       ast_StmtList;
+    AbstractTree::ExpNode*            ast_Exp;
+    AbstractTree::ExpListNode*        ast_ExpList;
+    AbstractTree::VarDeclNode*        ast_VarDecl;
+    AbstractTree::VarDeclListNode*    ast_VarDeclList;
+    AbstractTree::TypeDeclNode*       ast_TypeDecl;
+    AbstractTree::RoutineBodyNode*    ast_RoutineBody;
+    AbstractTree::ConstValueNode*     ast_ConstValue;
+    AbstractTree::IntegerTypeNode*    ast_IntegerType;
+    AbstractTree::RealTypeNode*       ast_RealType;
+    AbstractTree::CharTypeNode*       ast_CharType;
+    AbstractTree::BooleanTypeNode*    ast_BooleanType;
+    AbstractTree::AssignStmtNode*     ast_AssignStmt;
+    AbstractTree::SysProcStmtNode*    ast_SysProcStmt;
 }
 
 
@@ -49,12 +62,18 @@ PROCEDURE RECORD VAR ID TYPE
 %token INTEGER REAL CHAR STRING SYS_BOOL SYS_CON //变量值
 %token READ SYS_PROC SYS_FUNCT //系统函数和过程
 %token DOWNTO DO REPEAT TO THEN WHILE UNTIL FOR
-IF ELSE CASE OF GOTO //语句
+%token IF ELSE CASE OF GOTO //语句
+
 %start program
 
 %type <ast_Program> program
 %type <ast_Id> program_head
 %type <ast_Routine> routine
+%type <ast_RoutineHead> routine_head
+%type <ast_RoutineBody> routine_body
+%type <ast_VarDeclList> var_part, var_decl_list
+%type <ast_VarDecl> var_decl
+
 
 
 
