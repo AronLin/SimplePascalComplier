@@ -109,12 +109,12 @@ const_expr_list:
 	| ID EQUAL const_value SEMI {}
 ;
 const_value:
-	INTEGER 	{}
-	| REAL 		{}
-	| CHAR 		{}
+	INTEGER 	{ $$ = new AbstractTree::IntegerTypeNode(atoi($1));}
+	| REAL 		{ $$ = new AbstractTree::RealTypeNode(atof($1));}
+	| CHAR 		{ $$ = new AbstractTree::CharTypeNode($1);}
 	| STRING 	{}
 	| SYS_CON   {}
-    | SYS_BOOL  {}
+    | SYS_BOOL  { $$ = new AbstractTree::BooleanTypeNode($1);}
 ;
 type_part:
 	TYPE type_decl_list {}
