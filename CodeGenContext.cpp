@@ -20,9 +20,8 @@ llvm::Value *CodeGenContext::getValue(std::string name)
             return nullptr;
         }
         return module->getGlobalVariable(name);
-
-        return nowFunc->getValueSymbolTable()->lookup(name);
     }
+    return nowFunc->getValueSymbolTable()->lookup(name);
 }
 
 void CodeGenContext::putValue(std::string name, llvm::Value *value)

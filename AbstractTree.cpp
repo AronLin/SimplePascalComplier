@@ -115,7 +115,7 @@ llvm::Value* AbstractTree::IntegerTypeNode::CodeGen(CodeGenContext& context)
 
 llvm::Value* AbstractTree::RealTypeNode::CodeGen(CodeGenContext& context)
 {
-    return llvm::ConstantFP(context.Builder.getFloatTy(), llvm::APFloat(val));
+    return llvm::ConstantFP::get(context.Builder.getFloatTy(), val);
 }
 
 llvm::Value* AbstractTree::CharTypeNode::CodeGen(CodeGenContext& context)
@@ -123,8 +123,13 @@ llvm::Value* AbstractTree::CharTypeNode::CodeGen(CodeGenContext& context)
     return llvm::ConstantInt::get(context.Builder.getInt8Ty(), this->val, true);
 }
 
-lvm::Value* AbstractTree::BooleanTypeNode::CodeGen(CodeGenContext& context)
+llvm::Value* AbstractTree::BooleanTypeNode::CodeGen(CodeGenContext& context)
 {
     return llvm::ConstantInt::get(context.Builder.getInt1Ty(), this->val, true);
+}
+
+llvm::Value* AbstractTree::AssignStmtNode::CodeGen(CodeGenContext& context)
+{
+    return context.Builder.CreateStore(this->rhs->CodeGen(context), context.getValue(this->lhs->name));
 }
 
