@@ -146,8 +146,8 @@ enum {
     class NameListNode: public Node
     {
     public:
-        std::vector<IdNode*> list;
-        void insert(IdNode* node) {list.push_back(node);};
+        std::vector<std::string> list;
+        void insert(const char* node) { std::string st(node); list.push_back(st);};
     }
 
     class StmtListNode:public Node{

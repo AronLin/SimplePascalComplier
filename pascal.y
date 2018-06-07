@@ -128,12 +128,12 @@ type_definition:
 	ID EQUAL type_decl SEMI {}
 ;
 type_decl:
-	simple_type_decl	{}
+	simple_type_decl	{ $$ = $1;}
 	| array_type_decl 	{}
 	| record_type_decl	{}
 ;
 simple_type_decl:
-	SYS_TYPE	
+	SYS_TYPE { $$ = new AbstractTree::TypeDeclNode($1);}	
 	| ID  {}
 	| LP name_list RP {}
     | INTEGER DOT DOT INTEGER 	{}
@@ -158,8 +158,8 @@ field_decl:
 	name_list COLON type_decl SEMI {}
 ;
 name_list:
-	name_list COMMA ID 	{}
-    | ID {}	
+	name_list COMMA ID 	{ $$ = $1; $$->push_back($3);}
+    | ID { $$ = new AbstractTree::NameListNode(); $$->push_back($1);}	
 ;
 var_part:
 	VAR var_decl_list {}
