@@ -37,7 +37,9 @@ void yyerror(char const *str);
     AbstractTree::CharTypeNode*       ast_CharType;
     AbstractTree::BooleanTypeNode*    ast_BooleanType;
     AbstractTree::AssignStmtNode*     ast_AssignStmt;
+    AbstractTree::ProcStmtNode*       ast_ProcStmt;
     AbstractTree::SysProcStmtNode*    ast_SysProcStmt;
+    AbstractTree::NameListNode*       ast_NameList;
 }
 
 
@@ -73,6 +75,18 @@ PROCEDURE RECORD VAR ID TYPE
 %type <ast_RoutineBody> routine_body
 %type <ast_VarDeclList> var_part, var_decl_list
 %type <ast_VarDecl> var_decl
+%type <ast_NameList> name_list
+%type <ast_TypeDecl> type_decl, simple_type_decl;
+%type <ast_StmtList> compound_stmt, stmt_list;
+%type <ast_Stmt> stmt;
+%type <ast_AssignStmt> assign_stmt
+%type <ast_ProcStmt> proc_stmt
+%type <ast_ExpList> expression_list
+%type <ast_Exp> expr, term, factor
+%type <ast_ConstValue> const_value
+
+
+
 
 
 

@@ -223,8 +223,8 @@ enum {
         };
         std::string rawName = "";
         TypeName sysName = TypeName::error;
-        TypeDeclNode(const std::string &str) : rawNname(str){init();}
-        TypeDeclNode(const char * ptr_c) : rawNname(*(new std::string(ptr_c))) {init();}
+        TypeDeclNode(const std::string &str) : rawName(str){init();}
+        TypeDeclNode(const char * ptr_c) : rawName(*(new std::string(ptr_c))) {init();}
 
         void init();
         virtual llvm::Value* CodeGen(CodeGenContext& context) {};
