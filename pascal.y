@@ -85,23 +85,17 @@ PROCEDURE RECORD VAR ID TYPE
 %type <ast_Exp> expr, term, factor
 %type <ast_ConstValue> const_value
 
-
-
-
-
-
-
 %%
 // 注意NAME和ID其实是一样的，所以我将语法中的NAME全换成了ID
-program: program_head routine DOT {}
+program: program_head routine DOT { $$ = new AbstractTree::ProgramNode($1, $2);}
 ;
-program_head : PROGRAM ID SEMI {} | {}
+program_head : PROGRAM ID SEMI { $$ = new AbstractTree::IdNode($2); } | {}
 ;
-routine: routine_head routine_body {$$->child.push_back($2);}
+routine: routine_head routine_body { $$ = new AbstractTree::RoutineNode($1, $2); }
 ;
 sub_routine: routine_head routine_body {}
 ;
-routine_head: label_part const_part type_part var_part routine_part {}
+routine_head: label_part const_part type_part var_part routine_part { $$ = new AbstractTree::RoutineHeadNode($4); }
 ;
 label_part:
     {}
