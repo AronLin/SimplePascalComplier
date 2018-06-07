@@ -25,6 +25,7 @@
 
 //non-terminal node
 class IdNode;
+class NameListNode;
 class RoutineNode;
 class RoutineHeadNode;
 class RoutineBodyNode;
@@ -113,7 +114,7 @@ enum {
         RoutineNode(){
             this->type = ROUTINE;
         }
-        RoutineNode(RoutineHeadNode routine_head,RoutineBodyNode routine_body){
+        RoutineNode(RoutineHeadNode* routine_head,RoutineBodyNode* routine_body){
             //routine head
             this->type = ROUTINE;
             routineBody = routine_body;
@@ -129,6 +130,7 @@ enum {
     {
     public:
         VarDeclListNode* varDeclList;
+        RoutineHeadNode(VarDeclListNode* node): varDeclList(node) {};
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     }
 
@@ -140,6 +142,13 @@ enum {
         IdNode(const char* name): name(*(new std::string(name))){};
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
+
+    class NameListNode: public Node
+    {
+    public:
+        std::vector<IdNode*> list;
+        void insert(IdNode* node) {list.push_back(node);};
+    }
 
     class StmtListNode:public Node{
     public:
@@ -204,8 +213,8 @@ enum {
         };
         std::string rawName = "";
         TypeName sysName = TypeName::error;
-        TypeDeclNode(const std::string &str) : rawNname(str){init();}
-        TypeDeclNode(const char * ptr_c) : rawNname(*(new std::string(ptr_c))) {init();}
+        TypeDeclNode(const std::string &str) : rawName(str){init();}
+        TypeDeclNode(const char * ptr_c) : rawName(*(new std::string(ptr_c))) {init();}
 
         void init();
         virtual llvm::Value* CodeGen(CodeGenContext& context) {};
