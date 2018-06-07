@@ -24,6 +24,7 @@
 
 
 //non-terminal node
+class ProgramNode;
 class IdNode;
 class RoutineNode;
 class RoutineHeadNode;
@@ -65,7 +66,7 @@ enum {
 
     class Node {
     public:
-        int type = NODE;
+        int _type = NODE;
         virtual ~Node() {}
         //virtual std::string info() = 0;
         virtual llvm::Value *CodeGen(CodeGenContext& context) = 0;
@@ -92,10 +93,10 @@ enum {
         RoutineNode* routine;
 
         ProgramNode(){
-            this->type = PROGRAM;
+            this->_type = PROGRAM;
         }
         ProgramNode(IdNode* program_head,RoutineNode* routine){
-            this->type = PROGRAM;
+            this->_type = PROGRAM;
             this->routine = routine;
         }
 
@@ -111,11 +112,11 @@ enum {
         RoutineBodyNode* routineBody;
 
         RoutineNode(){
-            this->type = ROUTINE;
+            this->_type = ROUTINE;
         }
-        RoutineNode(RoutineHeadNode routine_head,RoutineBodyNode routine_body){
+        RoutineNode(RoutineHeadNode* routine_head,RoutineBodyNode* routine_body){
             //routine head
-            this->type = ROUTINE;
+            this->_type = ROUTINE;
             routineBody = routine_body;
             routineHead = routine_head;
         }
@@ -128,9 +129,117 @@ enum {
     class RoutineHeadNode : public Node
     {
     public:
+        //LabelPartNode* labelPartNode;
+
         VarDeclListNode* varDeclList;
+        //TypeDefineListNode* typeDefineNodeList;
+
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     }
+    class LabelPartNode:public  Node{
+        //todo:how this label work? need a label table?
+    public:
+        int label;
+        LabelPartNode(){
+            this->_type = LABEL_PART;
+            this->label = -1;
+        }
+        LabelPartNode(int input){
+            this->_type = LABEL_PART;
+            this->label = input;
+        }
+    };
+
+    //const part:
+     class ConstExprListNode:public Node
+    {
+    public:
+        vector<ConstExprNode> const_expr_list;
+        ConstExprListNode():{
+            this->_type = CONST_EXPR_LIST;
+        }
+
+        ConstExprListNode(ConstExprNode const_expr){
+            this->_type = CONST_EXPR_LIST;
+            this->const_expr_list.push_back(const_expr);
+        }
+        ConstExprListNode(ConstExprList const_expr){
+            this->_type = CONST_EXPR_LIST;
+            for (auto iter:const_expr) {
+                this->const_expr_list.push_back(iter);
+            }
+        }
+
+
+    };
+    class ConstExprNode:public Node
+    {
+    public:
+        IdNode* id;
+        ConstValueNode* const_value;
+        ConstExprNode(){this->_type = CONST_EXPR;}
+        ConstExprNode(IdNode* in_id,ConstValueNode* in_const_value){
+            this->_type = CONST_EXPR;
+            this->id = in_id;
+            this->const_value = in_const_value;
+        }
+    };
+
+
+    //type part:
+    class TypeDefineListNode:public Node{
+    public:
+        vector<TypeDefineNode*> type_define_list;
+
+        TypeDefineListNode(){this->_type = TYPE_DEFINE_LIST;}
+
+        TypeDefineListNode(TypeDefineNode* type_define){
+            this->_type = TYPE_DEFINE_LIST;
+            //need clear ? 
+            this->type_decl_list.push_back(type_define);
+        }
+        TypeDefineListNode(TypeDeclList* type_define_list){
+            this->_type = TYPE_DEFINE_LIST;
+            for (auto iter:*type_define_list) {
+                this->type_define_list.push_back(iter);
+            }
+        }
+
+    };
+    class TypeDefineNode:public Node{
+    public:
+        IdNode* id;
+        TypeDeclNode* type_decl;
+        TypeDefineNode(){this->_type = TYPE_DEFINITION;}
+        TypeDefineNode(IdNode* in_id,TypeDeclNode* in_type_decl)id(in_id),type_decl(in_type_decl){ 
+            this->_type = TYPE_DEFINITION;
+        }
+    };
+    //todo: only basic type for testing
+    class TypeDeclNode: public Node
+    {
+    public:
+        enum class TypeName
+        {
+            integer, real, character, boolean, error
+        };
+        std::string rawName = "";
+        TypeName sysName = TypeName::error;
+        TypeDeclNode(const std::string &str) : rawNname(str){init();}
+        TypeDeclNode(const char * ptr_c) : rawNname(*(new std::string(ptr_c))) {init();}
+
+        void init();
+        virtual llvm::Value* CodeGen(CodeGenContext& context) {};
+        llvm::Type* toLLVMType();
+    };
+
+    class RoutineBodyNode: public Node
+    {
+    public:
+        StmtListNode* stmtList;
+        RoutineBodyNode(StmtListNode* node):stmtList(node) {};
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    };
 
     class IdNode: public Node
     {
@@ -143,7 +252,7 @@ enum {
 
     class StmtListNode:public Node{
     public:
-        StmtListNode():type(STMT_LIST){}
+        StmtListNode():{this->_type = STMT_LIST;}
         std::vector<StmtNode*> list;
         void insert(StmtNode* node) {list.push_back(node);};
 
@@ -195,22 +304,7 @@ enum {
 
     };
 
-    class TypeDeclNode: public Node
-    {
-    public:
-        enum class TypeName
-        {
-            integer, real, character, boolean, error
-        };
-        std::string rawName = "";
-        TypeName sysName = TypeName::error;
-        TypeDeclNode(const std::string &str) : rawNname(str){init();}
-        TypeDeclNode(const char * ptr_c) : rawNname(*(new std::string(ptr_c))) {init();}
-
-        void init();
-        virtual llvm::Value* CodeGen(CodeGenContext& context) {};
-        llvm::Type* toLLVMType();
-    };
+    
 
     //TODO:: all func below need codegen
     class ConstValueNode: public ExpNode
@@ -268,7 +362,7 @@ enum {
     public:
         IdNode* id;
         ExpListNode* args;
-    }
+    };
 
     class SysProcStmtNode: public ProcStmtNode
     {
@@ -277,15 +371,10 @@ enum {
         SysProcStmtNode(IdNode* idd, ExpListNode* arg): id(idd), args(arg){};
         llvm::Value* callPrintf(CodeGenContext& context, bool writeln);
         virtual llvm::Value *CodeGen(CodeGenContext& context);
-    }    
+    };    
     
-    class RoutineBodyNode: public Node
-    {
-    public:
-        StmtListNode* stmtList;
-        RoutineBodyNode(StmtListNode* node):stmtList(node) {};
-        virtual llvm::Value* CodeGen(CodeGenContext& context);
-    }
+    
+
 
 };
 
