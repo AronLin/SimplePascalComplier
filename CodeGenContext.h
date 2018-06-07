@@ -53,6 +53,7 @@ private:
 public:
     llvm::Module* module;
     llvm::Function* curFunc;
+    llvm::Function* mainFunc;
     llvm::IRBuilder<> Builder;
     llvm::Value* getValue(std::string name);
     std::map<std::string, llvm::Value*>& locals() { return blocks.top()->locals; }
