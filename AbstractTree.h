@@ -74,8 +74,8 @@ enum {
         std::list<Node*> child;
         int type = NODE;
         virtual ~Node() {}
-        virtual bool addChild() = 0;
-        virtual std::string info() = 0;
+        //virtual bool addChild() = 0;
+        //virtual std::string info() = 0;
         virtual llvm::Value *CodeGen(CodeGenContext& context) = 0;
 
     };
@@ -109,9 +109,9 @@ enum {
             this->routine = routine;
         }
 
-        virtual std::string info(){
-            return "Program:";
-        }
+        //virtual std::string info(){
+        //   return "Program:";
+        //}
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
 
@@ -291,7 +291,13 @@ enum {
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     }    
     
-
+    class RoutineBodyNode: public Node
+    {
+    public:
+        StmtListNode* stmtList;
+        RoutineBodyNode(StmtListNode* node):stmtList(node) {};
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    }
 
 };
 

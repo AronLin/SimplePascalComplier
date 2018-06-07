@@ -191,3 +191,7 @@ llvm::Value* AbstractTree::SysProcStmtNode::CodeGen(CodeGenContext& context)
     return this->callPrintf(context, this->id->name == "writeln");
 }
 
+llvm::Value* AbstractTree::RoutineBodyNode::CodeGen(CodeGenContext& context)
+{
+    return this->stmtList->CodeGen(context);
+}
