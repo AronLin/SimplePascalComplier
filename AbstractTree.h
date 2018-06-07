@@ -174,6 +174,15 @@ enum {
         virtual llvm::Value* CodeGen(CodeGenContext& context) = 0;
     };
 
+    class ExpListNode: public Node
+    {
+    public:
+        std::vector<ExpNode*> list;
+        void insertNode(ExpNode* node) {list.push_back(node);};
+        std::vector<ExpNode*>* getListPtr() {return &list;};
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    };
+
     class VarDeclListNode: public Node
     {
     public:
@@ -278,7 +287,7 @@ enum {
     public:
         SysProcStmtNode(IdNode* idd): id(idd){};
         SysProcStmtNode(IdNode* idd, ExpListNode* arg): id(idd), args(arg){};
-        llvm::Value* SysProc_write(CodeGenContext& context, bool writeln);
+        llvm::Value* callPrintf(CodeGenContext& context, bool writeln);
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     }    
     

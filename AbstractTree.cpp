@@ -99,7 +99,7 @@ llvm::Value* AbstractTree::IdNode::CodeGen(CodeGenContext& context)
     return context.Builder.CreateLoad(context.getValue(this->name), this->name);
 }
 
-
+// Need refinement, get first or last?
 llvm::Value* AbstractTree::StmtListNode::CodeGen(CodeGenContext& context)
 {
     llvm::Value* ret;
@@ -133,5 +133,61 @@ llvm::Value* AbstractTree::BooleanTypeNode::CodeGen(CodeGenContext& context)
 llvm::Value* AbstractTree::AssignStmtNode::CodeGen(CodeGenContext& context)
 {
     return context.Builder.CreateStore(this->rhs->CodeGen(context), context.getValue(this->lhs->name));
+}
+
+llvm::Value* AbstractTree::ExpListNode::CodeGen(CodeGenContext& context)
+{
+    llvm::Value* ret;
+    for (auto x: list)
+    {
+        ret = x->CodeGen(context);
+    }
+    return ret;
+}
+
+llvm::Value* AbstractTree::SysProcStmtNode::callPrintf(CodeGenContext& context, bool isWriteln)
+{
+    std::string printf_format;
+    std::vector<llvm::Value *> printf_args;
+
+    for(auto arg : *this->args->getListPtr) {
+        auto arg_val = arg->CodeGen(context);
+        if (arg_val->getType() == llvm::Type::getInt32Ty(GlobalLLVMContext::getGlobalContext())) 
+        {
+            printf_format += "%d";     
+            printf_args.push_back(arg_val);
+        } 
+        else if (arg_val->getType()->isDoubleTy()) 
+        {
+            printf_format += "%lf";
+            printf_args.push_back(arg_val);
+        } 
+        else if (arg_val->getType() == llvm::Type::getInt8PtrTy(GlobalLLVMContext::getGlobalContext())) 
+        {
+            assert("print string" == "not implemented");
+        }
+    }
+    
+    if (isWriteln)
+        printf_format += "\n";
+    
+    auto printf_format_const = llvm::ConstantDataArray::getString(GlobalLLVMContext::getGlobalContext(), printf_format.c_str());
+    auto format_string_var = new llvm::GlobalVariable(*context.module, 
+        llvm::ArrayType::get(llvm::IntegerType::get(GlobalLLVMContext::getGlobalContext(), 8), printf_format.size() + 1), 
+        true, llvm::GlobalValue::PrivateLinkage, printf_format_const, ".str");
+    auto zero = llvm::Constant::getNullValue(llvm::IntegerType::getInt32Ty(GlobalLLVMContext::getGlobalContext()));    
+
+    std::vector<llvm::Constant *> indices;
+    indices.push_back(zero); indices.push_back(zero);
+    auto var_ref = llvm::ConstantExpr::getGetElementPtr(format_string_var->getValueType() ,format_string_var, indices);
+
+    printf_args.insert(printf_args.begin(), var_ref);
+    auto call = context.Builder.CreateCall(context.printf, llvm::makeArrayRef(printf_args), "");
+    return call;
+}
+
+llvm::Value* AbstractTree::SysProcStmtNode::CodeGen(CodeGenContext& context)
+{
+    return this->callPrintf(context, this->id->name == "writeln");
 }
 
