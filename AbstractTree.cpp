@@ -18,13 +18,15 @@
 // ProgramNode should be defined in the YACC file, and passed to the CodeGenContext to do the codegen
 llvm::Value* AbstractTree::ProgramNode::CodeGen(CodeGenContext& context)
 {
-    //TODO: create initial func and bb in context
+    // Create main func entry
     std::vector<llvm::Type*> args;
     llvm::FunctionType* fty = llvm::FunctionType::get(llvm::Type::getVoidTy(GlobalLLVMContext::getGlobalContext()), llvm::makeArrayRef(args),false);
     context.mainFunc = llvm::Function::Create(fty, llvm::GlobalValue::LinkageTypes::ExternalLinkage, "main", context.module);
     llvm::BasicBlock* bb = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "entry", context.mainFunc);
     context.curFunc = context.mainFunc;
     context.pushBlock(bb);
+
+    context.printf = context.getPrintfPrototype();
     // Important: IRBuilder InsertPoint should be reset everytime a new BB is created
     // IRBuilder tracks the insertion point of the Instruction
     context.Builder.SetInsertPoint(bb);

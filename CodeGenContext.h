@@ -56,10 +56,13 @@ public:
     llvm::Function* mainFunc;
     llvm::IRBuilder<> Builder;
     llvm::Value* getValue(std::string name);
+    llvm::Function* printf;
+
     std::map<std::string, llvm::Value*>& locals() { return blocks.top()->locals; }
     void putValue(std::string name, llvm::Value* value);
     llvm::BasicBlock* curBlock() {return blocks.top()->block;};
     void pushBlock(llvm::BasicBlock *block);
     void popBlock() { CodeGenBlock *top = blocks.top(); blocks.pop(); delete top; }
+    llvm::Function* getPrintfPrototype();
     CodeGenContext();
 };
