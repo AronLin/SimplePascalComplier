@@ -57,10 +57,6 @@ class TypeDefineListNode;
 class VarDeclListNode;
 class RoutineDeclListNode;
 
-typedef std::list<ConstExprNode*> ConstExprList;
-typedef std::list<TypeDefineNode*> TypeDefineList;
-typedef std::list<VarDeclNode*> VarDeclList;
-typedef std::list<RoutineDeclNode*> RoutineDeclList;
 
 namespace AbstractTree {
 enum {
@@ -69,10 +65,8 @@ enum {
 
     class Node {
     public:
-        std::list<Node*> child;
         int type = NODE;
         virtual ~Node() {}
-        //virtual bool addChild() = 0;
         //virtual std::string info() = 0;
         virtual llvm::Value *CodeGen(CodeGenContext& context) = 0;
 
@@ -102,8 +96,6 @@ enum {
         }
         ProgramNode(IdNode* program_head,RoutineNode* routine){
             this->type = PROGRAM;
-            this->child.push_back(program_head);
-            this->child.push_back(routine);
             this->routine = routine;
         }
 
@@ -124,8 +116,6 @@ enum {
         RoutineNode(RoutineHeadNode routine_head,RoutineBodyNode routine_body){
             //routine head
             this->type = ROUTINE;
-            // this->child.push_back(routine_head);
-            this->child.push_back(routine_body);
             routineBody = routine_body;
             routineHead = routine_head;
         }
