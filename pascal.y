@@ -42,7 +42,7 @@ void yyerror(char const *str);
 
 //终结符集合
 %token ASSIGN LP RP LB RB DOT COMMA COLON SEMI
-ARRAY BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
+ARRAY _BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
 PROCEDURE RECORD VAR ID TYPE 
 %token EQUAL UNEQUAL GE GT LE LT AND OR NOT //布尔表达式符号
 %token PLUS MINUS MUL DIV DIVI MOD //运算符
@@ -64,7 +64,7 @@ program: program_head routine DOT {}
 ;
 program_head : PROGRAM ID SEMI {} | {}
 ;
-routine: routine_head routine_body {$$->child.push_back($2);}
+routine: routine_head routine_body {}
 ;
 sub_routine: routine_head routine_body {}
 ;
@@ -182,17 +182,17 @@ val_para_list:
 ;
 
 routine_body:  
-	compound_stmt {$$ = $1}
+	compound_stmt {}
 ;
 compound_stmt: 
-	BEGIN stmt_list END {$$ = $2}
+	_BEGIN stmt_list END {}
 ;
 stmt_list: 
-	stmt_list  stmt  SEMI {$$ = $1;$$->child.push_back($2);}
+	stmt_list  stmt  SEMI {}
     | 	{}
     ;
 stmt: 
-	non_label_stmt {$$=$1}
+	non_label_stmt {}
     | INTEGER COLON non_label_stmt {}
 ;
 non_label_stmt: 

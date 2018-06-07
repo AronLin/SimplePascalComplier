@@ -55,7 +55,7 @@ extern int yydebug;
     COLON = 265,
     SEMI = 266,
     ARRAY = 267,
-    BEGIN = 268,
+    _BEGIN = 268,
     SYS_TYPE = 269,
     CONST = 270,
     END = 271,
@@ -116,7 +116,7 @@ extern int yydebug;
 #define COLON 265
 #define SEMI 266
 #define ARRAY 267
-#define BEGIN 268
+#define _BEGIN 268
 #define SYS_TYPE 269
 #define CONST 270
 #define END 271
@@ -170,14 +170,24 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 15 "pascal.y" /* yacc.c:1909  */
+#line 19 "pascal.y" /* yacc.c:1915  */
+
+    
+    Node*               ast_Node; 
+    StmtList*           ast_StmtList;
+    ProgramNode*        ast_Program;
+    RoutineNode*        ast_Routine;
+    Stmt*               ast_Stmt;
+    Id*                 ast_Id;
+    
+#line 32 "pascal.y" /* yacc.c:1915  */
 
     short int_value;//pascal 中int是2个字节,这里用short了
     float real_value;//用单精度实数
     char* string_value;
     char boolean_value;
 
-#line 181 "y.tab.h" /* yacc.c:1909  */
+#line 191 "y.tab.h" /* yacc.c:1915  */
 };
 
 typedef union YYSTYPE YYSTYPE;
