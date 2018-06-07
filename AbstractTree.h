@@ -156,20 +156,23 @@ enum {
     class StmtListNode:public Node{
     public:
         StmtListNode():type(STMT_LIST){}
+        std::vector<StmtNode*> list;
+        void insert(StmtNode* node) {list.push_back(node);};
 
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
 
+    //Base Class, should not be implemented
     class StmtNode:public Node{
     public:
-        virtual llvm::Value *CodeGen(CodeGenContext& context);
+        virtual llvm::Value *CodeGen(CodeGenContext& context) = 0;
     };
 
     class ExpNode: public Node
     {
     public:
-        virtual llvm::Value* CodeGen(CodeGenContext& context);
-    }
+        virtual llvm::Value* CodeGen(CodeGenContext& context) = 0;
+    };
 
     class VarDeclListNode: public Node
     {
@@ -218,7 +221,7 @@ enum {
     public:
         TypeDeclNode::TypeName type;
         TypeDeclNode::TypeName getConstType() {return type;};
-        virtual llvm::Value* CodeGen(CodeGenContext& context);
+        virtual llvm::Value* CodeGen(CodeGenContext& context) = 0;
     };
 
     class IntegerTypeNode: public ConstValueNode

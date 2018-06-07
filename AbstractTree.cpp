@@ -96,3 +96,35 @@ llvm::Value* AbstractTree::IdNode::CodeGen(CodeGenContext& context)
     context.getValue(this->name);
     return context.Builder.CreateLoad(context.getValue(this->name), this->name);
 }
+
+
+llvm::Value* AbstractTree::StmtListNode::CodeGen(CodeGenContext& context)
+{
+    llvm::Value* ret;
+    for (auto x:list)
+    {
+        ret = x->CodeGen(context);
+    }
+    return ret;
+}
+
+llvm::Value* AbstractTree::IntegerTypeNode::CodeGen(CodeGenContext& context)
+{
+    return llvm::ConstantInt::get(context.Builder.getInt32Ty(), this->val, true);
+}
+
+llvm::Value* AbstractTree::RealTypeNode::CodeGen(CodeGenContext& context)
+{
+    return llvm::ConstantFP(context.Builder.getFloatTy(), llvm::APFloat(val));
+}
+
+llvm::Value* AbstractTree::CharTypeNode::CodeGen(CodeGenContext& context)
+{
+    return llvm::ConstantInt::get(context.Builder.getInt8Ty(), this->val, true);
+}
+
+lvm::Value* AbstractTree::BooleanTypeNode::CodeGen(CodeGenContext& context)
+{
+    return llvm::ConstantInt::get(context.Builder.getInt1Ty(), this->val, true);
+}
+
