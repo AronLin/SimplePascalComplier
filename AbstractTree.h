@@ -144,7 +144,6 @@ enum {
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     }
 
-    //TODO: Codegen
     class IdNode: public Node
     {
     public:
@@ -152,7 +151,7 @@ enum {
         IdNode(const std::string& name): name(name){};
         IdNode(const char* name): name(*(new std::string(name))){};
         virtual llvm::Value* CodeGen(CodeGenContext& context);
-    }
+    };
 
     class StmtListNode:public Node{
     public:

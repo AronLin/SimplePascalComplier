@@ -20,11 +20,14 @@ llvm::Value* AbstractTree::ProgramNode::CodeGen(CodeGenContext& context)
 {
     //TODO: create initial func and bb in context
     std::vector<llvm::Type*> args;
-    llvm::FunctionType* fty = llvm::FunctionType::get(context.Builder.getVoidTy(), llvm::makeArrayRef(args),false);
+    llvm::FunctionType* fty = llvm::FunctionType::get(llvm::Type::getVoidTy(GlobalLLVMContext::getGlobalContext()), llvm::makeArrayRef(args),false);
     context.mainFunc = llvm::Function::Create(fty, llvm::GlobalValue::LinkageTypes::ExternalLinkage, "main", context.module);
     llvm::BasicBlock* bb = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "entry", context.mainFunc);
     context.curFunc = context.mainFunc;
     context.pushBlock(bb);
+    // Important: IRBuilder InsertPoint should be reset everytime a new BB is created
+    // IRBuilder tracks the insertion point of the Instruction
+    context.Builder.SetInsertPoint(bb);
     return this->routine->CodeGen(context);
 }
 
@@ -88,3 +91,8 @@ llvm::Value* AbstractTree::RoutineHeadNode::CodeGen(CodeGenContext& context)
     return this->varDeclList->CodeGen(context);
 }
 
+llvm::Value* AbstractTree::IdNode::CodeGen(CodeGenContext& context)
+{
+    context.getValue(this->name);
+    return context.Builder.CreateLoad(context.getValue(this->name), this->name);
+}
