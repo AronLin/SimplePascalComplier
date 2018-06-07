@@ -158,19 +158,19 @@ field_decl:
 	name_list COLON type_decl SEMI {}
 ;
 name_list:
-	name_list COMMA ID 	{ $$ = $1; $$->push_back($3);}
-    | ID { $$ = new AbstractTree::NameListNode(); $$->push_back($1);}	
+	name_list COMMA ID 	{ $$ = $1; $$->insert($3);}
+    | ID { $$ = new AbstractTree::NameListNode(); $$->insert($1);}	
 ;
 var_part:
-	VAR var_decl_list {}
+	VAR var_decl_list { $$ = $2;}
     |  		{}
 ;
 var_decl_list:
-	var_decl_list var_decl 	{}
-    | var_decl 	{}	
+	var_decl_list var_decl 	{ $$ = $1; $$->insert($2); }
+    | var_decl 	{ $$ = new AbstractTree::VarDeclListNode(); $$->insert($1); }	
 ;
 var_decl:
-	name_list COLON type_decl SEMI {}
+	name_list COLON type_decl SEMI { $$ = new AbstractTree::VarDeclNode($1, $3); }
 ;
 routine_part: //做了修改，可以为空的话，function_decl 和 procedure_decl就有点多余了
 	routine_part function_decl {}

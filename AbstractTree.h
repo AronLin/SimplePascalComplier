@@ -194,9 +194,9 @@ enum {
     class VarDeclNode: public Node
     {
     public:
-        IdNode* name;
+        NameListNode* nameList;
         TypeDeclNode* type;
-        VarDeclNode* (IdNode* name, TypeDeclNode* type): name(name), type(type)
+        VarDeclNode* (NameListNode* names, TypeDeclNode* type): nameList(names), type(type)
         {
             //Put Children
         };
