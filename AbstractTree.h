@@ -51,8 +51,10 @@ class IntegerTypeNode;
 class CharTypeNode;
 class RealTypeNode;
 class BooleanTypeNode;
+class ParaDeclNode;
 
 //list node
+class ParaDeclListNode;
 class ConstExprListNode;
 class TypeDefineListNode;
 class VarDeclListNode;
@@ -130,10 +132,9 @@ enum {
     {
     public:
         //LabelPartNode* labelPartNode;
-
         VarDeclListNode* varDeclList;
         //TypeDefineListNode* typeDefineNodeList;
-
+        
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     }
     class LabelPartNode:public  Node{
@@ -148,6 +149,7 @@ enum {
             this->_type = LABEL_PART;
             this->label = input;
         }
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
     //const part:
@@ -169,6 +171,7 @@ enum {
                 this->const_expr_list.push_back(iter);
             }
         }
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
 
 
     };
@@ -183,6 +186,7 @@ enum {
             this->id = in_id;
             this->const_value = in_const_value;
         }
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
 
@@ -204,6 +208,7 @@ enum {
                 this->type_define_list.push_back(iter);
             }
         }
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
 
     };
     class TypeDefineNode:public Node{
@@ -294,12 +299,21 @@ enum {
     class VarDeclNode: public Node
     {
     public:
+    //v1:
         IdNode* name;
+        //v2:
+        //std::list<IdNode*> name_list;
         TypeDeclNode* type;
         VarDeclNode* (IdNode* name, TypeDeclNode* type): name(name), type(type)
         {
             //Put Children
         };
+        //v2
+        // VarDeclNode* (IdNode* name, TypeDeclNode* type): 
+        // {
+        //     name_list.push_back(name);
+        //     this->type  = type;
+        // };
         virtual llvm::Value* CodeGen(CodeGenContext& context);
 
     };
@@ -362,6 +376,8 @@ enum {
     public:
         IdNode* id;
         ExpListNode* args;
+
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
     class SysProcStmtNode: public ProcStmtNode
@@ -373,6 +389,38 @@ enum {
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };    
     
+    class RoutineDeclNode: public Node{
+        enum{
+            PROCEDURE,FUNCTION
+        }
+        int type;
+        IdNode* id;
+        ParaDeclList* para_decl_list;
+        TypeDeclNode* type_decl;
+        RoutineNode* sub_routine;
+        
+        RoutineDeclNode(int FuncorPro,IdNode* _id,ParaDeclList* _para_decl_list,TypeDeclNode* _type_decl,RoutineNode* _sub_routine = nullptr):type(FuncorPro),id(_id),para_decl_list(_para_decl_list),type_decl(_type_decl),sub_routine(_sub_routine){
+            //initial child
+        }
+
+        virtual llvm::Value *CodeGen(CodeGenContext& context);
+    }
+    //v1: only for pascal left value? i.e : val_para_list int the PASCAL.doc
+    class ParaDeclNode: public Node{
+        std::vector<IdNode*> name_list;
+        TypeDeclNode* type_decl;
+        ParaDeclNode(std::vector<IdNode*>& _name_list,TypeDeclNode* _type_decl):name_list(_name_list),type_decl(_type_decl){
+
+        }
+        virtual llvm::Value *CodeGen(CodeGenContext& context);
+    }
+
+    class ParaDeclListNode: public Node{
+        std::vector<ParaDeclNode*> list;
+        void insertNode(ParaDeclNode* node) {list.push_back(node);};
+        
+        virtual llvm::Value* CodeGen(CodeGenContext& context);
+    }
     
 
 
