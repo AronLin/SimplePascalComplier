@@ -93,13 +93,15 @@ enum {
     public:
 
         RoutineNode* routine;
+        IdNode* program_head;
 
         ProgramNode(){
             this->_type = PROGRAM;
         }
-        ProgramNode(IdNode* program_head,RoutineNode* routine){
+        ProgramNode(IdNode* _program_head,RoutineNode* routine){
             this->_type = PROGRAM;
             this->routine = routine;
+            program_head = _program_head;
         }
 
         //virtual std::string info(){
@@ -157,20 +159,18 @@ enum {
      class ConstExprListNode:public Node
     {
     public:
-        vector<ConstExprNode> const_expr_list;
+        vector<ConstExprNode*>* const_expr_list;
         ConstExprListNode():{
             this->_type = CONST_EXPR_LIST;
         }
 
         ConstExprListNode(ConstExprNode const_expr){
             this->_type = CONST_EXPR_LIST;
-            this->const_expr_list.push_back(const_expr);
+            (this->const_expr_list)->push_back(const_expr);
         }
-        ConstExprListNode(ConstExprList const_expr){
+        ConstExprListNode(ConstExprList* const_expr){
             this->_type = CONST_EXPR_LIST;
-            for (auto iter:const_expr) {
-                this->const_expr_list.push_back(iter);
-            }
+            const_expr_list = const_expr;
         }
         virtual llvm::Value* CodeGen(CodeGenContext& context);
 
@@ -194,20 +194,22 @@ enum {
     //type part:
     class TypeDefineListNode:public Node{
     public:
-        vector<TypeDefineNode*> type_define_list;
+        vector<TypeDefineNode*>* type_define_list;
 
         TypeDefineListNode(){this->_type = TYPE_DEFINE_LIST;}
 
         TypeDefineListNode(TypeDefineNode* type_define){
             this->_type = TYPE_DEFINE_LIST;
             //need clear ? 
-            this->type_decl_list.push_back(type_define);
+            (this->type_decl_list)->push_back(type_define);
         }
-        TypeDefineListNode(TypeDeclList* type_define_list){
+        TypeDefineListNode(TypeDeclList* _type_define_list){
             this->_type = TYPE_DEFINE_LIST;
-            for (auto iter:*type_define_list) {
-                this->type_define_list.push_back(iter);
-            }
+            // for (auto iter:*type_define_list) {
+            //     this->type_define_list.push_back(iter);
+            // }
+            type_define_list = _type_define_list;
+
         }
         virtual llvm::Value* CodeGen(CodeGenContext& context);
 
@@ -259,8 +261,8 @@ enum {
     class StmtListNode:public Node{
     public:
         StmtListNode():{this->_type = STMT_LIST;}
-        std::vector<StmtNode*> list;
-        void insert(StmtNode* node) {list.push_back(node);}
+        std::vector<StmtNode*>* list;
+        void insert(StmtNode* node) {list->push_back(node);}
 
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
@@ -280,19 +282,19 @@ enum {
     class ExpListNode: public Node
     {
     public:
-        std::vector<ExpNode*> list;
-        void insertNode(ExpNode* node) {list.push_back(node);}
-        std::vector<ExpNode*>* getListPtr() {return &list;}
+        std::vector<ExpNode*>* list;
+        void insertNode(ExpNode* node) {list->push_back(node);}
+        // std::vector<ExpNode*>* getListPtr() {return &list;}
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
     class VarDeclListNode: public Node
     {
     public:
-        std::vector<VarDeclNode*> list;
-        void insert(VarDeclNode* node)
+        std::vector<VarDeclNode*>* list;
+        void insertNode(VarDeclNode* node)
         {
-            list.push_back(node);
+            list->push_back(node);
         }
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     }; 
@@ -409,17 +411,17 @@ enum {
     }
     //v1: only for pascal left value? i.e : val_para_list int the PASCAL.doc
     class ParaDeclNode: public Node{
-        std::vector<IdNode*> name_list;
+        std::vector<IdNode*>* name_list;
         TypeDeclNode* type_decl;
-        ParaDeclNode(std::vector<IdNode*>& _name_list,TypeDeclNode* _type_decl):name_list(_name_list),type_decl(_type_decl){
+        ParaDeclNode(std::vector<IdNode*>* _name_list,TypeDeclNode* _type_decl):name_list(_name_list),type_decl(_type_decl){
 
         }
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     }
 
     class ParaDeclListNode: public Node{
-        std::vector<ParaDeclNode*> list;
-        void insertNode(ParaDeclNode* node) {list.push_back(node);};
+        std::vector<ParaDeclNode*>* list;
+        void insertNode(ParaDeclNode* node) {list->push_back(node);};
         
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     }
