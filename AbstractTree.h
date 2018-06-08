@@ -233,7 +233,7 @@ enum {
         std::string rawName = "";
         TypeName sysName = TypeName::error;
         TypeDeclNode(const std::string &str) : rawName(str){init();}
-        TypeDeclNode(const char * ptr_c) : rawName(*(new std::string(ptr_c))) {init();}
+        TypeDeclNode(char* ptr_c) : rawName(*(new std::string(ptr_c))) {init();}
 
         void init();
         virtual llvm::Value* CodeGen(CodeGenContext& context);
@@ -268,6 +268,7 @@ enum {
     public:
         std::vector<std::string> list;
         void insert(const char* node) { std::string st(node); list.push_back(st);};
+        llvm::Value* CodeGen(CodeGenContext& context) {};
     };
 
     class StmtListNode:public Node{
@@ -289,7 +290,7 @@ enum {
     {
     public:
         std::vector<ExpNode*> list;
-        void insertNode(ExpNode* node) {list.push_back(node);}
+        void insert(ExpNode* node) {list.push_back(node);}
         std::vector<ExpNode*>* getListPtr() {return &list;}
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };

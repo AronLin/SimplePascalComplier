@@ -215,7 +215,7 @@ compound_stmt:
 	_BEGIN stmt_list END { $$ = $2; }
 ;
 stmt_list: 
-	stmt_list  stmt  SEMI { $$ = $1; $1 = $1->insert($2); }
+	stmt_list  stmt  SEMI { $$ = $1; $$->insert($2); }
     | 	{ $$ = new AbstractTree::StmtListNode(); }
     ;
 stmt: 
@@ -225,7 +225,8 @@ stmt:
 non_label_stmt: 
 	|assign_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
 	| proc_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
-    | compound_stmt { $$ = $1; }
+//TODO: Problem here: compound_stmt should be a stmtlist, but non_label_stmt is a stmt
+    | compound_stmt {}
     | if_stmt {}
     | repeat_stmt {}
     | while_stmt {}
@@ -241,8 +242,8 @@ assign_stmt:
 proc_stmt: 
 	ID {}    
     | ID LP expression_list RP {}
-    | SYS_PROC	{ $$ = dynamic_cast<AbstractTree::ProcStmtNode*>($1); }
-    | SYS_PROC LP expression_list RP {}
+    | SYS_PROC	{ }
+    | SYS_PROC LP expression_list RP { $$ = new AbstractTree::SysProcStmtNode(new AbstractTree::IdNode($1), $3);}
     | READ LP factor RP {}
     ;
 if_stmt: 
@@ -324,11 +325,11 @@ void yyerror(char const *str)
 {
     fprintf(stderr,"%s\n",str);
 }
-int main(void)
-{
-    printf("Simple Pascal\n");
-    yyparse();
-    return 0;
+// int main(void)
+// {
+//     printf("Simple Pascal\n");
+//     yyparse();
+//     return 0;
     
-}
+// }
 

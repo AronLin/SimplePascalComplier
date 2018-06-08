@@ -1,13 +1,14 @@
 #include <iostream>
-
+#include "AbstractTree.h"
 #include "parser.hpp"
 #include "CodeGenContext.h"
-#include "AbstractTree.h"
 
+extern int yyparse();
 extern AbstractTree::ProgramNode astRoot;
 
 int main()
 {
+    yyparse();
     CodeGenContext context;
     astRoot.CodeGen(context);
     context.Builder.CreateRetVoid();

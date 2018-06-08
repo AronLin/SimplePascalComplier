@@ -155,7 +155,7 @@ llvm::Value* AbstractTree::SysProcStmtNode::callPrintf(CodeGenContext& context, 
     std::string printf_format;
     std::vector<llvm::Value *> printf_args;
 
-    for(auto arg : *this->args->getListPtr) {
+    for(auto arg : *this->args->getListPtr()) {
         auto arg_val = arg->CodeGen(context);
         if (arg_val->getType() == llvm::Type::getInt32Ty(GlobalLLVMContext::getGlobalContext())) 
         {
