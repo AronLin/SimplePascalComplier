@@ -202,7 +202,6 @@ llvm::Value *AbstractTree::RoutineBodyNode::CodeGen(CodeGenContext &context)
     return this->stmtList->CodeGen(context);
 }
 
-<<<<<<< HEAD
 llvm : Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
 {
     Value *cond_value = condition->CodeGen(context);
@@ -346,7 +345,6 @@ llvm::Value* AbstractTree::BinaryNode::CodeGen(CodeGenContext& context) {
     //case OpType::and: return  llvm::cmp
     }
     return nullptr;
-=======
 llvm::Value* AbstractTree::ConstExprNode::CodeGen(CodeGenContext& context)
 {
     auto alloc = context.Builder.CreateAlloca(this->constType->toLLVMType(), 0, nullptr, this->id->name.c_str());
@@ -387,5 +385,4 @@ llvm::Value* AbstractTree::WhileStmtNode::CodeGen(CodeGenContext& context)
     context.Builder.SetInsertPoint(loopEndB);
 
     return ret;
->>>>>>> c112bba4480cb8727359984dc2f3ace441e7213a
 }
