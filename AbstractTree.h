@@ -54,6 +54,7 @@ class RealTypeNode;
 class BooleanTypeNode;
 class ParaDeclNode;
 class CaseStmtNode;
+class BinaryNode;
 
 //list node
 class ParaDeclListNode;
@@ -61,7 +62,6 @@ class ConstExprListNode;
 class TypeDefineListNode;
 class VarDeclListNode;
 class RoutineDeclListNode;
-
 
 
 enum {
@@ -551,13 +551,14 @@ public:
     enum class OpType : int {
         AND,
         OR,
-        XOR,
+        NOT,
+
         PLUS,
         MINUS,
         MUL,
         DIV,
         DIVI,
-        MOD,
+
         EQUAL,
         UNEQUAL,
         LT,
@@ -566,10 +567,10 @@ public:
         GE
     };
 
-    ExpNode *operand1, *operand2;
+    ExpNode *lhs, *rhs;
     OpType op;
 
-    BinaryNode(ExpNode* op1, OpType op, ExpNode* op2) :operand1(op1),op(op),operand2(op2)
+    BinaryNode(ExpNode* op1, OpType op, ExpNode* op2) :lhs(op1),op(op),rhs(op2)
     {}
 
     virtual llvm::Value *CodeGen(CodeGenContext& context);
