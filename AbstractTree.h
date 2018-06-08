@@ -242,7 +242,7 @@ enum {
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
-    class IdNode: public Node
+    class IdNode: public ExpNode
     {
     public:
         std::string name;

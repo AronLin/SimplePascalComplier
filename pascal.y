@@ -78,11 +78,11 @@ PROCEDURE RECORD VAR ID TYPE
 %type <ast_NameList> name_list
 %type <ast_TypeDecl> type_decl, simple_type_decl;
 %type <ast_StmtList> compound_stmt, stmt_list;
-%type <ast_Stmt> stmt;
+%type <ast_Stmt> stmt, non_label_stmt;
 %type <ast_AssignStmt> assign_stmt
 %type <ast_ProcStmt> proc_stmt
 %type <ast_ExpList> expression_list
-%type <ast_Exp> expr, term, factor
+%type <ast_Exp> expr, term, factor, expression
 %type <ast_ConstValue> const_value
 
 %%
@@ -209,23 +209,23 @@ val_para_list:
 ;
 
 routine_body:  
-	compound_stmt {}
+	compound_stmt { $$ = new AbstractTree::RoutineBodyNode($1); }
 ;
 compound_stmt: 
-	_BEGIN stmt_list END {}
+	_BEGIN stmt_list END { $$ = $2; }
 ;
 stmt_list: 
-	stmt_list  stmt  SEMI {}
-    | 	{}
+	stmt_list  stmt  SEMI { $$ = $1; $1 = $1->insert($2); }
+    | 	{ $$ = new AbstractTree::StmtListNode(); }
     ;
 stmt: 
-	non_label_stmt {}
+	non_label_stmt { $$ = $1; }
     | INTEGER COLON non_label_stmt {}
 ;
 non_label_stmt: 
-	|assign_stmt {}
-	| proc_stmt {}
-    | compound_stmt {}
+	|assign_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
+	| proc_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
+    | compound_stmt { $$ = $1; }
     | if_stmt {}
     | repeat_stmt {}
     | while_stmt {}
@@ -234,14 +234,14 @@ non_label_stmt:
     | goto_stmt	{}
     ;
 assign_stmt: 
-	ID  ASSIGN  expression {}
+	ID  ASSIGN  expression { $$ = new AbstractTree::AssignStmtNode(new AbstractTree::IdNode($1), $3); }
     | ID LB expression RB ASSIGN expression {}
     | ID DOT ID ASSIGN expression  {} 
     ;
 proc_stmt: 
 	ID {}    
     | ID LP expression_list RP {}
-    | SYS_PROC	{}
+    | SYS_PROC	{ $$ = dynamic_cast<AbstractTree::ProcStmtNode*>($1); }
     | SYS_PROC LP expression_list RP {}
     | READ LP factor RP {}
     ;
@@ -280,8 +280,8 @@ goto_stmt:
 	GOTO INTEGER {}
     ;
 expression_list: 
-	expression_list COMMA expression {} 
-    | expression {} 
+	expression_list COMMA expression { $$ = $1; $$->insert($3); } 
+    | expression { $$ = new AbstractTree::ExpListNode(); $$->insert($1); } 
     ;
 expression:
     expression GE expr {} 
@@ -290,16 +290,16 @@ expression:
     | expression LT expr {}
     | expression EQUAL expr {}
     | expression UNEQUAL expr {}
-    | expr {}
+    | expr { $$ = $1; }
     ;
 expr: 
 	expr PLUS term {}
 	| expr MINUS term {}
     | expr OR term {}
-	| term {}
+	| term { $$ = $1; }
 ;
 term: 
-	factor {}
+	factor { $$ = $1; }
 	| term MUL factor {}
 	| term DIV factor {}
     | term DIVI factor {}
@@ -307,12 +307,12 @@ term:
     | term AND factor {} 
     ;
 factor: 
-	ID {} 	
+	ID { $$ = new AbstractTree::IdNode($1); } 	
     | ID LP expression_list RP {}
     | SYS_FUNCT {}
     | SYS_FUNCT LP expression_list RP {}
-    | const_value {}
-    | LP expression RP {}
+    | const_value { $$ = $1; }
+    | LP expression RP { $$ = $2; }
     | NOT factor {}
     | MINUS factor {}
     | ID LB expression_list RB
