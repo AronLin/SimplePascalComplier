@@ -31,5 +31,5 @@ exec: lex_compile yacc_compile main.cpp AbstractTree.cpp CodeGenContext.cpp
 	$(CC) $(CXXFLAGS) -c main.cpp AbstractTree.cpp CodeGenContext.cpp
 
 clean:
-	rm $(OBJS) token.cpp token.hpp parser.cpp parser.hpp
+	rm $(OBJS) token.cpp token.hpp parser.cpp parser.hpp pascal
 

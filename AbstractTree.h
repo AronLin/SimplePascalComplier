@@ -236,7 +236,7 @@ enum {
         TypeDeclNode(char* ptr_c) : rawName(*(new std::string(ptr_c))) {init();}
 
         void init();
-        virtual llvm::Value* CodeGen(CodeGenContext& context);
+        virtual llvm::Value* CodeGen(CodeGenContext& context) {};
         llvm::Type* toLLVMType();
     };
 
