@@ -200,3 +200,45 @@ llvm::Value* AbstractTree::RoutineBodyNode::CodeGen(CodeGenContext& context)
 {
     return this->stmtList->CodeGen(context);
 }
+
+llvm::Value* AbstractTree::ConstExprNode::CodeGen(CodeGenContext& context)
+{
+    auto alloc = context.Builder.CreateAlloca(this->constType->toLLVMType(), 0, nullptr, this->id->name.c_str());
+    auto store = context.Builder.CreateStore(this->const_value->CodeGen(context), alloc);
+    return store;
+}
+
+llvm::Value* AbstractTree::ConstExprListNode::CodeGen(CodeGenContext& context)
+{
+    llvm::Value* ret;
+    for (auto x:this->const_expr_list)
+    {
+        ret = x->CodeGen(context);
+    }
+    return ret;
+}
+
+llvm::Value* AbstractTree::WhileStmtNode::CodeGen(CodeGenContext& context)
+{
+    llvm::BasicBlock* loopStartB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStart", context.curFunc);
+    llvm::BasicBlock* loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
+    llvm::BasicBlock* loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
+
+    context.Builder.CreateBr(loopStartB);
+    context.pushBlock(loopStartB);
+    // Loop Start, Cond
+    context.Builder.SetInsertPoint(loopStartB);
+    llvm::Value* test = this->condition->CodeGen(context);
+    llvm::Value* ret = context.Builder.CreateCondBr(test, loopStmtB, loopEndB);
+
+    context.pushBlock(loopStmtB);
+    context.Builder.SetInsertPoint(loopStmtB);
+    this->loopStmt->CodeGen(context);
+    context.Builder.CreateBr(loopStartB);
+
+    context.popBlock();
+    context.pushBlock(loopEndB);
+    context.Builder.SetInsertPoint(loopEndB);
+
+    return ret;
+}

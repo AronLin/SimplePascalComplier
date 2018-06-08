@@ -166,18 +166,19 @@ enum {
      class ConstExprListNode:public Node
     {
     public:
-        vector<ConstExprNode*> const_expr_list;
-        ConstExprListNode():{
+        std::vector<ConstExprNode*> const_expr_list;
+        ConstExprListNode(){
             this->_type = CONST_EXPR_LIST;
         }
 
-        ConstExprListNode(ConstExprNode const_expr){
+        ConstExprListNode(ConstExprListNode* const_expr){
             this->_type = CONST_EXPR_LIST;
-            (this->const_expr_list)->push_back(const_expr);
+            const_expr_list = const_expr->const_expr_list;
         }
-        ConstExprListNode(ConstExprList* const_expr){
-            this->_type = CONST_EXPR_LIST;
-            const_expr_list = const_expr;
+
+        void insert(ConstExprNode* node)
+        {
+            this->const_expr_list.push_back(node);
         }
         virtual llvm::Value* CodeGen(CodeGenContext& context);
 
@@ -188,11 +189,13 @@ enum {
     public:
         IdNode* id;
         ConstValueNode* const_value;
-        ConstExprNode(){this->_type = CONST_EXPR;}
+        TypeDeclNode* constType;
+        ConstExprNode() {this->_type = CONST_EXPR;}
         ConstExprNode(IdNode* in_id,ConstValueNode* in_const_value){
             this->_type = CONST_EXPR;
             this->id = in_id;
             this->const_value = in_const_value;
+            this->constType = new TypeDeclNode(in_const_value->getConstType());
         }
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
@@ -243,6 +246,8 @@ enum {
         TypeName sysName = TypeName::error;
         TypeDeclNode(const std::string &str) : rawName(str){init();}
         TypeDeclNode(char* ptr_c) : rawName(*(new std::string(ptr_c))) {init();}
+        TypeDeclNode(TypeName tn): sysName(tn) {};
+        TypeDeclNode() {};
 
         void init();
         virtual llvm::Value* CodeGen(CodeGenContext& context) {};
@@ -322,10 +327,10 @@ enum {
         TypeDeclNode* type;
         VarDeclNode(NameListNode* names, TypeDeclNode* type): nameList(names), type(type)
         {
-            name_list->push_back(name);
+            //name_list->push_back(name);
             this->type  = type;
         };
-        }
+        
         virtual llvm::Value* CodeGen(CodeGenContext& context);
 
     };
