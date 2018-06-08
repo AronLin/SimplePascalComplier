@@ -1,3 +1,6 @@
+#ifndef __CODEGENCONTEXT_H__
+#define __CODEGENCONTEXT_H__
+
 #include <map>
 #include <stack>
 #include <vector>
@@ -20,7 +23,6 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/IR/ValueSymbolTable.h>
 
-#include "AbstractTree.h"
 
 class GlobalLLVMContext
 {
@@ -66,3 +68,5 @@ public:
     llvm::Function* getPrintfPrototype();
     CodeGenContext();
 };
+
+#endif

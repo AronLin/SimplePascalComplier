@@ -3,11 +3,12 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "lex.yy.c"
+#include "AbstractTree.h"
+#include "parser.hpp"
 
-#include "AbstracTree.h"
 
-Node* ast_root;
+
+AbstractTree::Node* astRoot;
 int yylex(void);
 void yyerror(char const *str);
 
@@ -17,14 +18,29 @@ void yyerror(char const *str);
 %}
 
 %union{
-    
-    Node*               ast_Node; 
-    StmtList*           ast_StmtList;
-    ProgramNode*        ast_Program;
-    RoutineNode*        ast_Routine;
-    Stmt*               ast_Stmt;
-    Id*                 ast_Id;
-    
+    char*                             debug;
+    AbstractTree::Node*               ast_Node; 
+    AbstractTree::IdNode*             ast_Id;
+    AbstractTree::ProgramNode*        ast_Program;
+    AbstractTree::RoutineNode*        ast_Routine;
+    AbstractTree::RoutineHeadNode*    ast_RoutineHead;
+    AbstractTree::StmtNode*           ast_Stmt;
+    AbstractTree::StmtListNode*       ast_StmtList;
+    AbstractTree::ExpNode*            ast_Exp;
+    AbstractTree::ExpListNode*        ast_ExpList;
+    AbstractTree::VarDeclNode*        ast_VarDecl;
+    AbstractTree::VarDeclListNode*    ast_VarDeclList;
+    AbstractTree::TypeDeclNode*       ast_TypeDecl;
+    AbstractTree::RoutineBodyNode*    ast_RoutineBody;
+    AbstractTree::ConstValueNode*     ast_ConstValue;
+    AbstractTree::IntegerTypeNode*    ast_IntegerType;
+    AbstractTree::RealTypeNode*       ast_RealType;
+    AbstractTree::CharTypeNode*       ast_CharType;
+    AbstractTree::BooleanTypeNode*    ast_BooleanType;
+    AbstractTree::AssignStmtNode*     ast_AssignStmt;
+    AbstractTree::ProcStmtNode*       ast_ProcStmt;
+    AbstractTree::SysProcStmtNode*    ast_SysProcStmt;
+    AbstractTree::NameListNode*       ast_NameList;
 }
 
 
@@ -38,37 +54,48 @@ void yyerror(char const *str);
 
 
 
-
-
 //终结符集合
 %token ASSIGN LP RP LB RB DOT COMMA COLON SEMI
-ARRAY _BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
-PROCEDURE RECORD VAR ID TYPE 
+%token ARRAY _BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
+%token PROCEDURE RECORD VAR ID TYPE 
 %token EQUAL UNEQUAL GE GT LE LT AND OR NOT //布尔表达式符号
 %token PLUS MINUS MUL DIV DIVI MOD //运算符
 %token INTEGER REAL CHAR STRING SYS_BOOL SYS_CON //变量值
 %token READ SYS_PROC SYS_FUNCT //系统函数和过程
 %token DOWNTO DO REPEAT TO THEN WHILE UNTIL FOR
-IF ELSE CASE OF GOTO //语句
+%token IF ELSE CASE OF GOTO //语句
+
 %start program
 
 %type <ast_Program> program
 %type <ast_Id> program_head
 %type <ast_Routine> routine
-
-
+%type <ast_RoutineHead> routine_head
+%type <ast_RoutineBody> routine_body
+%type <ast_VarDeclList> var_part var_decl_list
+%type <ast_VarDecl> var_decl
+%type <ast_NameList> name_list
+%type <ast_TypeDecl> type_decl simple_type_decl;
+%type <ast_StmtList> compound_stmt stmt_list;
+%type <ast_Stmt> stmt non_label_stmt;
+%type <ast_AssignStmt> assign_stmt
+%type <ast_ProcStmt> proc_stmt
+%type <ast_ExpList> expression_list
+%type <ast_Exp> expr term factor expression
+%type <ast_ConstValue> const_value
+%type <debug> ID INTEGER REAL CHAR SYS_BOOL SYS_TYPE SYS_PROC 
 
 %%
-// 注意NAME和ID其实是一样的，所以我将语法中的NAME全换成了ID
-program: program_head routine DOT {}
+
+program: program_head routine DOT { $$ = new AbstractTree::ProgramNode($1, $2);}
 ;
-program_head : PROGRAM ID SEMI {} | {}
+program_head : PROGRAM ID SEMI { $$ = new AbstractTree::IdNode($2); } | {}
 ;
-routine: routine_head routine_body {}
+routine: routine_head routine_body { $$ = new AbstractTree::RoutineNode($1, $2); }
 ;
 sub_routine: routine_head routine_body {}
 ;
-routine_head: label_part const_part type_part var_part routine_part {}
+routine_head: label_part const_part type_part var_part routine_part { $$ = new AbstractTree::RoutineHeadNode($4); }
 ;
 label_part:
     {}
@@ -82,12 +109,12 @@ const_expr_list:
 	| ID EQUAL const_value SEMI {}
 ;
 const_value:
-	INTEGER 	{}
-	| REAL 		{}
-	| CHAR 		{}
+	INTEGER 	{ $$ = new AbstractTree::IntegerTypeNode(atoi($1));}
+	| REAL 		{ $$ = new AbstractTree::RealTypeNode(atof($1));}
+	| CHAR 		{ $$ = new AbstractTree::CharTypeNode($1);}
 	| STRING 	{}
 	| SYS_CON   {}
-    | SYS_BOOL  {}
+    | SYS_BOOL  { $$ = new AbstractTree::BooleanTypeNode($1);}
 ;
 type_part:
 	TYPE type_decl_list {}
@@ -101,12 +128,12 @@ type_definition:
 	ID EQUAL type_decl SEMI {}
 ;
 type_decl:
-	simple_type_decl	{}
+	simple_type_decl	{ $$ = $1;}
 	| array_type_decl 	{}
 	| record_type_decl	{}
 ;
 simple_type_decl:
-	SYS_TYPE	
+	SYS_TYPE { $$ = new AbstractTree::TypeDeclNode($1);}	
 	| ID  {}
 	| LP name_list RP {}
     | INTEGER DOT DOT INTEGER 	{}
@@ -131,19 +158,19 @@ field_decl:
 	name_list COLON type_decl SEMI {}
 ;
 name_list:
-	name_list COMMA ID 	{}
-    | ID {}	
+	name_list COMMA ID 	{ $$ = $1; $$->insert($3);}
+    | ID { $$ = new AbstractTree::NameListNode(); $$->insert($1);}	
 ;
 var_part:
-	VAR var_decl_list {}
+	VAR var_decl_list { $$ = $2;}
     |  		{}
 ;
 var_decl_list:
-	var_decl_list var_decl 	{}
-    | var_decl 	{}	
+	var_decl_list var_decl 	{ $$ = $1; $$->insert($2); }
+    | var_decl 	{ $$ = new AbstractTree::VarDeclListNode(); $$->insert($1); }	
 ;
 var_decl:
-	name_list COLON type_decl SEMI {}
+	name_list COLON type_decl SEMI { $$ = new AbstractTree::VarDeclNode($1, $3); }
 ;
 routine_part: //做了修改，可以为空的话，function_decl 和 procedure_decl就有点多余了
 	routine_part function_decl {}
@@ -182,22 +209,23 @@ val_para_list:
 ;
 
 routine_body:  
-	compound_stmt {}
+	compound_stmt { $$ = new AbstractTree::RoutineBodyNode($1); }
 ;
 compound_stmt: 
-	_BEGIN stmt_list END {}
+	_BEGIN stmt_list END { $$ = $2; }
 ;
 stmt_list: 
-	stmt_list  stmt  SEMI {}
-    | 	{}
+	stmt_list  stmt  SEMI { $$ = $1; $$->insert($2); }
+    | 	{ $$ = new AbstractTree::StmtListNode(); }
     ;
 stmt: 
-	non_label_stmt {}
+	non_label_stmt { $$ = $1; }
     | INTEGER COLON non_label_stmt {}
 ;
 non_label_stmt: 
-	|assign_stmt {}
-	| proc_stmt {}
+	|assign_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
+	| proc_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
+//TODO: Problem here: compound_stmt should be a stmtlist, but non_label_stmt is a stmt
     | compound_stmt {}
     | if_stmt {}
     | repeat_stmt {}
@@ -207,15 +235,15 @@ non_label_stmt:
     | goto_stmt	{}
     ;
 assign_stmt: 
-	ID  ASSIGN  expression {}
+	ID  ASSIGN  expression { $$ = new AbstractTree::AssignStmtNode(new AbstractTree::IdNode($1), $3); }
     | ID LB expression RB ASSIGN expression {}
     | ID DOT ID ASSIGN expression  {} 
     ;
 proc_stmt: 
 	ID {}    
     | ID LP expression_list RP {}
-    | SYS_PROC	{}
-    | SYS_PROC LP expression_list RP {}
+    | SYS_PROC	{ }
+    | SYS_PROC LP expression_list RP { $$ = new AbstractTree::SysProcStmtNode(new AbstractTree::IdNode($1), $3);}
     | READ LP factor RP {}
     ;
 if_stmt: 
@@ -253,8 +281,8 @@ goto_stmt:
 	GOTO INTEGER {}
     ;
 expression_list: 
-	expression_list COMMA expression {} 
-    | expression {} 
+	expression_list COMMA expression { $$ = $1; $$->insert($3); } 
+    | expression { $$ = new AbstractTree::ExpListNode(); $$->insert($1); } 
     ;
 expression:
     expression GE expr {} 
@@ -263,16 +291,16 @@ expression:
     | expression LT expr {}
     | expression EQUAL expr {}
     | expression UNEQUAL expr {}
-    | expr {}
+    | expr { $$ = $1; }
     ;
 expr: 
 	expr PLUS term {}
 	| expr MINUS term {}
     | expr OR term {}
-	| term {}
+	| term { $$ = $1; }
 ;
 term: 
-	factor {}
+	factor { $$ = $1; }
 	| term MUL factor {}
 	| term DIV factor {}
     | term DIVI factor {}
@@ -280,12 +308,12 @@ term:
     | term AND factor {} 
     ;
 factor: 
-	ID {} 	
+	ID { $$ = new AbstractTree::IdNode($1); } 	
     | ID LP expression_list RP {}
     | SYS_FUNCT {}
     | SYS_FUNCT LP expression_list RP {}
-    | const_value {}
-    | LP expression RP {}
+    | const_value { $$ = $1; }
+    | LP expression RP { $$ = $2; }
     | NOT factor {}
     | MINUS factor {}
     | ID LB expression_list RB
@@ -297,11 +325,11 @@ void yyerror(char const *str)
 {
     fprintf(stderr,"%s\n",str);
 }
-int main(void)
-{
-    printf("Simple Pascal\n");
-    yyparse();
-    return 0;
+// int main(void)
+// {
+//     printf("Simple Pascal\n");
+//     yyparse();
+//     return 0;
     
-}
+// }
 

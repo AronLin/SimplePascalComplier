@@ -22,10 +22,11 @@
 #include "CodeGenContext.h"
 
 
-
+namespace AbstractTree {
 //non-terminal node
 class ProgramNode;
 class IdNode;
+class NameListNode;
 class RoutineNode;
 class RoutineHeadNode;
 class RoutineBodyNode;
@@ -52,6 +53,7 @@ class CharTypeNode;
 class RealTypeNode;
 class BooleanTypeNode;
 class ParaDeclNode;
+class CaseStmtNode;
 
 //list node
 class ParaDeclListNode;
@@ -61,7 +63,7 @@ class VarDeclListNode;
 class RoutineDeclListNode;
 
 
-namespace AbstractTree {
+
 enum {
     NODE=0,PROGRAM,ID,ROUTINE,ROUTINE_HEAD,LABEL_PART,CONST_EXPR_LIST,CONST_EXPR,CONST_VALUE,TYPE_DEFINE_LIST,TYPE_DEFINITION,TYPE_DECL,SIMPLE_TYPE_DECL,ARRAY_TYPE_DECL,RECORD_TYPE_DECL,STMT_LIST
 }NodeType;
@@ -159,11 +161,12 @@ enum {
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
+    //TODO: 
     //const part:
      class ConstExprListNode:public Node
     {
     public:
-        vector<ConstExprNode*>* const_expr_list;
+        vector<ConstExprNode*> const_expr_list;
         ConstExprListNode():{
             this->_type = CONST_EXPR_LIST;
         }
@@ -195,12 +198,13 @@ enum {
     };
 
 
+    //TODO
     //type part:
     class TypeDefineListNode:public Node{
     public:
-        vector<TypeDefineNode*>* type_define_list;
+        vector<TypeDefineNode*> type_define_list;
 
-        TypeDefineListNode(){this->_type = TYPE_DEFINE_LIST;}
+        // TypeDefineListNode(){this->_type = TYPE_DEFINE_LIST;}
 
         TypeDefineListNode(TypeDefineNode* type_define){
             this->_type = TYPE_DEFINE_LIST;
@@ -223,7 +227,7 @@ enum {
         IdNode* id;
         TypeDeclNode* type_decl;
         TypeDefineNode(){this->_type = TYPE_DEFINITION;}
-        TypeDefineNode(IdNode* in_id,TypeDeclNode* in_type_decl)id(in_id),type_decl(in_type_decl){ 
+        TypeDefineNode(IdNode* in_id,TypeDeclNode* in_type_decl):id(in_id),type_decl(in_type_decl){ 
             this->_type = TYPE_DEFINITION;
         }
     };
@@ -237,11 +241,11 @@ enum {
         };
         std::string rawName = "";
         TypeName sysName = TypeName::error;
-        TypeDeclNode(const std::string &str) : rawNname(str){init();}
-        TypeDeclNode(const char * ptr_c) : rawNname(*(new std::string(ptr_c))) {init();}
+        TypeDeclNode(const std::string &str) : rawName(str){init();}
+        TypeDeclNode(char* ptr_c) : rawName(*(new std::string(ptr_c))) {init();}
 
         void init();
-        virtual llvm::Value* CodeGen(CodeGenContext& context);
+        virtual llvm::Value* CodeGen(CodeGenContext& context) {};
         llvm::Type* toLLVMType();
     };
 
@@ -253,7 +257,13 @@ enum {
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
-    class IdNode: public Node
+    class ExpNode: public Node
+    {
+    public:
+        virtual llvm::Value* CodeGen(CodeGenContext& context) = 0;
+    };
+
+    class IdNode: public ExpNode
     {
     public:
         std::string name;
@@ -262,11 +272,19 @@ enum {
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
+    class NameListNode: public Node
+    {
+    public:
+        std::vector<std::string> list;
+        void insert(const char* node) { std::string st(node); list.push_back(st);};
+        llvm::Value* CodeGen(CodeGenContext& context) {};
+    };
+
     class StmtListNode:public Node{
     public:
-        StmtListNode():{this->_type = STMT_LIST;}
-        std::vector<StmtNode*>* list;
-        void insert(StmtNode* node) {list->push_back(node);}
+        StmtListNode(){this->_type = STMT_LIST;}
+        std::vector<StmtNode*> list;
+        void insert(StmtNode* node) {list.push_back(node);}
 
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
@@ -277,18 +295,12 @@ enum {
         virtual llvm::Value *CodeGen(CodeGenContext& context) = 0;
     };
 
-    class ExpNode: public Node
-    {
-    public:
-        virtual llvm::Value* CodeGen(CodeGenContext& context) = 0;
-    };
-
     class ExpListNode: public Node
     {
     public:
-        std::vector<ExpNode*>* list;
-        void insertNode(ExpNode* node) {list->push_back(node);}
-        // std::vector<ExpNode*>* getListPtr() {return &list;}
+        std::vector<ExpNode*> list;
+        void insert(ExpNode* node) {list.push_back(node);}
+        std::vector<ExpNode*>* getListPtr() {return &list;}
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
@@ -306,17 +318,9 @@ enum {
     class VarDeclNode: public Node
     {
     public:
-    //v1:
-        //IdNode* name;
-        //v2:
-        std::list<IdNode*>* name_list;
+        NameListNode* nameList;
         TypeDeclNode* type;
-        // VarDeclNode* (IdNode* name, TypeDeclNode* type): name(name), type(type)
-        // {
-        //     //Put Children
-        // };
-        //v2
-        VarDeclNode* (IdNode* name, TypeDeclNode* type): 
+        VarDeclNode(NameListNode* names, TypeDeclNode* type): nameList(names), type(type)
         {
             name_list->push_back(name);
             this->type  = type;
@@ -325,8 +329,6 @@ enum {
         virtual llvm::Value* CodeGen(CodeGenContext& context);
 
     };
-
-    
 
     //TODO:: all func below need codegen
     class ConstValueNode: public ExpNode
@@ -391,8 +393,8 @@ enum {
     class SysProcStmtNode: public ProcStmtNode
     {
     public:
-        SysProcStmtNode(IdNode* idd): id(idd){};
-        SysProcStmtNode(IdNode* idd, ExpListNode* arg): id(idd), args(arg){}
+        SysProcStmtNode(IdNode* idd) { this->id = idd; };
+        SysProcStmtNode(IdNode* idd, ExpListNode* arg) { this->id = idd; this->args = arg;};
         llvm::Value* callPrintf(CodeGenContext& context, bool writeln);
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };    
@@ -475,7 +477,7 @@ enum {
         int direction;//1 to. -1 downto
         StmtNode* loopStmt;
 
-        ForStmtNode(IdNode* id,ExpNode* start,int direction, ExpNode* end,Stmt* loopStmt)
+        ForStmtNode(IdNode* id,ExpNode* start,int direction, ExpNode* end,StmtNode* loopStmt)
         :id(id),start(start),end(end),direction(direction),loopStmt(loopStmt){}
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
@@ -506,7 +508,7 @@ enum {
         ExpNode* condition;//there might be ID or const_value,so we use ExpNode to represent them
         StmtNode* Stmt;
         CaseStmtNode(ExpNode* condition,StmtNode* Stmt)
-        :condtion(condition),Stmt(Stmt){}
+        :condition(condition),Stmt(Stmt){}
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
 
@@ -526,7 +528,7 @@ enum {
         int label;
         GotoStmtNode(int label){this->label=label;}
         virtual llvm::Value *CodeGen(CodeGenContext& context);
-    }
+    };
 
 
 class BinaryNode : public ExpNode {

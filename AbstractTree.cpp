@@ -73,8 +73,13 @@ llvm::Type* AbstractTree::TypeDeclNode::toLLVMType()
 llvm::Value* AbstractTree::VarDeclNode::CodeGen(CodeGenContext& context)
 {
     llvm::Value* ret;
-    auto go = new llvm::GlobalVariable(*context.module, this->type->toLLVMType(), false, llvm::GlobalValue::ExternalLinkage , llvm::ConstantInt::get(llvm::Type::getInt32Ty(GlobalLLVMContext::getGlobalContext()), 0, true), this->name->name);
-    ret = go;
+    for (auto x: nameList->list)
+    {
+        auto go = new llvm::GlobalVariable(*context.module, this->type->toLLVMType(), false, 
+            llvm::GlobalValue::ExternalLinkage , 
+            llvm::ConstantInt::get(llvm::Type::getInt32Ty(GlobalLLVMContext::getGlobalContext()), 0, true), x);
+        ret = go;
+    }
     return ret;
 }
 
@@ -150,7 +155,7 @@ llvm::Value* AbstractTree::SysProcStmtNode::callPrintf(CodeGenContext& context, 
     std::string printf_format;
     std::vector<llvm::Value *> printf_args;
 
-    for(auto arg : *this->args->getListPtr) {
+    for(auto arg : *this->args->getListPtr()) {
         auto arg_val = arg->CodeGen(context);
         if (arg_val->getType() == llvm::Type::getInt32Ty(GlobalLLVMContext::getGlobalContext())) 
         {
