@@ -152,6 +152,7 @@ enum {
         }
     };
 
+    //TODO: 
     //const part:
      class ConstExprListNode:public Node
     {
@@ -191,6 +192,7 @@ enum {
     };
 
 
+    //TODO
     //type part:
     class TypeDefineListNode:public Node{
     public:
