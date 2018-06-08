@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
+#include "AbstractTree.h"
 #include "parser.hpp"
-
 %}
 ANY .
 COMMENT "{"{ANY}*"}" 

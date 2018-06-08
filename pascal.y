@@ -3,11 +3,12 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "AbstractTree.h"
 #include "parser.hpp"
 
-#include "AbstractTree.h"
 
-Node* astRoot;
+
+AbstractTree::Node* astRoot;
 int yylex(void);
 void yyerror(char const *str);
 
@@ -17,7 +18,7 @@ void yyerror(char const *str);
 %}
 
 %union{
-    
+    char*                             debug;
     AbstractTree::Node*               ast_Node; 
     AbstractTree::IdNode*             ast_Id;
     AbstractTree::ProgramNode*        ast_Program;
@@ -53,8 +54,6 @@ void yyerror(char const *str);
 
 
 
-
-
 //终结符集合
 %token ASSIGN LP RP LB RB DOT COMMA COLON SEMI
 %token ARRAY _BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
@@ -84,9 +83,10 @@ void yyerror(char const *str);
 %type <ast_ExpList> expression_list
 %type <ast_Exp> expr term factor expression
 %type <ast_ConstValue> const_value
+%type <debug> ID INTEGER REAL CHAR SYS_BOOL SYS_TYPE SYS_PROC 
 
 %%
-// 注意NAME和ID其实是一样的，所以我将语法中的NAME全换成了ID
+
 program: program_head routine DOT { $$ = new AbstractTree::ProgramNode($1, $2);}
 ;
 program_head : PROGRAM ID SEMI { $$ = new AbstractTree::IdNode($2); } | {}
