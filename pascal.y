@@ -23,23 +23,27 @@ void yyerror(char const *str);
     AbstractTree::ProgramNode*        ast_Program;
     AbstractTree::RoutineNode*        ast_Routine;
     AbstractTree::RoutineHeadNode*    ast_RoutineHead;
+    AbstractTree::LabelPartNode*      ast_LabelPart;
     AbstractTree::StmtNode*           ast_Stmt;
-    AbstractTree::StmtListNode*       ast_StmtList;
     AbstractTree::ExpNode*            ast_Exp;
-    AbstractTree::ExpListNode*        ast_ExpList;
     AbstractTree::VarDeclNode*        ast_VarDecl;
-    AbstractTree::VarDeclListNode*    ast_VarDeclList;
     AbstractTree::TypeDeclNode*       ast_TypeDecl;
+    AbstractTree::TypeDefineNode*     ast_TypeDefine;
+    AbstractTree::RoutineDeclNode*    ast_RoutineDecl;
     AbstractTree::RoutineBodyNode*    ast_RoutineBody;
+    AbstractTree::ParaDeclNode*       ast_ParaDecl;
     AbstractTree::ConstValueNode*     ast_ConstValue;
-    AbstractTree::IntegerTypeNode*    ast_IntegerType;
-    AbstractTree::RealTypeNode*       ast_RealType;
-    AbstractTree::CharTypeNode*       ast_CharType;
-    AbstractTree::BooleanTypeNode*    ast_BooleanType;
     AbstractTree::AssignStmtNode*     ast_AssignStmt;
-    AbstractTree::ProcStmtNode*       ast_ProcStmt;
-    AbstractTree::SysProcStmtNode*    ast_SysProcStmt;
+    AbstractTree::CaseStmtNode*       ast_CaseStmt;
+
+    AbstractTree::StmtListNode*       ast_StmtList;
+    AbstractTree::ExpListNode*        ast_ExpList;    
+    AbstractTree::VarDeclListNode*    ast_VarDeclList;    
     AbstractTree::NameListNode*       ast_NameList;
+    AbstractTree::ConstExprListNode*  ast_ConstDeclList;
+    AbstractTree::TypeDefineListNode* ast_TypeDefineList;
+    AbstractTree::RoutineDeclListNode* ast_RoutineList;
+    AbstractTree::ParaDeclListNode*   ast_ParaDeclList;
 }
 
 
@@ -56,26 +60,45 @@ void yyerror(char const *str);
 %token DOWNTO DO REPEAT TO THEN WHILE UNTIL FOR
 %token IF ELSE CASE OF GOTO //语句
 
-%start program
+%type <debug> ASSIGN LP RP LB RB DOT COMMA COLON SEMI
+%type <debug> ARRAY _BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
+%type <debug> PROCEDURE RECORD VAR ID TYPE 
+%type <debug> EQUAL UNEQUAL GE GT LE LT AND OR NOT //布尔表达式符号
+%type <debug> PLUS MINUS MUL DIV DIVI MOD //运算符
+%type <debug> INTEGER REAL CHAR STRING SYS_BOOL SYS_CON //变量值
+%type <debug> READ SYS_PROC SYS_FUNCT //系统函数和过程
+%type <debug> DOWNTO DO REPEAT TO THEN WHILE UNTIL FOR
+%type <debug> IF ELSE CASE OF GOTO //语句
 
+
+%type <ast_Node> label_part
 %type <ast_Program> program
 %type <ast_Id> program_head
-%type <ast_Routine> routine
+%type <ast_Routine> routine sub_routine
 %type <ast_RoutineHead> routine_head
 %type <ast_RoutineBody> routine_body
-%type <ast_VarDeclList> var_part var_decl_list
 %type <ast_VarDecl> var_decl
-%type <ast_NameList> name_list
-%type <ast_TypeDecl> type_decl simple_type_decl;
-%type <ast_StmtList> compound_stmt stmt_list;
-%type <ast_Stmt> stmt non_label_stmt;
+%type <ast_TypeDecl> type_decl simple_type_decl array_type_decl record_type_decl
+%type <ast_TypeDefine> type_definition
+%type <ast_RoutineDecl> function_decl function_head procedure_decl procedure_head
+%type <ast_ParaDecl> para_type_list
+%type <ast_Stmt> stmt non_label_stmt proc_stmt if_stmt else_clause 
+%type <ast_Stmt> for_stmt repeat_stmt while_stmt  goto_stmt case_stmt case_expr_list
 %type <ast_AssignStmt> assign_stmt
-%type <ast_ProcStmt> proc_stmt
-%type <ast_ExpList> expression_list
+%type <ast_CaseStmt> case_expr
 %type <ast_Exp> expr term factor expression
 %type <ast_ConstValue> const_value
-%type <debug> ID INTEGER REAL CHAR STRING SYS_BOOL SYS_CON SYS_TYPE SYS_PROC  SYS_FUNCT
 
+%type <ast_NameList> name_list
+%type <ast_ExpList> expression_list
+%type <ast_VarDeclList> var_part var_decl_list
+%type <ast_StmtList> compound_stmt stmt_list
+%type <ast_ConstDeclList> const_part const_expr_list
+%type <ast_TypeDefineList> type_decl_list type_part
+%type <ast_RoutineList> routine_part
+%type <ast_ParaDeclList> parameters para_decl_list
+
+%start program
 %%
 
 program: program_head routine DOT { $$ = new AbstractTree::ProgramNode($1, $2);astRoot=$$;}
@@ -83,11 +106,7 @@ program: program_head routine DOT { $$ = new AbstractTree::ProgramNode($1, $2);a
 program_head : PROGRAM ID SEMI { 
         $$ = new AbstractTree::IdNode($2);
     } 
-    | %%
-    {
-        char* temp=strdup("none");
-        $$=new AbstractTree::IdNode(temp);
-    }
+    |    { char* temp=strdup("none");  $$=new AbstractTree::IdNode(temp); }
 ;
 routine: routine_head routine_body { $$ = new AbstractTree::RoutineNode($1, $2); }
 ;
@@ -97,12 +116,11 @@ routine_head: label_part const_part type_part var_part routine_part {
     $$ = new AbstractTree::RoutineHeadNode($1,$2,$3,$4,$5);
     }
 ;
-label_part:
-    {$$=new AbstractTree::LabelPartNode();}
+label_part:  {$$=new AbstractTree::LabelPartNode();}
 ;
 const_part:
     CONST const_expr_list {$$=$2;}
-	| %%	{$$=new AbstractTree::ConstExprListNode();}
+	|   {$$=new AbstractTree::ConstExprListNode();}
 ;
 const_expr_list:
 	const_expr_list ID EQUAL const_value SEMI {
@@ -150,8 +168,8 @@ type_decl:
 ;
 simple_type_decl:
 	SYS_TYPE { $$ = new AbstractTree::TypeDeclNode($1);}	
-	| ID  {}//not accomplished
-	| LP name_list RP {}
+    | ID  {}//not accomplished
+    | LP name_list RP {}
     | INTEGER DOT DOT INTEGER 	{}
     | CHAR DOT DOT CHAR 	{}
     | SYS_BOOL DOT DOT SYS_BOOL {} 
@@ -179,7 +197,7 @@ name_list:
 ;
 var_part:
 	VAR var_decl_list { $$ = $2;}
-    | %% 		{$$=new AbstractTree::VarDeclListNode();}
+    |  	{$$=new AbstractTree::VarDeclListNode();}
 ;
 var_decl_list:
 	var_decl_list var_decl 	{ $$ = $1; $$->insert($2); }
@@ -197,7 +215,7 @@ routine_part: //做了修改，可以为空的话，function_decl 和 procedure_
         $$=$1;
         $$->insert($2);
     }
-    | %% {$$=new AbstractTree::RoutineDeclListNode();} 
+    |   {$$=new AbstractTree::RoutineDeclListNode();} 
 ;
 function_decl: 
 	function_head SEMI sub_routine SEMI {
@@ -225,7 +243,7 @@ procedure_head:
     ;
 parameters:
 	LP para_decl_list RP {$$=$2;}
-	| %% {new AbstractTree::ParaDeclListNode();}
+	|   {$$=new AbstractTree::ParaDeclListNode();}
     ;
 para_decl_list:
 	para_decl_list SEMI para_type_list 	{
@@ -264,7 +282,7 @@ stmt:
     }
 ;
 non_label_stmt: 
-	| assign_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
+	assign_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
 	| proc_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
     | compound_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>$1;}
     | if_stmt {$$ = dynamic_cast<AbstractTree::StmtNode*>($1);}
@@ -293,7 +311,7 @@ if_stmt:
     ;
 else_clause: 
 	ELSE stmt {$$=$2;}
-    | %%    {$$=nullptr;}	
+    |     {$$=nullptr;}	
     ;
 repeat_stmt: 
 	REPEAT stmt_list UNTIL expression {
