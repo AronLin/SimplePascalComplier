@@ -54,7 +54,7 @@ class RealTypeNode;
 class BooleanTypeNode;
 class ParaDeclNode;
 class CaseStmtNode;
-
+class BinaryNode;
 //list node
 class ParaDeclListNode;
 class ConstExprListNode;
@@ -462,7 +462,7 @@ enum {
     {
     public:
         ExpNode* condition;
-        StmtNode* loopStmt;
+        StmtListNode* loopStmt;
         WhileStmtNode(ExpNode* condition,StmtNode* loopStmt)
         :condition(condition),loopStmt(loopStmt){}
         virtual llvm::Value *CodeGen(CodeGenContext& context);        
@@ -475,7 +475,7 @@ enum {
         ExpNode* start;
         ExpNode* end;
         int direction;//1 to. -1 downto
-        StmtNode* loopStmt;
+        StmtListNode* loopStmt;
 
         ForStmtNode(IdNode* id,ExpNode* start,int direction, ExpNode* end,StmtNode* loopStmt)
         :id(id),start(start),end(end),direction(direction),loopStmt(loopStmt){}
@@ -485,7 +485,7 @@ enum {
     class RepeatStmtNode: public StmtNode
     {
     public:
-        StmtNode* loopStmt;
+        StmtListNode* loopStmt;
         ExpNode* condition;
         RepeatStmtNode(StmtNode* loopStmt,ExpNode* condition)
         :loopStmt(loopStmt),condition(condition){}
@@ -496,7 +496,7 @@ enum {
     {
     public:
         ExpNode* condition;
-        std::vector<CaseStmtNode*>* list;
+        std::vector<CaseStmtNode*> list;
         SwitchStmtNode(ExpNode* condition,std::vector<CaseStmtNode*>* list)
         :condition(condition),list(list){}
         virtual llvm::Value *CodeGen(CodeGenContext& context);
