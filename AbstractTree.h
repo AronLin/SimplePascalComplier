@@ -133,10 +133,14 @@ enum {
     class RoutineHeadNode : public Node
     {
     public:
-        //LabelPartNode* labelPartNode;
+        LabelPartNode* labelPartNode;
+        ConstExprListNode* constExprList;
         VarDeclListNode* varDeclList;
-        //TypeDefineListNode* typeDefineNodeList;
-        
+        TypeDefineListNode* typeDefineNodeList;
+        RoutineDeclListNode* routineDeclList;
+        RoutineHeadNode(LabelPartNode* labelPartNode,ConstExprListNode* constExprList,VarDeclListNode* varDeclList,TypeDefineListNode* typeDefineNodeList,RoutineDeclListNode* routineDeclList):labelPartNode(labelPartNode),constExprList(constExprList),varDeclList(varDeclList),typeDefineNodeList(typeDefineNodeList),routineDeclList(routineDeclList){
+
+        }
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
@@ -303,20 +307,20 @@ enum {
     {
     public:
     //v1:
-        IdNode* name;
+        //IdNode* name;
         //v2:
-        //std::list<IdNode*> name_list;
+        std::list<IdNode*>* name_list;
         TypeDeclNode* type;
-        VarDeclNode* (IdNode* name, TypeDeclNode* type): name(name), type(type)
-        {
-            //Put Children
-        };
-        //v2
-        // VarDeclNode* (IdNode* name, TypeDeclNode* type): 
+        // VarDeclNode* (IdNode* name, TypeDeclNode* type): name(name), type(type)
         // {
-        //     name_list.push_back(name);
-        //     this->type  = type;
+        //     //Put Children
         // };
+        //v2
+        VarDeclNode* (IdNode* name, TypeDeclNode* type): 
+        {
+            name_list->push_back(name);
+            this->type  = type;
+        };
         }
         virtual llvm::Value* CodeGen(CodeGenContext& context);
 
@@ -405,6 +409,21 @@ enum {
         
         RoutineDeclNode(int FuncorPro,IdNode* _id,ParaDeclList* _para_decl_list,TypeDeclNode* _type_decl,RoutineNode* _sub_routine = nullptr):type(FuncorPro),id(_id),para_decl_list(_para_decl_list),type_decl(_type_decl),sub_routine(_sub_routine){
             //initial child
+        }
+
+        virtual llvm::Value *CodeGen(CodeGenContext& context);
+    }
+    class RoutineDeclListNode: public Node{
+       
+        int type;
+        std::vector<RoutineDeclNode*>* list;
+        
+        RoutineDeclListNode(vector<RoutineDeclNode*> _list):list(_list){
+
+        }
+        void insertNode(RoutineDeclNode* node)
+        {
+            list->push_back(node);
         }
 
         virtual llvm::Value *CodeGen(CodeGenContext& context);
@@ -509,6 +528,34 @@ enum {
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     }
 
+
+class BinaryNode : public ExpNode {
+public:
+    enum class OpType : int {
+        AND,
+        OR,
+        NOT,
+        PLUS,
+        MINUS,
+        MUL,
+        DIV,
+        MOD,
+        EQUAL,
+        UNEQUAL,
+        LT,
+        LE,
+        GT,
+        GE
+    };
+
+    Expression *operand1, *operand2;
+    OpType op;
+
+    BinaryNode(Expression* op1, OpType op, Expression* op2) :operand1(op1),op(op),operand2(op2)
+    {}
+
+    virtual llvm::Value *CodeGen(CodeGenContext& context);
+};
 
 };
 
