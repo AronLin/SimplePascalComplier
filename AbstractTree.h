@@ -22,7 +22,7 @@
 #include "CodeGenContext.h"
 
 
-
+namespace AbstractTree {
 //non-terminal node
 class ProgramNode;
 class IdNode;
@@ -61,7 +61,7 @@ class VarDeclListNode;
 class RoutineDeclListNode;
 
 
-namespace AbstractTree {
+
 enum {
     NODE=0,PROGRAM,ID,ROUTINE,ROUTINE_HEAD,LABEL_PART,CONST_EXPR_LIST,CONST_EXPR,CONST_VALUE,TYPE_DEFINE_LIST,TYPE_DEFINITION,TYPE_DECL,SIMPLE_TYPE_DECL,ARRAY_TYPE_DECL,RECORD_TYPE_DECL,STMT_LIST
 }NodeType;
