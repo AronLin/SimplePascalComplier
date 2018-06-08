@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "lex.yy.c"
+#include "AbstractTree.h"
+#include "parser.hpp"
 
-#include "AbstracTree.h"
 
-Node* ast_root;
+AbstractTree::Node* astRoot;
 int yylex(void);
 void yyerror(char const *str);
 
@@ -17,97 +17,140 @@ void yyerror(char const *str);
 %}
 
 %union{
-    
-    Node*               ast_Node; 
-    StmtList*           ast_StmtList;
-    ProgramNode*        ast_Program;
-    RoutineNode*        ast_Routine;
-    Stmt*               ast_Stmt;
-    Id*                 ast_Id;
-    
+    char*                             debug;//yytext存储
+    AbstractTree::Node*               ast_Node; 
+    AbstractTree::IdNode*             ast_Id;
+    AbstractTree::ProgramNode*        ast_Program;
+    AbstractTree::RoutineNode*        ast_Routine;
+    AbstractTree::RoutineHeadNode*    ast_RoutineHead;
+    AbstractTree::StmtNode*           ast_Stmt;
+    AbstractTree::StmtListNode*       ast_StmtList;
+    AbstractTree::ExpNode*            ast_Exp;
+    AbstractTree::ExpListNode*        ast_ExpList;
+    AbstractTree::VarDeclNode*        ast_VarDecl;
+    AbstractTree::VarDeclListNode*    ast_VarDeclList;
+    AbstractTree::TypeDeclNode*       ast_TypeDecl;
+    AbstractTree::RoutineBodyNode*    ast_RoutineBody;
+    AbstractTree::ConstValueNode*     ast_ConstValue;
+    AbstractTree::IntegerTypeNode*    ast_IntegerType;
+    AbstractTree::RealTypeNode*       ast_RealType;
+    AbstractTree::CharTypeNode*       ast_CharType;
+    AbstractTree::BooleanTypeNode*    ast_BooleanType;
+    AbstractTree::AssignStmtNode*     ast_AssignStmt;
+    AbstractTree::ProcStmtNode*       ast_ProcStmt;
+    AbstractTree::SysProcStmtNode*    ast_SysProcStmt;
+    AbstractTree::NameListNode*       ast_NameList;
 }
-
-
-//设置类型集合
-%union {
-    short int_value;//pascal 中int是2个字节,这里用short了
-    float real_value;//用单精度实数
-    char* string_value;
-    char boolean_value;
-}
-
 
 
 
 
 //终结符集合
 %token ASSIGN LP RP LB RB DOT COMMA COLON SEMI
-ARRAY BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
-PROCEDURE RECORD VAR ID TYPE 
+%token ARRAY _BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
+%token PROCEDURE RECORD VAR ID TYPE 
 %token EQUAL UNEQUAL GE GT LE LT AND OR NOT //布尔表达式符号
 %token PLUS MINUS MUL DIV DIVI MOD //运算符
 %token INTEGER REAL CHAR STRING SYS_BOOL SYS_CON //变量值
 %token READ SYS_PROC SYS_FUNCT //系统函数和过程
 %token DOWNTO DO REPEAT TO THEN WHILE UNTIL FOR
-IF ELSE CASE OF GOTO //语句
+%token IF ELSE CASE OF GOTO //语句
+
 %start program
 
 %type <ast_Program> program
 %type <ast_Id> program_head
 %type <ast_Routine> routine
-
-
+%type <ast_RoutineHead> routine_head
+%type <ast_RoutineBody> routine_body
+%type <ast_VarDeclList> var_part var_decl_list
+%type <ast_VarDecl> var_decl
+%type <ast_NameList> name_list
+%type <ast_TypeDecl> type_decl simple_type_decl;
+%type <ast_StmtList> compound_stmt stmt_list;
+%type <ast_Stmt> stmt non_label_stmt;
+%type <ast_AssignStmt> assign_stmt
+%type <ast_ProcStmt> proc_stmt
+%type <ast_ExpList> expression_list
+%type <ast_Exp> expr term factor expression
+%type <ast_ConstValue> const_value
+%type <debug> ID INTEGER REAL CHAR STRING SYS_BOOL SYS_CON SYS_TYPE SYS_PROC  SYS_FUNCT
 
 %%
-// 注意NAME和ID其实是一样的，所以我将语法中的NAME全换成了ID
-program: program_head routine DOT {}
+
+program: program_head routine DOT { $$ = new AbstractTree::ProgramNode($1, $2);astRoot=$$;}
 ;
-program_head : PROGRAM ID SEMI {} | {}
+program_head : PROGRAM ID SEMI { 
+        $$ = new AbstractTree::IdNode($2);
+    } 
+    | %%
+    {
+        char* temp=strdup("none");
+        $$=new AbstractTree::IdNode(temp);
+    }
 ;
-routine: routine_head routine_body {$$->child.push_back($2);}
+routine: routine_head routine_body { $$ = new AbstractTree::RoutineNode($1, $2); }
 ;
-sub_routine: routine_head routine_body {}
+sub_routine: routine_head routine_body {$$=new AbstractTree::RoutineNode($1,$2);}
 ;
-routine_head: label_part const_part type_part var_part routine_part {}
+routine_head: label_part const_part type_part var_part routine_part {
+    $$ = new AbstractTree::RoutineHeadNode($1,$2,$3,$4,$5);
+    }
 ;
 label_part:
-    {}
+    {$$=new AbstractTree::LabelPartNode();}
 ;
 const_part:
-    CONST const_expr_list {}
-	| 	{}
+    CONST const_expr_list {$$=$2;}
+	| %%	{$$=new AbstractTree::ConstExprListNode();}
 ;
 const_expr_list:
-	const_expr_list ID EQUAL const_value SEMI {}
-	| ID EQUAL const_value SEMI {}
+	const_expr_list ID EQUAL const_value SEMI {
+        $$=$1;
+        $$->const_expr_list.push_back(new ConstExprNode(new IdNode($1),$3));
+    }
+	| ID EQUAL const_value SEMI {
+        $$=new AbstractTree::ConstExprListNode();
+        $$->const_expr_list.push_back(new ConstExprNode(new IdNode($1),$3));
+    }
 ;
 const_value:
-	INTEGER 	{}
-	| REAL 		{}
-	| CHAR 		{}
-	| STRING 	{}
-	| SYS_CON   {}
-    | SYS_BOOL  {}
+	INTEGER 	{ $$ = new AbstractTree::IntegerTypeNode(atoi($1));}
+	| REAL 		{ $$ = new AbstractTree::RealTypeNode(atof($1));}
+	| CHAR 		{ $$ = new AbstractTree::CharTypeNode($1);}
+//	| STRING 	{ $$ = new AbstractTree::StringTypeNode($1);}
+	| SYS_CON   { if (strcmp("maxint",$1) $$=new AbstractTree::IntegerTypeNode(32767));//maxint
+                    else $$=new AbstractTree::IntegerTypeNode(32767);//There is only one SYS_CON
+                }
+    | SYS_BOOL  { $$ = new AbstractTree::BooleanTypeNode($1);}
 ;
 type_part:
-	TYPE type_decl_list {}
-	| {}
+	TYPE type_decl_list {$$=$2;}
+	| {$$=new AbstractTree::TypeDefineListNode()}
 ;
 type_decl_list:
-	type_decl_list type_definition {}
-	| type_definition {}
+	type_decl_list type_definition {
+        $1->type_define_list.push_back($2);
+        $$=$1;
+    }
+	| type_definition {
+        $$=new AbstractTree::TypeDefineListNode();
+        $$->type_define_list.push_back($1);
+    }
 ;
 type_definition:
-	ID EQUAL type_decl SEMI {}
+	ID EQUAL type_decl SEMI {
+        $$=new AbstractTree::TypeDefineNode(new IdNode($1),$3);
+    }
 ;
 type_decl:
-	simple_type_decl	{}
-	| array_type_decl 	{}
-	| record_type_decl	{}
+	simple_type_decl	{ $$ = $1;}
+	| array_type_decl 	{ $$ = $1;}
+	| record_type_decl	{ $$ = $1;}
 ;
 simple_type_decl:
-	SYS_TYPE	
-	| ID  {}
+	SYS_TYPE { $$ = new AbstractTree::TypeDeclNode($1);}	
+	| ID  {}//not accomplished
 	| LP name_list RP {}
     | INTEGER DOT DOT INTEGER 	{}
     | CHAR DOT DOT CHAR 	{}
@@ -131,164 +174,205 @@ field_decl:
 	name_list COLON type_decl SEMI {}
 ;
 name_list:
-	name_list COMMA ID 	{}
-    | ID {}	
+	name_list COMMA ID 	{ $$ = $1; $$->insert($3);}
+    | ID { $$ = new AbstractTree::NameListNode(); $$->insert($1);}	
 ;
 var_part:
-	VAR var_decl_list {}
-    |  		{}
+	VAR var_decl_list { $$ = $2;}
+    | %% 		{$$=new AbstractTree::VarDeclListNode();}
 ;
 var_decl_list:
-	var_decl_list var_decl 	{}
-    | var_decl 	{}	
+	var_decl_list var_decl 	{ $$ = $1; $$->insert($2); }
+    | var_decl 	{ $$ = new AbstractTree::VarDeclListNode(); $$->insert($1); }	
 ;
 var_decl:
-	name_list COLON type_decl SEMI {}
+	name_list COLON type_decl SEMI { $$ = new AbstractTree::VarDeclNode($1, $3); }
 ;
 routine_part: //做了修改，可以为空的话，function_decl 和 procedure_decl就有点多余了
-	routine_part function_decl {}
-    | routine_part procedure_decl {}
-    | {} 
+	routine_part function_decl {
+        $$=$1;
+        $$->insert($2);
+    }
+    | routine_part procedure_decl {
+        $$=$1;
+        $$->insert($2);
+    }
+    | %% {$$=new AbstractTree::RoutineDeclListNode();} 
 ;
 function_decl: 
-	function_head SEMI sub_routine SEMI {}
+	function_head SEMI sub_routine SEMI {
+        $$=$1;
+        $$->sub_routine=$3;
+    }
 ;
 function_head:
-	FUNCTION ID parameters COLON simple_type_decl {} 
+	FUNCTION ID parameters COLON simple_type_decl {
+        $$=new AbstractTree::RoutineDeclNode(AbstractTree::RoutineDeclNode::FUNCTION,
+        new IdNode($2),$3,$5);
+    } 
 ;
 procedure_decl:
-	procedure_head SEMI sub_routine SEMI {}	
+	procedure_head SEMI sub_routine SEMI {
+        $$=$1;
+        $$->sub_routine=$3;
+    }	
     ;
 procedure_head:
-	PROCEDURE ID parameters {}	
+	PROCEDURE ID parameters {
+        $$=new AbstractTree::RoutineDeclNode(AbstractTree::RoutineDeclNode::PROCEDURE,
+        new IdNode($2),$3,nullptr);
+    }	
     ;
 parameters:
-	LP para_decl_list RP {}
-	| 	{}
+	LP para_decl_list RP {$$=$2;}
+	| %% {new AbstractTree::ParaDeclListNode();}
     ;
 para_decl_list:
-	para_decl_list SEMI para_type_list 	{}
-    | para_type_list {}	
+	para_decl_list SEMI para_type_list 	{
+        $$=$1;
+        $$->insert($3);
+    }
+    | para_type_list {
+        $$=new AbstractTree::ParaDeclListNode();
+        $$->insert($1);
+    }	
     ;
-para_type_list:
-	var_para_list COLON simple_type_decl {}	
-    | val_para_list COLON simple_type_decl 	{}
-;
-var_para_list: 
-    VAR name_list {}
-;
-val_para_list:
-    name_list {}
+para_type_list://这两个有啥不同我还没有发现，先写成一样
+	VAR name_list COLON simple_type_decl {
+        $$=new AbstractTree::ParaDeclNode($2,$4);
+    }	
+    | name_list COLON simple_type_decl 	{
+        $$=new AbstractTree::ParaDeclNode($1,$3);
+    }
 ;
 
+
 routine_body:  
-	compound_stmt {$$ = $1}
+	compound_stmt { $$ = new AbstractTree::RoutineBodyNode($1); }
 ;
 compound_stmt: 
-	BEGIN stmt_list END {$$ = $2}
+	_BEGIN stmt_list END { $$ = $2; }
 ;
 stmt_list: 
-	stmt_list  stmt  SEMI {$$ = $1;$$->child.push_back($2);}
-    | 	{}
+	stmt_list  stmt  SEMI { $$ = $1; $$->insert($2); }
+    | 	{ $$ = new AbstractTree::StmtListNode(); }
     ;
 stmt: 
-	non_label_stmt {$$=$1}
-    | INTEGER COLON non_label_stmt {}
+	non_label_stmt { $$ = $1; }
+    | INTEGER COLON non_label_stmt {
+        $$=new AbstractTree::LabelStmtNode(atoi($1),$3);
+    }
 ;
 non_label_stmt: 
-	|assign_stmt {}
-	| proc_stmt {}
-    | compound_stmt {}
-    | if_stmt {}
-    | repeat_stmt {}
-    | while_stmt {}
-    | for_stmt	{}
-    | case_stmt {}
-    | goto_stmt	{}
+	| assign_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
+	| proc_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
+    | compound_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>$1;}
+    | if_stmt {$$ = dynamic_cast<AbstractTree::StmtNode*>($1);}
+    | repeat_stmt {$$ = dynamic_cast<AbstractTree::StmtNode*>($1);}
+    | while_stmt {$$ = dynamic_cast<AbstractTree::StmtNode*>($1);}
+    | for_stmt	{$$ = dynamic_cast<AbstractTree::StmtNode*>($1);}
+    | case_stmt {$$ = dynamic_cast<AbstractTree::StmtNode*>($1);}
+    | goto_stmt	{$$ = dynamic_cast<AbstractTree::StmtNode*>($1);}
     ;
 assign_stmt: 
-	ID  ASSIGN  expression {}
+	ID  ASSIGN  expression { $$ = new AbstractTree::AssignStmtNode(new AbstractTree::IdNode($1), $3); }
     | ID LB expression RB ASSIGN expression {}
     | ID DOT ID ASSIGN expression  {} 
     ;
 proc_stmt: 
-	ID {}    
-    | ID LP expression_list RP {}
-    | SYS_PROC	{}
-    | SYS_PROC LP expression_list RP {}
-    | READ LP factor RP {}
+	ID {$$=new AbstractTree::ProcStmtNode(new AbstractTree::IdNode($1),nullptr);}    
+    | ID LP expression_list RP {$$=new AbstractTree::ProcStmtNode(new AbstractTree::IdNode($1),$3);}
+    | SYS_PROC	{$$ = new AbstractTree::SysProcStmtNode(new AbstractTree::IdNode($1), nullptr); }
+    | SYS_PROC LP expression_list RP { $$ = new AbstractTree::SysProcStmtNode(new AbstractTree::IdNode($1), $3);}
+    | READ LP factor RP {}//暂时没实现
     ;
 if_stmt: 
-	IF expression THEN stmt else_clause {}
+	IF expression THEN stmt else_clause {
+        $$=new AbstractTree::IfStmtNode($2,$4,$5);
+    }
     ;
 else_clause: 
-	ELSE stmt {}
-    | 	{}	
+	ELSE stmt {$$=$2;}
+    | %%    {$$=nullptr;}	
     ;
 repeat_stmt: 
-	REPEAT stmt_list UNTIL expression {}
+	REPEAT stmt_list UNTIL expression {
+        $$=new AbstractTree::RepeatStmtNode($2,$4);
+    }
     ;
 while_stmt: 
-	WHILE expression DO stmt {}
+	WHILE expression DO stmt {
+        $$=new AbstractTree::WhileStmtNode($2,$4);
+    }
     ;
-for_stmt: 
-	FOR ID ASSIGN expression direction expression DO stmt {}
+for_stmt: //简化，省得给TO和DOWNTO分个int类型
+	FOR ID ASSIGN expression TO expression DO stmt {
+        $$=new AbstractTree::ForStmtNode(new AbstractTree::IdNode($2),$4,1,$6,$8);
+    }
+    |FOR ID ASSIGN expression DOWNTO expression DO stmt {
+        $$=new AbstractTree::ForStmtNode(new AbstractTree::IdNode($2),$4,-1,$6,$8);
+    }
 ;
-direction:
-    TO {}
-    | DOWNTO {}
-    ;
 case_stmt: 
-	CASE expression OF case_expr_list END {}
+	CASE expression OF case_expr_list END {
+        $$=$4;
+        $$->condition=$2;
+    }
     ;
 case_expr_list: 
-	case_expr_list  case_expr {}
-    | case_expr {}
+	case_expr_list  case_expr {
+        $$=$1;
+        $$->insert($2);
+    }
+    | case_expr {
+        $$=new AbstractTree::SwitchStmtNode();
+        $$->insert($1);
+    }
     ;
 case_expr: 
-	const_value COLON stmt SEMI {}
-    | ID COLON stmt SEMI {}
+	const_value COLON stmt SEMI { $$ = new AbstractTree::CaseStmtNode($1,$3);}
+    | ID COLON stmt SEMI {$$=new AbstractTree::CaseStmtNode(new AbstractTree::IdNode($1),$3);}
     ;
 goto_stmt: 
-	GOTO INTEGER {}
+	GOTO INTEGER {$$ = new AbstractTree::GotoStmtNode(atoi($2));}
     ;
 expression_list: 
-	expression_list COMMA expression {} 
-    | expression {} 
+	expression_list COMMA expression { $$ = $1; $$->insert($3); } 
+    | expression { $$ = new AbstractTree::ExpListNode(); $$->insert($1); } 
     ;
 expression:
-    expression GE expr {} 
-    | expression GT expr {}
-    | expression LE expr {}
-    | expression LT expr {}
-    | expression EQUAL expr {}
-    | expression UNEQUAL expr {}
-    | expr {}
+    expression GE expr {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::GE,$3);} 
+    | expression GT expr {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::GT,$3);}
+    | expression LE expr {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::LE,$3);}
+    | expression LT expr {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::LT,$3);}
+    | expression EQUAL expr {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::EQUAL,$3);}
+    | expression UNEQUAL expr {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::UNEQUAL,$3);}
+    | expr { $$ = $1; }
     ;
 expr: 
-	expr PLUS term {}
-	| expr MINUS term {}
-    | expr OR term {}
-	| term {}
+	expr PLUS term {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::PLUS,$3);}
+	| expr MINUS term {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::MINUS,$3);}
+    | expr OR term {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::OR,$3);}
+	| term { $$ = $1; }
 ;
 term: 
-	factor {}
-	| term MUL factor {}
-	| term DIV factor {}
-    | term DIVI factor {}
-    | term MOD factor {}
-    | term AND factor {} 
+	factor { $$ = $1; }
+	| term MUL factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::MUL,$3);}
+	| term DIV factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::DIV,$3);}
+    | term DIVI factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::DIVI,$3);}
+    | term MOD factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::MOD,$3);}
+    | term AND factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::AND,$3);} 
     ;
 factor: 
-	ID {} 	
-    | ID LP expression_list RP {}
+	ID { $$ = new AbstractTree::IdNode($1); } 	
+    | ID LP expression_list RP {}//FUNCTION_CALL
     | SYS_FUNCT {}
     | SYS_FUNCT LP expression_list RP {}
-    | const_value {}
-    | LP expression RP {}
-    | NOT factor {}
-    | MINUS factor {}
-    | ID LB expression_list RB
+    | const_value { $$ = $1; }
+    | LP expression RP { $$ = $2; }
+    | NOT factor {$$=new AbstractTree::BinaryNode(new AbstractTree::BooleanTypeNode("true"),AbstractTree::BinaryNode::OpType::XOR,$2);}
+    | MINUS factor {$$=new AbstractTree::BinaryNode(new AbstractTree::IntegerTypeNode(0),AbstractTree::BinaryNode::OpType::MINUS,$2);}
+    | ID LB expression_list RB{}
     | ID DOT ID {}
     ;
 %%
@@ -297,11 +381,11 @@ void yyerror(char const *str)
 {
     fprintf(stderr,"%s\n",str);
 }
-int main(void)
-{
-    printf("Simple Pascal\n");
-    yyparse();
-    return 0;
+// int main(void)
+// {
+//     printf("Simple Pascal\n");
+//     yyparse();
+//     return 0;
     
-}
+// }
 
