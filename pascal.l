@@ -46,7 +46,7 @@ abs {
     return SYS_FUNCT;
 }
 array {return ARRAY;}
-begin {return BEGIN;}
+begin {return _BEGIN;}
 boolean {
     return SYS_TYPE;
 }
@@ -64,7 +64,7 @@ div {return DIV;}
 end {return END;}
 else {return ELSE;}
 false {
-    yyvalue.boolean_value=0;
+    yylval.boolean_value=0;
     return SYS_BOOL;//待定
     }
 for {return FOR;}
@@ -75,7 +75,7 @@ integer {
 }
 if {return IF;}
 maxint {
-    yyval.int_value=32767;
+    yylval.int_value=32767;
     return SYS_CON;//返回整数类型
 }
 not {return NOT;}
@@ -113,7 +113,7 @@ succ {
 to { return TO;}
 then {return THEN;}
 true {
-    yyval.boolean_value=1;
+    yylval.boolean_value=1;
     return SYS_BOOL;//待定
     }
 type {
@@ -149,7 +149,7 @@ write {
         fprintf(stderr,"Integer Overflow.\n");
         exit(1);
     }
-    yyval.int_value=temp;
+    yylval.int_value=temp;
     return INTEGER;
 }
 {REALNUM} {
