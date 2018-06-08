@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "parser.hpp"
 #include "CodeGenContext.h"
 #include "AbstractTree.h"
 

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "lex.yy.c"
+#include "parser.hpp"
 
 #include "AbstractTree.h"
 
@@ -57,8 +57,8 @@ void yyerror(char const *str);
 
 //终结符集合
 %token ASSIGN LP RP LB RB DOT COMMA COLON SEMI
-ARRAY _BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
-PROCEDURE RECORD VAR ID TYPE 
+%token ARRAY _BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
+%token PROCEDURE RECORD VAR ID TYPE 
 %token EQUAL UNEQUAL GE GT LE LT AND OR NOT //布尔表达式符号
 %token PLUS MINUS MUL DIV DIVI MOD //运算符
 %token INTEGER REAL CHAR STRING SYS_BOOL SYS_CON //变量值
@@ -73,16 +73,16 @@ PROCEDURE RECORD VAR ID TYPE
 %type <ast_Routine> routine
 %type <ast_RoutineHead> routine_head
 %type <ast_RoutineBody> routine_body
-%type <ast_VarDeclList> var_part, var_decl_list
+%type <ast_VarDeclList> var_part var_decl_list
 %type <ast_VarDecl> var_decl
 %type <ast_NameList> name_list
-%type <ast_TypeDecl> type_decl, simple_type_decl;
-%type <ast_StmtList> compound_stmt, stmt_list;
-%type <ast_Stmt> stmt, non_label_stmt;
+%type <ast_TypeDecl> type_decl simple_type_decl;
+%type <ast_StmtList> compound_stmt stmt_list;
+%type <ast_Stmt> stmt non_label_stmt;
 %type <ast_AssignStmt> assign_stmt
 %type <ast_ProcStmt> proc_stmt
 %type <ast_ExpList> expression_list
-%type <ast_Exp> expr, term, factor, expression
+%type <ast_Exp> expr term factor expression
 %type <ast_ConstValue> const_value
 
 %%
