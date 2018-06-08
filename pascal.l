@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include "AbstractTree.h"
 #include "parser.hpp"
+
+#define STORESTRING yylval.debug=strdup(yytext)
 %}
 ANY .
 COMMENT "{"{ANY}*"}" 
@@ -43,19 +45,23 @@ COMMENT {}//do nothing
 
 and {return AND;}
 abs {
+    STORESTRING;
     return SYS_FUNCT;
 }
 array {return ARRAY;}
 begin {return _BEGIN;}
 boolean {
+    STORESTRING;
     return SYS_TYPE;
 }
 case {return CASE;}
 const {return CONST;}
 char {
+    STORESTRING;
     return SYS_TYPE;
 }
 chr {
+    STORESTRING;
     return SYS_FUNCT;
 }
 downto {return DOWNTO;}
@@ -64,30 +70,34 @@ div {return DIV;}
 end {return END;}
 else {return ELSE;}
 false {
-    yylval.boolean_value=0;
+    STORESTRING;
     return SYS_BOOL;//待定
     }
 for {return FOR;}
 function {return FUNCTION;}
 goto {return GOTO;}
 integer {
+    STORESTRING;
     return SYS_TYPE;
 }
 if {return IF;}
 maxint {
-    yylval.int_value=32767;
+    STORESTRING;
     return SYS_CON;//返回整数类型
 }
 not {return NOT;}
 odd {
+    STORESTRING;
     return SYS_FUNCT;
 }
 of {return OF;}
 ord {
+    STORESTRING;
     return SYS_FUNCT;
 }
 or {return OR;}
 pred {
+    STORESTRING;
     return SYS_FUNCT;
 }
 program {return PROGRAM;}
@@ -96,24 +106,30 @@ read {
     return READ;
 }
 real {
+    STORESTRING;
     return SYS_TYPE;
 }
 record {return RECORD;}
 repeat {return REPEAT;}
 sqrt {
+    STORESTRING;
     return SYS_FUNCT;
 }
 sqr {
+    STORESTRING;
     return SYS_FUNCT;
 }
-string {return STRING;}
+string {
+    STORESTRING;
+    return SYS_TYPE;}
 succ {
+    STORESTRING;
     return SYS_FUNCT;
 }
 to { return TO;}
 then {return THEN;}
 true {
-    yylval.boolean_value=1;
+    STORESTRING;
     return SYS_BOOL;//待定
     }
 type {
@@ -123,39 +139,35 @@ until {return UNTIL;}
 var {return VAR;}
 while {return WHILE;}
 writeln {
+    STORESTRING;
     return SYS_PROC;
 }
 write {
+    STORESTRING;
     return SYS_PROC;
 }
 
  /* 数字，变量名，字符和字符串 */
 
 "'"{ANY}"'" {
+    STORESTRING;
     return CHAR;
 }
 "'"{ANY}{ANY}+"'" {
+    STORESTRING;
     return STRING;
 }
 {ID} { //和NAME一个形式，不区分
+    STORESTRING;
     return ID;
 }
 [ \t]+ ;//分隔符
 {INTNUM} {
-    int temp;
-    sscanf(yytext,"%d",&temp);
-    if (temp>32767 || temp <-32768)//加入溢出*******
-    {
-        fprintf(stderr,"Integer Overflow.\n");
-        exit(1);
-    }
-    yylval.int_value=temp;
+    STORESTRING;
     return INTEGER;
 }
 {REALNUM} {
-    float temp;
-    sscanf(yytext,"%f",&temp);
-    yylval.real_value=temp;
+    STORESTRING;
     return REAL;
 }
 . { fprintf(stderr,"lexical error.\n");exit(1);}//其余字符不被认可

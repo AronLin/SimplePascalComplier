@@ -287,11 +287,15 @@ enum {
         llvm::Value* CodeGen(CodeGenContext& context) {};
     };
 
-    class StmtListNode:public Node{
+    class StmtListNode:public StmtNode{
     public:
         StmtListNode(){this->_type = STMT_LIST;}
         std::vector<StmtNode*> list;
         void insert(StmtNode* node) {list.push_back(node);}
+        virtual vector<StmtNode*>* getlist()
+        {
+            return &list;
+        }
 
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
@@ -299,6 +303,7 @@ enum {
     //Base Class, should not be implemented
     class StmtNode:public Node{
     public:
+        virtual vector<StmtNode*>* getlist(){}
         virtual llvm::Value *CodeGen(CodeGenContext& context) = 0;
     };
 
@@ -546,11 +551,12 @@ public:
     enum class OpType : int {
         AND,
         OR,
-        NOT,
+        XOR,
         PLUS,
         MINUS,
         MUL,
         DIV,
+        DIVI,
         MOD,
         EQUAL,
         UNEQUAL,
@@ -560,10 +566,10 @@ public:
         GE
     };
 
-    Expression *operand1, *operand2;
+    ExpNode *operand1, *operand2;
     OpType op;
 
-    BinaryNode(Expression* op1, OpType op, Expression* op2) :operand1(op1),op(op),operand2(op2)
+    BinaryNode(ExpNode* op1, OpType op, ExpNode* op2) :operand1(op1),op(op),operand2(op2)
     {}
 
     virtual llvm::Value *CodeGen(CodeGenContext& context);
