@@ -251,7 +251,7 @@ llvm : Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
 }
 
 
-llvm::Value *BinaryExprAST::codegen()
+llvm::Value *BinaryAST::codegen()
 {
     llvm::Value *L = lhs->codegen();
     llvm::Value *R = rhs->codegen();
