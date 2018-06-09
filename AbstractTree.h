@@ -174,9 +174,9 @@ enum {
 
         ConstExprListNode(ConstExprNode* const_expr){
             this->_type = CONST_EXPR_LIST;
-            (this->const_expr_list)->push_back(const_expr);
+            this->const_expr_list->push_back(const_expr);
         }
-        ConstExprListNode(vector<ConstExprNode*> &const_expr){
+        ConstExprListNode(std::vector<ConstExprNode*> &const_expr){
             this->_type = CONST_EXPR_LIST;
             const_expr_list = const_expr;
         }
@@ -209,7 +209,7 @@ enum {
     //type part:
     class TypeDefineListNode:public Node{
     public:
-        vector<TypeDefineNode*> type_define_list;
+        std::vector<TypeDefineNode*> type_define_list;
 
         TypeDefineListNode(){this->_type = TYPE_DEFINE_LIST;}
 
@@ -218,7 +218,7 @@ enum {
             //need clear ? 
             (this->type_decl_list)->push_back(type_define);
         }
-        TypeDefineListNode(vector<TypeDefineNode*>& _type_define_list){
+        TypeDefineListNode(std::vector<TypeDefineNode*>& _type_define_list){
             this->_type = TYPE_DEFINE_LIST;
             // for (auto iter:*type_define_list) {
             //     this->type_define_list.push_back(iter);
@@ -293,7 +293,7 @@ enum {
         StmtListNode(){this->_type = STMT_LIST;}
         std::vector<StmtNode*> list;
         void insert(StmtNode* node) {list.push_back(node);}
-        virtual vector<StmtNode*>* getlist()
+        virtual std::vector<StmtNode*>* getlist()
         {
             return &list;
         }
@@ -304,7 +304,7 @@ enum {
     //Base Class, should not be implemented
     class StmtNode:public Node{
     public:
-        virtual vector<StmtNode*>* getlist(){}
+        virtual std::vector<StmtNode*>* getlist(){}
         virtual llvm::Value *CodeGen(CodeGenContext& context) = 0;
     };
 
@@ -416,11 +416,11 @@ enum {
         }
         int type;
         IdNode* id;
-        ParaDeclList* para_decl_list;
+        ParaDeclListNode* para_decl_list;
         TypeDeclNode* type_decl;
         RoutineNode* sub_routine;
         
-        RoutineDeclNode(int FuncorPro,IdNode* _id,ParaDeclList* _para_decl_list,TypeDeclNode* _type_decl,RoutineNode* _sub_routine = nullptr):type(FuncorPro),id(_id),para_decl_list(_para_decl_list),type_decl(_type_decl),sub_routine(_sub_routine){
+        RoutineDeclNode(int FuncorPro,IdNode* _id,ParaDeclListNode* _para_decl_list,TypeDeclNode* _type_decl,RoutineNode* _sub_routine = nullptr):type(FuncorPro),id(_id),para_decl_list(_para_decl_list),type_decl(_type_decl),sub_routine(_sub_routine){
             //initial child
         }
 
