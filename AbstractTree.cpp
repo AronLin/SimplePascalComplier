@@ -25,6 +25,8 @@ llvm::Value *AbstractTree::ProgramNode::CodeGen(CodeGenContext &context)
     context.pushBlock(bb);
 
     context.printf = context.getPrintfPrototype();
+    std::cout << "CG Program Node\nAddr Routine: " << this->routine << std::endl;
+    //std::cout << "Addr this: " << this << std::endl;
     // Important: IRBuilder InsertPoint should be reset everytime a new BB is created
     // IRBuilder tracks the insertion point of the Instruction
     context.Builder.SetInsertPoint(bb);
@@ -94,6 +96,7 @@ llvm::Value *AbstractTree::VarDeclListNode::CodeGen(CodeGenContext &context)
 
 llvm::Value *AbstractTree::RoutineHeadNode::CodeGen(CodeGenContext &context)
 {
+    std::cout << "CG RoutineHeadNode" << std::endl;
     return this->varDeclList->CodeGen(context);
 }
 

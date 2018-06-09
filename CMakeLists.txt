@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 project(SimplePascalCompiler)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-return-type -Wno-c++11-compat-deprecated-writable-strings -Wno-deprecated-register -Wno-switch")
-set(CMAKE_CXX_COMPILER /usr/bin/clang++-6.0)
 
 FIND_PACKAGE(BISON REQUIRED)
 SET(BisonOutput ${CMAKE_SOURCE_DIR}/parser.cpp)
