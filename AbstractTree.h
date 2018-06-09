@@ -132,6 +132,9 @@ class ProgramNode : public Node
     }
     ProgramNode(IdNode *_program_head, RoutineNode *routine)
     {
+        std::cout << "Cr ProgramNode" << std::endl;
+        std::cout << "Addr Routine: " << routine << std::endl;
+        //std::cout << "Addr this: " << this << std::endl;
         this->_type = PROGRAM;
         this->routine = routine;
         program_head = _program_head;
@@ -155,6 +158,8 @@ class RoutineNode : public Node
     }
     RoutineNode(RoutineHeadNode *routine_head, RoutineBodyNode *routine_body)
     {
+        std::cout << "Cr RoutineNode" << std::endl;
+        std::cout << "Addr RoutineBody: " << routine_body << std::endl;
         //routine head
         this->_type = ROUTINE;
         routineBody = routine_body;
@@ -177,6 +182,7 @@ class RoutineHeadNode : public Node
     RoutineDeclListNode *routineDeclList;
     RoutineHeadNode(LabelPartNode *labelPartNode, ConstExprListNode *constExprList, TypeDefineListNode *typeDefineNodeList, VarDeclListNode *varDeclList, RoutineDeclListNode *routineDeclList) : labelPartNode(labelPartNode), constExprList(constExprList), varDeclList(varDeclList), typeDefineNodeList(typeDefineNodeList), routineDeclList(routineDeclList)
     {
+        std::cout << "Cr RoutineHeadNode" << std::endl;
     }
     virtual llvm::Value *CodeGen(CodeGenContext &context);
 };
@@ -301,7 +307,7 @@ class RoutineBodyNode : public Node
 {
   public:
     StmtListNode *stmtList;
-    RoutineBodyNode(StmtListNode *node) : stmtList(node) {}
+    RoutineBodyNode(StmtListNode *node) : stmtList(node) { std::cout << "Cr RoutineBodyNode" << std::endl; }
     virtual llvm::Value *CodeGen(CodeGenContext &context);
 };
 
@@ -343,7 +349,11 @@ class StmtNode : public Node
 class StmtListNode : public StmtNode
 {
   public:
-    StmtListNode() { this->_type = STMT_LIST; }
+    StmtListNode()
+    {
+        std::cout << "Cr StmtListNode" << std::endl;
+        this->_type = STMT_LIST;
+    }
     std::vector<StmtNode *> list;
     void insert(StmtNode *node) { list.push_back(node); }
     virtual std::vector<StmtNode *> *getlist()
@@ -379,9 +389,10 @@ class VarDeclNode : public Node
   public:
     NameListNode *nameList;
     TypeDeclNode *type;
-    VarDeclNode(NameListNode *names, TypeDeclNode *type) : nameList(names), type(type){
-
-                                                                            };
+    VarDeclNode(NameListNode *names, TypeDeclNode *type) : nameList(names), type(type)
+    {
+        std::cout << "Cr VarDeclNode" << std::endl;
+    };
     virtual llvm::Value *CodeGen(CodeGenContext &context);
 };
 
@@ -431,7 +442,7 @@ class AssignStmtNode : public StmtNode
   public:
     IdNode *lhs;
     ExpNode *rhs;
-    AssignStmtNode(IdNode *lhs, ExpNode *rhs) : lhs(lhs), rhs(rhs) {}
+    AssignStmtNode(IdNode *lhs, ExpNode *rhs) : lhs(lhs), rhs(rhs) { std::cout << "Cr AssignStmtNode" << std::endl;}
     virtual llvm::Value *CodeGen(CodeGenContext &context);
 };
 

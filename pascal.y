@@ -7,8 +7,8 @@
 #include "parser.hpp"
 
 
-AbstractTree::Node* astRoot;
-int yylex(void);
+AbstractTree::ProgramNode* astRoot;
+extern int yylex(void);
 void yyerror(char const *str);
 
 //abs chr odd ord pred sqr sqrt succ read write writeln
@@ -110,7 +110,7 @@ program_head : PROGRAM ID SEMI {
     } 
     |    { char* temp=strdup("none");  $$=new AbstractTree::IdNode(temp); }
 ;
-routine: routine_head routine_body { $$ = new AbstractTree::RoutineNode($1, $2); }
+routine: routine_head routine_body { $$ = new AbstractTree::RoutineNode($1, $2); std::cout << "Addr Routine: " << $$ << std::endl; }
 ;
 sub_routine: routine_head routine_body {$$=new AbstractTree::RoutineNode($1,$2);}
 ;
@@ -268,7 +268,7 @@ para_type_list://这两个有啥不同我还没有发现，先写成一样
 
 
 routine_body:  
-	compound_stmt { $$ = new AbstractTree::RoutineBodyNode($1); }
+	compound_stmt { $$ = new AbstractTree::RoutineBodyNode($1); std::cout << "Addr RoutineBody: " << $$ << std::endl; }
 ;
 compound_stmt: 
 	_BEGIN stmt_list END { $$ = $2; }
