@@ -251,7 +251,7 @@ llvm::Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
 }
 
 
-llvm::Value *AbstractTree::BinaryNode::CodeGen()
+llvm::Value *AbstractTree::BinaryNode::CodeGen(CodeGenContext& context)
 {
     llvm::Value *L = lhs->CodeGen();
     llvm::Value *R = rhs->CodeGen();
@@ -260,16 +260,16 @@ llvm::Value *AbstractTree::BinaryNode::CodeGen()
     if(L->getType()->isDoubleTy() || R->getType()->isDoubleTy()){
         //only arithmetic
         if(!L->getType()->isDoubleTy()){//L is a int; change it to double;
-            L = context.Builder.CreateUIToFP(L, Type::getDoubleTy(TheContext));
+            L = context.Builder.CreateUIToFP(L, llvm::Type::getDoubleTy(GlobalLLVMContext::getGlobalContext()));
         }
         if(!R->getType()->isDoubleTy()){//R is a int; change it to double;
-            R = context.Builder.CreateUIToFP(R, Type::getDoubleTy(TheContext));
+            R = context.Builder.CreateUIToFP(R, llvm::Type::getDoubleTy(GlobalLLVMContext::getGlobalContext());
         }
         switch (op)
         {
-        case OpType::ADD:
+        case OpType::PLUS:
             return context.Builder.CreateFAdd(L, R, "add");
-        case OpType::SUB:
+        case OpType::MINUS:
             return context.Builder.CreateFSub(L, R, "sub");
         case OpType::MUL:
             return context.Builder.CreateFMul(L, R, "mul");
@@ -289,19 +289,21 @@ llvm::Value *AbstractTree::BinaryNode::CodeGen()
         case OpType::UNEQUAL:
             return context.Builder.CreateFCmpUNE(L, R, "ne_cmp");
         case OpType::EQUAL:
-            return = Builder.CreateFCmpUEQ(L, R, "eq_cmp");
+            return context.Builder.CreateFCmpUEQ(L, R, "eq_cmp");
         default:
-            return llvm::LogErrorV("invalid binary operator");
+            std::cout << "invalid binary operator" << std::endl;
         }
     }else{// bool and char are also int
-        case OpType::ADD:
+        switch (op)
+        {
+        case OpType::PLUS:
             return context.Builder.CreateAdd(L, R, "add");
-        case OpType::SUB:
+        case OpType::MINUS:
             return context.Builder.CreateSub(L, R, "sub");
         case OpType::MUL:
             return context.Builder.CreateMul(L, R, "mul");
         case OpType::DIV:
-            return context.Builder.CreateSDIV(L, R, "div");//有符号除法
+            return context.Builder.CreateSDiv(L, R, "div");//有符号除法
         case OpType::MOD:
             return context.Builder.CreateSRem (L, R, "mod");
         case OpType::LT:
@@ -315,16 +317,16 @@ llvm::Value *AbstractTree::BinaryNode::CodeGen()
         case OpType::UNEQUAL:
             return context.Builder.CreateICmpNE(L, R, "ne_cmp");
         case OpType::EQUAL:
-            return = Builder.CreateICmpEQ(L, R, "eq_cmp");
+            return context.Builder.CreateICmpEQ(L, R, "eq_cmp");
         case OpType::AND:     
             return context.Builder.CreateAnd( L, R, "and");  
         case OpType::OR:     
             return context.Builder.CreateOr( L, R, "or"); 
         case OpType::XOR:     
-            return context.Builder.CreateNot(L, R, "xor"); 
+            return context.Builder.CreateXor(L, R, "xor"); 
         
         default:
-            return llvm::LogErrorV("invalid binary operator");
+            std::cout << "invalid binary operator" << std::endl;
         
     }
    
