@@ -55,6 +55,7 @@ class BooleanTypeNode;
 class ParaDeclNode;
 class CaseStmtNode;
 class BinaryNode;
+
 //list node
 class ParaDeclListNode;
 class ConstExprListNode;
@@ -171,11 +172,14 @@ enum {
             this->_type = CONST_EXPR_LIST;
         }
 
-        ConstExprListNode(ConstExprListNode* const_expr){
+        ConstExprListNode(ConstExprNode* const_expr){
             this->_type = CONST_EXPR_LIST;
-            const_expr_list = const_expr->const_expr_list;
+            (this->const_expr_list)->push_back(const_expr);
         }
-
+        ConstExprListNode(vector<ConstExprNode*> &const_expr){
+            this->_type = CONST_EXPR_LIST;
+            const_expr_list = const_expr;
+        }
         void insert(ConstExprNode* node)
         {
             this->const_expr_list.push_back(node);
@@ -190,7 +194,7 @@ enum {
         IdNode* id;
         ConstValueNode* const_value;
         TypeDeclNode* constType;
-        ConstExprNode() {this->_type = CONST_EXPR;}
+        ConstExprNode(){this->_type = CONST_EXPR;}
         ConstExprNode(IdNode* in_id,ConstValueNode* in_const_value){
             this->_type = CONST_EXPR;
             this->id = in_id;
@@ -207,14 +211,14 @@ enum {
     public:
         vector<TypeDefineNode*> type_define_list;
 
-        // TypeDefineListNode(){this->_type = TYPE_DEFINE_LIST;}
+        TypeDefineListNode(){this->_type = TYPE_DEFINE_LIST;}
 
         TypeDefineListNode(TypeDefineNode* type_define){
             this->_type = TYPE_DEFINE_LIST;
             //need clear ? 
             (this->type_decl_list)->push_back(type_define);
         }
-        TypeDefineListNode(TypeDeclList* _type_define_list){
+        TypeDefineListNode(vector<TypeDefineNode*>& _type_define_list){
             this->_type = TYPE_DEFINE_LIST;
             // for (auto iter:*type_define_list) {
             //     this->type_define_list.push_back(iter);
@@ -248,7 +252,6 @@ enum {
         TypeDeclNode(char* ptr_c) : rawName(*(new std::string(ptr_c))) {init();}
         TypeDeclNode(TypeName tn): sysName(tn) {};
         TypeDeclNode() {};
-
         void init();
         virtual llvm::Value* CodeGen(CodeGenContext& context) {};
         llvm::Type* toLLVMType();
@@ -285,11 +288,15 @@ enum {
         llvm::Value* CodeGen(CodeGenContext& context) {};
     };
 
-    class StmtListNode:public Node{
+    class StmtListNode:public StmtNode{
     public:
         StmtListNode(){this->_type = STMT_LIST;}
         std::vector<StmtNode*> list;
         void insert(StmtNode* node) {list.push_back(node);}
+        virtual vector<StmtNode*>* getlist()
+        {
+            return &list;
+        }
 
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
@@ -297,6 +304,7 @@ enum {
     //Base Class, should not be implemented
     class StmtNode:public Node{
     public:
+        virtual vector<StmtNode*>* getlist(){}
         virtual llvm::Value *CodeGen(CodeGenContext& context) = 0;
     };
 
@@ -312,10 +320,10 @@ enum {
     class VarDeclListNode: public Node
     {
     public:
-        std::vector<VarDeclNode*>* list;
+        std::vector<VarDeclNode*> list;
         void insertNode(VarDeclNode* node)
         {
-            list->push_back(node);
+            list.push_back(node);
         }
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     }; 
@@ -327,10 +335,8 @@ enum {
         TypeDeclNode* type;
         VarDeclNode(NameListNode* names, TypeDeclNode* type): nameList(names), type(type)
         {
-            //name_list->push_back(name);
-            this->type  = type;
+
         };
-        
         virtual llvm::Value* CodeGen(CodeGenContext& context);
 
     };
@@ -423,31 +429,31 @@ enum {
     class RoutineDeclListNode: public Node{
        
         int type;
-        std::vector<RoutineDeclNode*>* list;
-        
-        RoutineDeclListNode(vector<RoutineDeclNode*> _list):list(_list){
+        std::vector<RoutineDeclNode*> list;
+        RoutineDeclListNode(){}
+        RoutineDeclListNode(vector<RoutineDeclNode*>& _list):list(_list){
 
         }
         void insertNode(RoutineDeclNode* node)
         {
-            list->push_back(node);
+            list.push_back(node);
         }
 
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     }
     //v1: only for pascal left value? i.e : val_para_list int the PASCAL.doc
     class ParaDeclNode: public Node{
-        std::vector<IdNode*>* name_list;
+        NameListNode* name_list;
         TypeDeclNode* type_decl;
-        ParaDeclNode(std::vector<IdNode*>* _name_list,TypeDeclNode* _type_decl):name_list(_name_list),type_decl(_type_decl){
+        ParaDeclNode(NameListNode* _name_list,TypeDeclNode* _type_decl):name_list(_name_list),type_decl(_type_decl){
 
         }
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     }
 
     class ParaDeclListNode: public Node{
-        std::vector<ParaDeclNode*>* list;
-        void insertNode(ParaDeclNode* node) {list->push_back(node);};
+        std::vector<ParaDeclNode*> list;
+        void insert(ParaDeclNode* node) {list.push_back(node);};
         
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     }
@@ -467,7 +473,7 @@ enum {
     {
     public:
         ExpNode* condition;
-        StmtListNode* loopStmt;
+        StmtNode* loopStmt;
         WhileStmtNode(ExpNode* condition,StmtNode* loopStmt)
         :condition(condition),loopStmt(loopStmt){}
         virtual llvm::Value *CodeGen(CodeGenContext& context);        
@@ -480,7 +486,7 @@ enum {
         ExpNode* start;
         ExpNode* end;
         int direction;//1 to. -1 downto
-        StmtListNode* loopStmt;
+        StmtNode* loopStmt;
 
         ForStmtNode(IdNode* id,ExpNode* start,int direction, ExpNode* end,StmtNode* loopStmt)
         :id(id),start(start),end(end),direction(direction),loopStmt(loopStmt){}
@@ -490,7 +496,7 @@ enum {
     class RepeatStmtNode: public StmtNode
     {
     public:
-        StmtListNode* loopStmt;
+        StmtNode* loopStmt;
         ExpNode* condition;
         RepeatStmtNode(StmtNode* loopStmt,ExpNode* condition)
         :loopStmt(loopStmt),condition(condition){}
@@ -502,7 +508,12 @@ enum {
     public:
         ExpNode* condition;
         std::vector<CaseStmtNode*> list;
-        SwitchStmtNode(ExpNode* condition,std::vector<CaseStmtNode*>* list)
+        void insert(CaseStmtNode* node)
+        {
+            list.push_back(node);
+        }
+        SwitchStmtNode(){condition=nullptr;}
+        SwitchStmtNode(ExpNode* condition,std::vector<CaseStmtNode*>& list)
         :condition(condition),list(list){}
         virtual llvm::Value *CodeGen(CodeGenContext& context);
     };
@@ -541,11 +552,12 @@ public:
     enum class OpType : int {
         AND,
         OR,
-        NOT,
+        XOR,
         PLUS,
         MINUS,
         MUL,
         DIV,
+        DIVI,
         MOD,
         EQUAL,
         UNEQUAL,
@@ -555,10 +567,10 @@ public:
         GE
     };
 
-    Expression *operand1, *operand2;
+    ExpNode *lhs, *rhs;
     OpType op;
 
-    BinaryNode(Expression* op1, OpType op, Expression* op2) :operand1(op1),op(op),operand2(op2)
+    BinaryNode(ExpNode* op1, OpType op, ExpNode* op2) :lhs(op1),op(op),rhs(op2)
     {}
 
     virtual llvm::Value *CodeGen(CodeGenContext& context);

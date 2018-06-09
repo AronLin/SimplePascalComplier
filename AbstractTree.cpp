@@ -250,101 +250,88 @@ llvm : Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
     return PN;
 }
 
-// llvm::Value* AbstractTree::RepeatStmtNode::CodeGen(CodeGenContext& context) {
-//     BasicBlock *loop_block = BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loop", context.currentFunction);
-//     BasicBlock *exit_block = BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "eixt", context.currentFunction);    
-//     llvm::BranchInst::Create(loop_block,context.currentBlock());
 
-//     context.pushBlock(bloop);
-//     loopStmt->CodeGen(context);
-//     Value* test = condition->CodeGen( context );
-//     llvm::Instruction *ret = llvm::BranchInst::Create(bexit,bloop,test,context.currentBlock());
-//     context.popBlock();
-
-//     context.pushBlock(bexit);
-
-//     return ret;
-// }
-llvm::Value* AbstractTree::BinaryNode::CodeGen(CodeGenContext& context) {
-    llvm::Instruction::BinaryOps instr;
-    Value* op1_value = operand1->CodeGen(context);
-    Value* op2_value = operand2->CodeGen(context);
-
-    if (op1_value->getType()->isDoubleTy() || op2_value->getType()->isDoubleTy()) {
-        switch (op) {
-        // Arithmetic Operations
-        case OpType::plus:    return llvm::BinaryOperator::Create( llvm::Instruction::FAdd,
-                op1_val, op2_val, "", context.currentBlock());
-        case OpType::minus:   return llvm::BinaryOperator::Create( llvm::Instruction::FSub,
-                op1_val, op2_val, "", context.currentBlock());
-        case OpType::mul:     return llvm::BinaryOperator::Create( llvm::Instruction::FMul,
-                op1_val, op2_val, "", context.currentBlock());
-        case OpType::div:     return llvm::BinaryOperator::Create( llvm::Instruction::SDiv,
-                op1_val, op2_val, "", context.currentBlock());
-        case OpType::mod:     return llvm::BinaryOperator::Create( llvm::Instruction::SRem,
-                op1_val, op2_val, "", context.currentBlock());    
-        case OpType::bit_and:     return llvm::BinaryOperator::Create( llvm::Instruction::And,
-                op1_val, op2_val, "", context.currentBlock());  
-        case OpType::bit_or:     return llvm::BinaryOperator::Create( llvm::Instruction::Or,
-                op1_val, op2_val, "", context.currentBlock()); 
-        case OpType::bit_xor:     return llvm::BinaryOperator::Create( llvm::Instruction::Xor,
-                op1_val, op2_val, "", context.currentBlock()); 
-        // Logical Operations
-        
-        case OpType::eq:  {auto ret = llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ,
-                op1_val, op2_val, "", context.currentBlock()); 
-                          std::cout << "boolean value is int1 " << ret->getType()->isIntegerTy() << std::endl;
-                          return ret;}
-        case OpType::ne:  return  llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE,
-                op1_val, op2_val, "", context.currentBlock());
-        case OpType::lt:  return  llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLT,
-                op1_val, op2_val, "", context.currentBlock());
-        case OpType::gt:  return  llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGT,
-                op1_val, op2_val, "", context.currentBlock());
-        case OpType::le:  return  llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLE,
-                op1_val, op2_val, "", context.currentBlock());
-        case OpType::ge:  return  llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGE,
-                op1_val, op2_val, "", context.currentBlock());
-        //case OpType::and: return  llvm::cmp
+llvm::Value *BinaryExprAST::codegen()
+{
+    llvm::Value *L = lhs->codegen();
+    llvm::Value *R = rhs->codegen();
+    if (!L || !R)
+        return nullptr;
+    if(L->getType()->isDoubleTy() || R->getType()->isDoubleTy()){
+        //only arithmetic
+        if(!L->getType()->isDoubleTy()){//L is a int; change it to double;
+            L = Builder.CreateUIToFP(L, Type::getDoubleTy(TheContext));
         }
-    } else 
-    switch (op) {
-    // Arithmetic Operations
-    case OpType::plus:    return llvm::BinaryOperator::Create( llvm::Instruction::Add,
-            op1_val, op2_val, "", context.currentBlock());
-    case OpType::minus:   return llvm::BinaryOperator::Create( llvm::Instruction::Sub,
-            op1_val, op2_val, "", context.currentBlock());
-    case OpType::mul:     return llvm::BinaryOperator::Create( llvm::Instruction::Mul,
-            op1_val, op2_val, "", context.currentBlock());
-    case OpType::div:     return llvm::BinaryOperator::Create( llvm::Instruction::SDiv,
-            op1_val, op2_val, "", context.currentBlock());
-    case OpType::mod:     return llvm::BinaryOperator::Create( llvm::Instruction::SRem,
-            op1_val, op2_val, "", context.currentBlock());    
-    case OpType::bit_and:     return llvm::BinaryOperator::Create( llvm::Instruction::And,
-            op1_val, op2_val, "", context.currentBlock());  
-    case OpType::bit_or:     return llvm::BinaryOperator::Create( llvm::Instruction::Or,
-            op1_val, op2_val, "", context.currentBlock()); 
-    case OpType::bit_xor:     return llvm::BinaryOperator::Create( llvm::Instruction::Xor,
-            op1_val, op2_val, "", context.currentBlock()); 
-    // Logical Operations
-    
-    case OpType::eq:  {auto ret = llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ,
-            op1_val, op2_val, "", context.currentBlock()); 
-                      std::cout << "boolean value is int1 " << ret->getType()->isIntegerTy() << std::endl;
-                      return ret;}
-    case OpType::ne:  return  llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE,
-            op1_val, op2_val, "", context.currentBlock());
-    case OpType::lt:  return  llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLT,
-            op1_val, op2_val, "", context.currentBlock());
-    case OpType::gt:  return  llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGT,
-            op1_val, op2_val, "", context.currentBlock());
-    case OpType::le:  return  llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLE,
-            op1_val, op2_val, "", context.currentBlock());
-    case OpType::ge:  return  llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGE,
-            op1_val, op2_val, "", context.currentBlock());
-    //case OpType::and: return  llvm::cmp
+        if(!R->getType()->isDoubleTy()){//R is a int; change it to double;
+            R = Builder.CreateUIToFP(R, Type::getDoubleTy(TheContext));
+        }
+        switch (op)
+        {
+        case OpType::ADD:
+            return Builder.CreateFAdd(L, R, "add");
+        case OpType::SUB:
+            return Builder.CreateFSub(L, R, "sub");
+        case OpType::MUL:
+            return Builder.CreateFMul(L, R, "mul");
+        case OpType::DIV:
+            return Builder.CreateFDiv(L, R, "div");
+         case OpType::MOD:
+            return Builder.CreateFRem (L, R, "mod");
+        
+        case OpType::LT:
+            return Builder.CreateFCmpULT(L, R, "lt_cmp");
+        case OpType::LE:
+            return Builder.CreateFCmpULT(L, R, "le_cmp");
+        case OpType::GT:
+            return Builder.CreateFCmpUGT(L, R, "gt_cmp");
+        case OpType::GE:
+            return Builder.CreateFCmpUGE(L, R, "ge_cmp");
+        case OpType::UNEQUAL:
+            return Builder.CreateFCmpUNE(L, R, "ne_cmp");
+        case OpType::EQUAL:
+            return = Builder.CreateFCmpUEQ(L, R, "eq_cmp");
+        default:
+            return LogErrorV("invalid binary operator");
+        }
+    }else{// bool and char are also int
+        case OpType::ADD:
+            return Builder.CreateAdd(L, R, "add");
+        case OpType::SUB:
+            return Builder.CreateSub(L, R, "sub");
+        case OpType::MUL:
+            return Builder.CreateMul(L, R, "mul");
+        case OpType::DIV:
+            return Builder.CreateSDIV(L, R, "div");//有符号除法
+        case OpType::MOD:
+            return Builder.CreateSRem (L, R, "mod");
+        case OpType::LT:
+            return Builder.CreateICmpSLT(L, R, "lt_cmp");//统统用有符号比较 正常的字母小于128...
+        case OpType::LE:
+            return Builder.CreateICmpSLT(L, R, "le_cmp");
+        case OpType::GT:
+            return Builder.CreateICmpSGT(L, R, "gt_cmp");
+        case OpType::GE:
+            return Builder.CreateICmpSGE(L, R, "ge_cmp");
+        case OpType::UNEQUAL:
+            return Builder.CreateICmpNE(L, R, "ne_cmp");
+        case OpType::EQUAL:
+            return = Builder.CreateICmpEQ(L, R, "eq_cmp");
+        case OpType::AND:     
+            return Builder.CreateAnd( L, R, "and");  
+        case OpType::OR:     
+            return Builder.CreateOr( L, R, "or"); 
+        case OpType::XOR:     
+            return Builder.CreateNot(L, R, "xor"); 
+        
+        default:
+            return LogErrorV("invalid binary operator");
+        
     }
-    return nullptr;
+   
+}
+
+
+
 llvm::Value* AbstractTree::ConstExprNode::CodeGen(CodeGenContext& context)
 {
     auto alloc = context.Builder.CreateAlloca(this->constType->toLLVMType(), 0, nullptr, this->id->name.c_str());
@@ -429,5 +416,25 @@ llvm::Value* AbstractTree::ForStmtNode::CodeGen(CodeGenContext& context)
     context.popBlock();
     context.pushBlock(loopExitB);
     context.Builder.SetInsertPoint(loopExitB);
+
+    return ret;
+}
+
+llvm::Value* AbstractTree::RepeatStmtNode::CodeGen(CodeGenContext& context)
+{
+    llvm::BasicBlock* loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
+    llvm::BasicBlock* loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
+
+    context.Builder.CreateBr(loopStmtB);
+    context.pushBlock(loopStmtB);
+    loopStmt->CodeGen(context);
+    context.Builder.SetInsertPoint(loopStmtB);
+    llvm::Value* test = this->condition->CodeGen(context);
+    llvm::Value* ret = context.Builder.CreateCondBr(test, loopEndB，loopStmtB);
+
+    context.popBlock();
+    context.pushBlock(loopEndB);
+    context.Builder.SetInsertPoint(loopEndB);
+
     return ret;
 }
