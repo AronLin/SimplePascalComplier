@@ -19,7 +19,6 @@
 #include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
-#include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/IR/ValueSymbolTable.h>
 
