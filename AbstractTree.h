@@ -196,7 +196,7 @@ class LabelPartNode : public Node
         this->_type = LABEL_PART;
         this->label = input;
     }
-    virtual llvm::Value *CodeGen(CodeGenContext &context);
+    virtual llvm::Value *CodeGen(CodeGenContext &context){};
 };
 
 //TODO:
@@ -260,7 +260,7 @@ class TypeDefineListNode : public Node
         // }
         type_define_list = _type_define_list;
     }
-    virtual llvm::Value *CodeGen(CodeGenContext &context);
+    virtual llvm::Value *CodeGen(CodeGenContext &context){};
 };
 class TypeDefineNode : public Node
 {
@@ -440,8 +440,9 @@ class ProcStmtNode : public StmtNode
   public:
     IdNode *id;
     ExpListNode *args;
-
-    virtual llvm::Value *CodeGen(CodeGenContext &context);
+    ProcStmtNode(){};
+    ProcStmtNode(IdNode *idd, ExpListNode *arg) : id(idd), args(arg){};
+    virtual llvm::Value *CodeGen(CodeGenContext &context){};
 };
 
 class SysProcStmtNode : public ProcStmtNode
@@ -476,7 +477,7 @@ class RoutineDeclNode : public Node
         //initial child
     }
 
-    virtual llvm::Value *CodeGen(CodeGenContext &context);
+    virtual llvm::Value *CodeGen(CodeGenContext &context) {};
 };
 class RoutineDeclListNode : public Node
 {
@@ -492,25 +493,27 @@ class RoutineDeclListNode : public Node
         list.push_back(node);
     }
 
-    virtual llvm::Value *CodeGen(CodeGenContext &context);
+    virtual llvm::Value *CodeGen(CodeGenContext &context){};
 };
 //v1: only for pascal left value? i.e : val_para_list int the PASCAL.doc
 class ParaDeclNode : public Node
 {
+  public:
     NameListNode *name_list;
     TypeDeclNode *type_decl;
     ParaDeclNode(NameListNode *_name_list, TypeDeclNode *_type_decl) : name_list(_name_list), type_decl(_type_decl)
     {
     }
-    virtual llvm::Value *CodeGen(CodeGenContext &context);
+    virtual llvm::Value *CodeGen(CodeGenContext &context) {};
 };
 
 class ParaDeclListNode : public Node
 {
+  public:
     std::vector<ParaDeclNode *> list;
     void insert(ParaDeclNode *node) { list.push_back(node); };
 
-    virtual llvm::Value *CodeGen(CodeGenContext &context);
+    virtual llvm::Value *CodeGen(CodeGenContext &context){};
 };
 
 class IfStmtNode : public StmtNode
@@ -570,7 +573,7 @@ class SwitchStmtNode : public StmtNode
     SwitchStmtNode() { condition = nullptr; }
     SwitchStmtNode(ExpNode *condition, std::vector<CaseStmtNode *> &list)
         : condition(condition), list(list) {}
-    virtual llvm::Value *CodeGen(CodeGenContext &context);
+    virtual llvm::Value *CodeGen(CodeGenContext &context){};
 };
 
 class CaseStmtNode : public StmtNode
@@ -580,7 +583,7 @@ class CaseStmtNode : public StmtNode
     StmtNode *Stmt;
     CaseStmtNode(ExpNode *condition, StmtNode *Stmt)
         : condition(condition), Stmt(Stmt) {}
-    virtual llvm::Value *CodeGen(CodeGenContext &context);
+    virtual llvm::Value *CodeGen(CodeGenContext &context){};
 };
 
 class LabelStmtNode : public StmtNode
@@ -590,7 +593,7 @@ class LabelStmtNode : public StmtNode
     StmtNode *stmt;
     LabelStmtNode(int label, StmtNode *stmt)
         : label(label), stmt(stmt) {}
-    virtual llvm::Value *CodeGen(CodeGenContext &context);
+    virtual llvm::Value *CodeGen(CodeGenContext &context){};
 };
 
 class GotoStmtNode : public StmtNode
@@ -598,7 +601,7 @@ class GotoStmtNode : public StmtNode
   public:
     int label;
     GotoStmtNode(int label) { this->label = label; }
-    virtual llvm::Value *CodeGen(CodeGenContext &context);
+    virtual llvm::Value *CodeGen(CodeGenContext &context) {};
 };
 
 class BinaryNode : public ExpNode
