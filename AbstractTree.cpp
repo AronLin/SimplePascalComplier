@@ -467,3 +467,17 @@ llvm::Value *AbstractTree::ProcStmtNode::CodeGen(CodeGenContext &context){
     return context.Builder.CreateCall(call, llvm::makeArrayRef(arguments));
 
 }
+
+
+// llvm::Value *AbstractTree::TypeDefineNode::CodeGen(CodeGenContext &context){
+//     TypeDefineNode::id
+// }
+
+// llvm::Value *AbstractTree::TypeDefineListNode::CodeGen(CodeGenContext &context){
+//     llvm::Value *ret;
+//     for (auto i : list)
+//     {
+//         ret = i->CodeGen(context);
+//     }
+//     return ret;
+// }

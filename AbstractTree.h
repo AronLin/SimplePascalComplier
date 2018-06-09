@@ -183,19 +183,19 @@ class RoutineHeadNode : public Node
 
 class LabelPartNode : public Node
 {
-    //todo:how this label work? need a label table?
+    //an empty node; not so sure about its function
   public:
-    int label;
+    // int label;
     LabelPartNode()
     {
         this->_type = LABEL_PART;
-        this->label = -1;
+        //this->label = -1;
     }
-    LabelPartNode(int input)
-    {
-        this->_type = LABEL_PART;
-        this->label = input;
-    }
+    // LabelPartNode(int input)
+    // {
+    //     this->_type = LABEL_PART;
+    //     this->label = input;
+    // }
     virtual llvm::Value *CodeGen(CodeGenContext &context){};
 };
 
@@ -255,9 +255,6 @@ class TypeDefineListNode : public Node
     TypeDefineListNode(std::vector<TypeDefineNode *> &_type_define_list)
     {
         this->_type = TYPE_DEFINE_LIST;
-        // for (auto iter:*type_define_list) {
-        //     this->type_define_list.push_back(iter);
-        // }
         type_define_list = _type_define_list;
     }
     virtual llvm::Value *CodeGen(CodeGenContext &context){};
