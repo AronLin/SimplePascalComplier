@@ -202,48 +202,48 @@ llvm::Value *AbstractTree::RoutineBodyNode::CodeGen(CodeGenContext &context)
     return this->stmtList->CodeGen(context);
 }
 
-llvm : Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
+llvm::Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
 {
-    Value *cond_value = condition->CodeGen(context);
+    llvm::Value *cond_value = condition->CodeGen(context);
     if (!cond_value)
         return nullptr;
     
-    Function *TheFunction = Builder.GetInsertBlock()->getParent();
-    BasicBlock *then_block = BasicBlock::Create(GlobalLLVMContext::
+    llvm::Function *TheFunction = context.Builder.GetInsertBlock()->getParent();
+    llvm::BasicBlock *then_block = llvm::BasicBlock::Create(GlobalLLVMContext::
                                                     : getGlobalContext(), "then", context.currentFunction);
-    BasicBlock *else_block = BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "else", context.currentFunction);
-    BasicBlock *merge_block = BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "merge", context.currentFunction);
+    llvm::BasicBlock *else_block = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "else", context.currentFunction);
+    llvm::BasicBlock *merge_block = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "merge", context.currentFunction);
 
     //条件分支
-    Builder.CreateCondBr(cond_value, then_block, else_block);
+    context.Builder.CreateCondBr(cond_value, then_block, else_block);
     //
     // Emit then value.
-    Builder.SetInsertPoint(then_block);
+    context.Builder.SetInsertPoint(then_block);
 
-    Value *then_value = thenStmt->codegen();
+    llvm::Value *then_value = thenStmt->codegen();
     if (!then_value)
         return nullptr;
 
-    Builder.CreateBr(merge_block);
+    context.Builder.CreateBr(merge_block);
     // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
-    then_block = Builder.GetInsertBlock();
+    then_block = context.Builder.GetInsertBlock();
 
     // Emit else block.
     TheFunction->getBasicBlockList().push_back(else_block);
-    Builder.SetInsertPoint(else_block);
+    context.Builder.SetInsertPoint(else_block);
 
-    Value *else_value = elseStmt->codegen();
+    llvm::Value *else_value = elseStmt->codegen();
     if (!else_value)
         return nullptr;
 
-    Builder.CreateBr(merge_block);
+    context.Builder.CreateBr(merge_block);
     // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
-    else_block = Builder.GetInsertBlock();
+    else_block = context.Builder.GetInsertBlock();
 
     // Emit merge block.
-    TheFunction->getBasicBlockList().push_back(merge_block);
-    Builder.SetInsertPoint(merge_block);
-    PHINode *PN = Builder.CreatePHI(Type::getDoubleTy(GlobalLLVMContext::getGlobalContext()), 2, "iftmp");
+    llvm::TheFunction->getBasicBlockList().push_back(merge_block);
+    context.Builder.SetInsertPoint(merge_block);
+    llvm::PHINode *PN = context.Builder.CreatePHI(Type::getDoubleTy(GlobalLLVMContext::getGlobalContext()), 2, "iftmp");
 
     PN->addIncoming(then_value, then_block);
     PN->addIncoming(else_value, else_block);
@@ -251,7 +251,7 @@ llvm : Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
 }
 
 
-llvm::Value *BinaryAST::codegen()
+llvm::Value *AbstractTree::BinaryNode::codegen()
 {
     llvm::Value *L = lhs->codegen();
     llvm::Value *R = rhs->codegen();
@@ -260,71 +260,71 @@ llvm::Value *BinaryAST::codegen()
     if(L->getType()->isDoubleTy() || R->getType()->isDoubleTy()){
         //only arithmetic
         if(!L->getType()->isDoubleTy()){//L is a int; change it to double;
-            L = Builder.CreateUIToFP(L, Type::getDoubleTy(TheContext));
+            L = context.Builder.CreateUIToFP(L, Type::getDoubleTy(TheContext));
         }
         if(!R->getType()->isDoubleTy()){//R is a int; change it to double;
-            R = Builder.CreateUIToFP(R, Type::getDoubleTy(TheContext));
+            R = context.Builder.CreateUIToFP(R, Type::getDoubleTy(TheContext));
         }
         switch (op)
         {
         case OpType::ADD:
-            return Builder.CreateFAdd(L, R, "add");
+            return context.Builder.CreateFAdd(L, R, "add");
         case OpType::SUB:
-            return Builder.CreateFSub(L, R, "sub");
+            return context.Builder.CreateFSub(L, R, "sub");
         case OpType::MUL:
-            return Builder.CreateFMul(L, R, "mul");
+            return context.Builder.CreateFMul(L, R, "mul");
         case OpType::DIV:
-            return Builder.CreateFDiv(L, R, "div");
+            return context.Builder.CreateFDiv(L, R, "div");
          case OpType::MOD:
-            return Builder.CreateFRem (L, R, "mod");
+            return context.Builder.CreateFRem (L, R, "mod");
         
         case OpType::LT:
-            return Builder.CreateFCmpULT(L, R, "lt_cmp");
+            return context.Builder.CreateFCmpULT(L, R, "lt_cmp");
         case OpType::LE:
-            return Builder.CreateFCmpULT(L, R, "le_cmp");
+            return context.Builder.CreateFCmpULT(L, R, "le_cmp");
         case OpType::GT:
-            return Builder.CreateFCmpUGT(L, R, "gt_cmp");
+            return context.Builder.CreateFCmpUGT(L, R, "gt_cmp");
         case OpType::GE:
-            return Builder.CreateFCmpUGE(L, R, "ge_cmp");
+            return context.Builder.CreateFCmpUGE(L, R, "ge_cmp");
         case OpType::UNEQUAL:
-            return Builder.CreateFCmpUNE(L, R, "ne_cmp");
+            return context.Builder.CreateFCmpUNE(L, R, "ne_cmp");
         case OpType::EQUAL:
             return = Builder.CreateFCmpUEQ(L, R, "eq_cmp");
         default:
-            return LogErrorV("invalid binary operator");
+            return llvm::LogErrorV("invalid binary operator");
         }
     }else{// bool and char are also int
         case OpType::ADD:
-            return Builder.CreateAdd(L, R, "add");
+            return context.Builder.CreateAdd(L, R, "add");
         case OpType::SUB:
-            return Builder.CreateSub(L, R, "sub");
+            return context.Builder.CreateSub(L, R, "sub");
         case OpType::MUL:
-            return Builder.CreateMul(L, R, "mul");
+            return context.Builder.CreateMul(L, R, "mul");
         case OpType::DIV:
-            return Builder.CreateSDIV(L, R, "div");//有符号除法
+            return context.Builder.CreateSDIV(L, R, "div");//有符号除法
         case OpType::MOD:
-            return Builder.CreateSRem (L, R, "mod");
+            return context.Builder.CreateSRem (L, R, "mod");
         case OpType::LT:
-            return Builder.CreateICmpSLT(L, R, "lt_cmp");//统统用有符号比较 正常的字母小于128...
+            return context.Builder.CreateICmpSLT(L, R, "lt_cmp");//统统用有符号比较 正常的字母小于128...
         case OpType::LE:
-            return Builder.CreateICmpSLT(L, R, "le_cmp");
+            return context.Builder.CreateICmpSLT(L, R, "le_cmp");
         case OpType::GT:
-            return Builder.CreateICmpSGT(L, R, "gt_cmp");
+            return context.Builder.CreateICmpSGT(L, R, "gt_cmp");
         case OpType::GE:
-            return Builder.CreateICmpSGE(L, R, "ge_cmp");
+            return context.Builder.CreateICmpSGE(L, R, "ge_cmp");
         case OpType::UNEQUAL:
-            return Builder.CreateICmpNE(L, R, "ne_cmp");
+            return context.Builder.CreateICmpNE(L, R, "ne_cmp");
         case OpType::EQUAL:
             return = Builder.CreateICmpEQ(L, R, "eq_cmp");
         case OpType::AND:     
-            return Builder.CreateAnd( L, R, "and");  
+            return context.Builder.CreateAnd( L, R, "and");  
         case OpType::OR:     
-            return Builder.CreateOr( L, R, "or"); 
+            return context.Builder.CreateOr( L, R, "or"); 
         case OpType::XOR:     
-            return Builder.CreateNot(L, R, "xor"); 
+            return context.Builder.CreateNot(L, R, "xor"); 
         
         default:
-            return LogErrorV("invalid binary operator");
+            return llvm::LogErrorV("invalid binary operator");
         
     }
    
