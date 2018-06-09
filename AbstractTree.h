@@ -442,7 +442,7 @@ class ProcStmtNode : public StmtNode
     ExpListNode *args;
     ProcStmtNode(){};
     ProcStmtNode(IdNode *idd, ExpListNode *arg) : id(idd), args(arg){};
-    virtual llvm::Value *CodeGen(CodeGenContext &context){};
+    virtual llvm::Value *CodeGen(CodeGenContext &context);
 };
 
 class SysProcStmtNode : public ProcStmtNode

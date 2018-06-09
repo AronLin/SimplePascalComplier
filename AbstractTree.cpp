@@ -448,3 +448,22 @@ AbstractTree::ConstExprNode::ConstExprNode(IdNode *in_id, ConstValueNode *in_con
     this->const_value = in_const_value;
     this->constType = new TypeDeclNode(in_const_value->getConstType());
 }
+
+// AbstractTree::LabelStmtNode::CodeGen(CodeGenContext &context)
+// {   
+//     context.Builder.CreateBr(context.labelBlock[label]);
+//     // llvm::BranchInst::Create(context.labelBlock[label],context.currentBlock());
+//     // context.pushBlock(context.labelBlock[label]);
+//     return stmt->CodeGen(context);
+// }
+
+llvm::Value *AbstractTree::ProcStmtNode::CodeGen(CodeGenContext &context){
+    Function* call = context.module->getFunction(this->id->name.c_str());
+    if(!call) throw std::domain_error("function or procedure " + this->id->name+" is not defined.");
+    std::vector<llvm::Value *> arguments;
+    for(auto iter : *args){
+        arguments.push_back(iter->CodeGen(content));
+    }
+    return context.Builder.CreateCall(call, llvm::makeArrayRef(arguments));
+
+}
