@@ -13,7 +13,7 @@
 // Created by Ken on 2018/6/5.
 //QAQ
 
-// ProgramNode should be defined in the YACC file, and passed to the CodeGenContext to do the codegen
+// ProgramNode should be defined in the YACC file, and passed to the CodeGenContext to do the CodeGen
 llvm::Value *AbstractTree::ProgramNode::CodeGen(CodeGenContext &context)
 {
     // Create main func entry
@@ -220,7 +220,7 @@ llvm::Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
     // Emit then value.
     context.Builder.SetInsertPoint(then_block);
 
-    llvm::Value *then_value = thenStmt->codegen();
+    llvm::Value *then_value = thenStmt->CodeGen();
     if (!then_value)
         return nullptr;
 
@@ -232,7 +232,7 @@ llvm::Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
     TheFunction->getBasicBlockList().push_back(else_block);
     context.Builder.SetInsertPoint(else_block);
 
-    llvm::Value *else_value = elseStmt->codegen();
+    llvm::Value *else_value = elseStmt->CodeGen();
     if (!else_value)
         return nullptr;
 
@@ -251,10 +251,10 @@ llvm::Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
 }
 
 
-llvm::Value *AbstractTree::BinaryNode::codegen()
+llvm::Value *AbstractTree::BinaryNode::CodeGen()
 {
-    llvm::Value *L = lhs->codegen();
-    llvm::Value *R = rhs->codegen();
+    llvm::Value *L = lhs->CodeGen();
+    llvm::Value *R = rhs->CodeGen();
     if (!L || !R)
         return nullptr;
     if(L->getType()->isDoubleTy() || R->getType()->isDoubleTy()){

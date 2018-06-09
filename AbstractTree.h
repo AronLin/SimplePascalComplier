@@ -557,7 +557,7 @@ public:
         MINUS,
         MUL,
         DIV,
-        DIVI,
+        // DIVI,
         MOD,
         EQUAL,
         UNEQUAL,
