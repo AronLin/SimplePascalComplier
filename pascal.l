@@ -34,7 +34,7 @@ COMMENT {}//do nothing
 "+" {return PLUS;}//加
 "-" {return MINUS;}//减
 "*" {return MUL;}//乘
-"/" {return DIVI;}//普通除法，还有一个整除div
+"/" {return DIV;}//普通除法，还有一个整除div
 ">=" {return GE;}//大于等于
 ">" {return GT;}//大于
 "<=" {return LE;}//小于等于
@@ -66,7 +66,7 @@ chr {
 }
 downto {return DOWNTO;}
 do {return DO;}
-div {return DIV;}
+div {return DIVI;}
 end {return END;}
 else {return ELSE;}
 false {
