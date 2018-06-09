@@ -374,6 +374,51 @@ llvm::Value* AbstractTree::WhileStmtNode::CodeGen(CodeGenContext& context)
     return ret;
 }
 
+llvm::Value* AbstractTree::ForStmtNode::CodeGen(CodeGenContext& context)
+{
+    llvm::BasicBlock* loopEntryB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEntry", context.curFunc);
+    llvm::BasicBlock* loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
+    llvm::BasicBlock* loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
+    llvm::BasicBlock* loopExitB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopExit", context.curFunc);
+
+    context.Builder.CreateBr(loopEntryB);
+    context.pushBlock(loopEntryB);
+    context.Builder.SetInsertPoint(loopEntryB);
+    
+    AbstractTree::AssignStmtNode assign = new AbstractTree::AssignStmtNode(this->id, this->start);
+    assign->CodeGen(context);
+    context.Builder.CreateBr(loopStmtB);
+    context.popBlock();
+    context.pushBlock(loopStmtB);
+    
+    context.Builder.SetInsertPoint(loopStmtB);
+    this->loopStmt->CodeGen(context);
+    context.Builder.CreateBr(loopEndB);
+    context.popBlock();
+    context.pushBlock(loopEndB);
+
+    context.Builder.SetInsertPoint(loopEndB);
+    auto int1 = new AbstractTree::IntegerTypeNode(1);
+    AbstractTree::BinaryNode* binOP;
+    if (this->direction == 1)
+    {
+        binOP = new AbstractTree::BinaryNode(this->id, AbstractTree::BinaryNode::OpType::PLUS, int1);
+    }
+    else
+    {
+        binOP = new AbstractTree::BinaryNode(this->id, AbstractTree::BinaryNode::OpType::MINUS, int1);
+    }
+    binOP->CodeGen(context);
+    auto testGE = new AbstractTree::BinaryNode(this->id, AbstractTree::BinaryNode::OpType::GT, this->end);
+    auto test = testGE->CodeGen(context);
+    auto ret = context.Builder.CreateCondBr(test, loopExitB,loopStmtB);
+
+    context.popBlock();
+    context.pushBlock(loopExitB);
+    context.Builder.SetInsertPoint(loopExitB);
+
+    return ret;
+}
 
 llvm::Value* AbstractTree::RepeatStmtNode::CodeGen(CodeGenContext& context)
 {
