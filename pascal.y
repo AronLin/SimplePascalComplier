@@ -35,6 +35,7 @@ void yyerror(char const *str);
     AbstractTree::ConstValueNode*     ast_ConstValue;
     AbstractTree::AssignStmtNode*     ast_AssignStmt;
     AbstractTree::CaseStmtNode*       ast_CaseStmt;
+    AbstractTree::SwitchStmtNode*     ast_SwitchStmt;
 
     AbstractTree::StmtListNode*       ast_StmtList;
     AbstractTree::ExpListNode*        ast_ExpList;    
@@ -71,7 +72,7 @@ void yyerror(char const *str);
 %type <debug> IF ELSE CASE OF GOTO //语句
 
 
-%type <ast_Node> label_part
+%type <ast_LabelPart> label_part
 %type <ast_Program> program
 %type <ast_Id> program_head
 %type <ast_Routine> routine sub_routine
@@ -83,7 +84,8 @@ void yyerror(char const *str);
 %type <ast_RoutineDecl> function_decl function_head procedure_decl procedure_head
 %type <ast_ParaDecl> para_type_list
 %type <ast_Stmt> stmt non_label_stmt proc_stmt if_stmt else_clause 
-%type <ast_Stmt> for_stmt repeat_stmt while_stmt  goto_stmt case_stmt case_expr_list
+%type <ast_Stmt> for_stmt repeat_stmt while_stmt goto_stmt 
+%type <ast_SwitchStmt> case_expr_list case_stmt
 %type <ast_AssignStmt> assign_stmt
 %type <ast_CaseStmt> case_expr
 %type <ast_Exp> expr term factor expression
@@ -125,11 +127,11 @@ const_part:
 const_expr_list:
 	const_expr_list ID EQUAL const_value SEMI {
         $$=$1;
-        $$->const_expr_list.push_back(new ConstExprNode(new IdNode($1),$3));
+        $$->const_expr_list.push_back(new AbstractTree::ConstExprNode(new AbstractTree::IdNode($2),$4));
     }
 	| ID EQUAL const_value SEMI {
         $$=new AbstractTree::ConstExprListNode();
-        $$->const_expr_list.push_back(new ConstExprNode(new IdNode($1),$3));
+        $$->const_expr_list.push_back(new AbstractTree::ConstExprNode(new AbstractTree::IdNode($1),$3));
     }
 ;
 const_value:
@@ -137,14 +139,14 @@ const_value:
 	| REAL 		{ $$ = new AbstractTree::RealTypeNode(atof($1));}
 	| CHAR 		{ $$ = new AbstractTree::CharTypeNode($1);}
 //	| STRING 	{ $$ = new AbstractTree::StringTypeNode($1);}
-	| SYS_CON   { if (strcmp("maxint",$1) $$=new AbstractTree::IntegerTypeNode(32767));//maxint
+	| SYS_CON   { if (strcmp("maxint",$1) == 0) $$=new AbstractTree::IntegerTypeNode(32767);//maxint
                     else $$=new AbstractTree::IntegerTypeNode(32767);//There is only one SYS_CON
                 }
     | SYS_BOOL  { $$ = new AbstractTree::BooleanTypeNode($1);}
 ;
 type_part:
 	TYPE type_decl_list {$$=$2;}
-	| {$$=new AbstractTree::TypeDefineListNode()}
+	| {$$=new AbstractTree::TypeDefineListNode();}
 ;
 type_decl_list:
 	type_decl_list type_definition {
@@ -158,7 +160,7 @@ type_decl_list:
 ;
 type_definition:
 	ID EQUAL type_decl SEMI {
-        $$=new AbstractTree::TypeDefineNode(new IdNode($1),$3);
+        $$=new AbstractTree::TypeDefineNode(new AbstractTree::IdNode($1),$3);
     }
 ;
 type_decl:
@@ -226,7 +228,7 @@ function_decl:
 function_head:
 	FUNCTION ID parameters COLON simple_type_decl {
         $$=new AbstractTree::RoutineDeclNode(AbstractTree::RoutineDeclNode::FUNCTION,
-        new IdNode($2),$3,$5);
+        new AbstractTree::IdNode($2),$3,$5);
     } 
 ;
 procedure_decl:
@@ -238,7 +240,7 @@ procedure_decl:
 procedure_head:
 	PROCEDURE ID parameters {
         $$=new AbstractTree::RoutineDeclNode(AbstractTree::RoutineDeclNode::PROCEDURE,
-        new IdNode($2),$3,nullptr);
+        new AbstractTree::IdNode($2),$3,nullptr);
     }	
     ;
 parameters:
@@ -377,7 +379,7 @@ term:
 	factor { $$ = $1; }
 	| term MUL factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::MUL,$3);}
 	| term DIV factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::DIV,$3);}
-    | term DIVI factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::DIVI,$3);}
+//    | term DIVI factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::DIVI,$3);}
     | term MOD factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::MOD,$3);}
     | term AND factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::AND,$3);} 
     ;
