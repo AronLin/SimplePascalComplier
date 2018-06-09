@@ -2,6 +2,7 @@
 #include "AbstractTree.h"
 #include "parser.hpp"
 #include "CodeGenContext.h"
+#include "errorhandle.h"
 
 extern int yyparse();
 extern FILE* yyin;
