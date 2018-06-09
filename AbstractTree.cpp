@@ -440,3 +440,11 @@ llvm::Value* AbstractTree::RepeatStmtNode::CodeGen(CodeGenContext& context)
 
     return ret;
 }
+
+AbstractTree::ConstExprNode::ConstExprNode(IdNode* in_id,ConstValueNode* in_const_value)
+{
+    this->_type = CONST_EXPR;
+    this->id = in_id;
+    this->const_value = in_const_value;
+    this->constType = new TypeDeclNode(in_const_value->getConstType());
+}

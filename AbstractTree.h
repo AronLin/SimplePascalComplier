@@ -174,7 +174,7 @@ enum {
 
         ConstExprListNode(ConstExprNode* const_expr){
             this->_type = CONST_EXPR_LIST;
-            this->const_expr_list->push_back(const_expr);
+            this->const_expr_list.push_back(const_expr);
         }
         ConstExprListNode(std::vector<ConstExprNode*> &const_expr){
             this->_type = CONST_EXPR_LIST;
@@ -195,12 +195,7 @@ enum {
         ConstValueNode* const_value;
         TypeDeclNode* constType;
         ConstExprNode(){this->_type = CONST_EXPR;}
-        ConstExprNode(IdNode* in_id,ConstValueNode* in_const_value){
-            this->_type = CONST_EXPR;
-            this->id = in_id;
-            this->const_value = in_const_value;
-            this->constType = new TypeDeclNode(in_const_value->getConstType());
-        }
+        ConstExprNode(IdNode* in_id,ConstValueNode* in_const_value);
         virtual llvm::Value* CodeGen(CodeGenContext& context);
     };
 
@@ -216,7 +211,7 @@ enum {
         TypeDefineListNode(TypeDefineNode* type_define){
             this->_type = TYPE_DEFINE_LIST;
             //need clear ? 
-            (this->type_decl_list)->push_back(type_define);
+            this->type_define_list.push_back(type_define);
         }
         TypeDefineListNode(std::vector<TypeDefineNode*>& _type_define_list){
             this->_type = TYPE_DEFINE_LIST;
@@ -288,6 +283,13 @@ enum {
         llvm::Value* CodeGen(CodeGenContext& context) {};
     };
 
+    //Base Class, should not be implemented
+    class StmtNode:public Node{
+    public:
+        virtual std::vector<StmtNode*>* getlist(){}
+        virtual llvm::Value *CodeGen(CodeGenContext& context) = 0;
+    };
+
     class StmtListNode:public StmtNode{
     public:
         StmtListNode(){this->_type = STMT_LIST;}
@@ -299,13 +301,6 @@ enum {
         }
 
         virtual llvm::Value *CodeGen(CodeGenContext& context);
-    };
-
-    //Base Class, should not be implemented
-    class StmtNode:public Node{
-    public:
-        virtual std::vector<StmtNode*>* getlist(){}
-        virtual llvm::Value *CodeGen(CodeGenContext& context) = 0;
     };
 
     class ExpListNode: public Node
@@ -413,7 +408,7 @@ enum {
     class RoutineDeclNode: public Node{
         enum{
             PROCEDURE,FUNCTION
-        }
+        };
         int type;
         IdNode* id;
         ParaDeclListNode* para_decl_list;
@@ -425,13 +420,13 @@ enum {
         }
 
         virtual llvm::Value *CodeGen(CodeGenContext& context);
-    }
+    };
     class RoutineDeclListNode: public Node{
        
         int type;
         std::vector<RoutineDeclNode*> list;
         RoutineDeclListNode(){}
-        RoutineDeclListNode(vector<RoutineDeclNode*>& _list):list(_list){
+        RoutineDeclListNode(std::vector<RoutineDeclNode*>& _list):list(_list){
 
         }
         void insertNode(RoutineDeclNode* node)
@@ -440,7 +435,7 @@ enum {
         }
 
         virtual llvm::Value *CodeGen(CodeGenContext& context);
-    }
+    };
     //v1: only for pascal left value? i.e : val_para_list int the PASCAL.doc
     class ParaDeclNode: public Node{
         NameListNode* name_list;
@@ -449,14 +444,14 @@ enum {
 
         }
         virtual llvm::Value *CodeGen(CodeGenContext& context);
-    }
+    };
 
     class ParaDeclListNode: public Node{
         std::vector<ParaDeclNode*> list;
         void insert(ParaDeclNode* node) {list.push_back(node);};
         
         virtual llvm::Value* CodeGen(CodeGenContext& context);
-    }
+    };
     
     class IfStmtNode: public StmtNode
     {
