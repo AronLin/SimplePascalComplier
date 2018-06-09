@@ -150,8 +150,8 @@ type_part:
 ;
 type_decl_list:
 	type_decl_list type_definition {
-        $1->type_define_list.push_back($2);
         $$=$1;
+        $$->type_define_list.push_back($2);
     }
 	| type_definition {
         $$=new AbstractTree::TypeDefineListNode();
@@ -399,7 +399,8 @@ factor:
 
 void yyerror(char const *str)
 {
-    fprintf(stderr,"%s\n",str);
+    PrintError(s);
+	parseError = 1;
 }
 // int main(void)
 // {
