@@ -71,7 +71,7 @@ void yyerror(char const *str);
 %type <debug> IF ELSE CASE OF GOTO //语句
 
 
-%type <ast_Node> label_part
+%type <ast_LabelPart> label_part
 %type <ast_Program> program
 %type <ast_Id> program_head
 %type <ast_Routine> routine sub_routine
@@ -125,11 +125,11 @@ const_part:
 const_expr_list:
 	const_expr_list ID EQUAL const_value SEMI {
         $$=$1;
-        $$->const_expr_list.push_back(new ConstExprNode(new IdNode($1),$3));
+        $$->const_expr_list.push_back(new AbstractTree::ConstExprNode(new AbstractTree::IdNode($2),$4));
     }
 	| ID EQUAL const_value SEMI {
         $$=new AbstractTree::ConstExprListNode();
-        $$->const_expr_list.push_back(new ConstExprNode(new IdNode($1),$3));
+        $$->const_expr_list.push_back(new AbstractTree::ConstExprNode(new AbstractTree::IdNode($1),$3));
     }
 ;
 const_value:
@@ -137,14 +137,14 @@ const_value:
 	| REAL 		{ $$ = new AbstractTree::RealTypeNode(atof($1));}
 	| CHAR 		{ $$ = new AbstractTree::CharTypeNode($1);}
 //	| STRING 	{ $$ = new AbstractTree::StringTypeNode($1);}
-	| SYS_CON   { if (strcmp("maxint",$1) $$=new AbstractTree::IntegerTypeNode(32767));//maxint
+	| SYS_CON   { if (strcmp("maxint",$1) == 0) $$=new AbstractTree::IntegerTypeNode(32767));//maxint
                     else $$=new AbstractTree::IntegerTypeNode(32767);//There is only one SYS_CON
                 }
     | SYS_BOOL  { $$ = new AbstractTree::BooleanTypeNode($1);}
 ;
 type_part:
 	TYPE type_decl_list {$$=$2;}
-	| {$$=new AbstractTree::TypeDefineListNode()}
+	| {$$=new AbstractTree::TypeDefineListNode();}
 ;
 type_decl_list:
 	type_decl_list type_definition {
@@ -158,7 +158,7 @@ type_decl_list:
 ;
 type_definition:
 	ID EQUAL type_decl SEMI {
-        $$=new AbstractTree::TypeDefineNode(new IdNode($1),$3);
+        $$=new AbstractTree::TypeDefineNode(new AbstractTree::IdNode($1),$3);
     }
 ;
 type_decl:

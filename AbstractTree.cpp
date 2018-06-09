@@ -207,10 +207,10 @@ llvm::Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
     llvm::Value *cond_value = condition->CodeGen(context);
     if (!cond_value)
         return nullptr;
-    
+
     llvm::Function *TheFunction = context.Builder.GetInsertBlock()->getParent();
     llvm::BasicBlock *then_block = llvm::BasicBlock::Create(GlobalLLVMContext::
-                                                    : getGlobalContext(), "then", context.currentFunction);
+                                                                : getGlobalContext(), "then", context.currentFunction);
     llvm::BasicBlock *else_block = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "else", context.currentFunction);
     llvm::BasicBlock *merge_block = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "merge", context.currentFunction);
 
@@ -250,19 +250,21 @@ llvm::Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
     return PN;
 }
 
-
-llvm::Value *AbstractTree::BinaryNode::CodeGen(CodeGenContext& context)
+llvm::Value *AbstractTree::BinaryNode::CodeGen(CodeGenContext &context)
 {
     llvm::Value *L = lhs->CodeGen();
     llvm::Value *R = rhs->CodeGen();
     if (!L || !R)
         return nullptr;
-    if(L->getType()->isDoubleTy() || R->getType()->isDoubleTy()){
+    if (L->getType()->isDoubleTy() || R->getType()->isDoubleTy())
+    {
         //only arithmetic
-        if(!L->getType()->isDoubleTy()){//L is a int; change it to double;
+        if (!L->getType()->isDoubleTy())
+        { //L is a int; change it to double;
             L = context.Builder.CreateUIToFP(L, llvm::Type::getDoubleTy(GlobalLLVMContext::getGlobalContext()));
         }
-        if(!R->getType()->isDoubleTy()){//R is a int; change it to double;
+        if (!R->getType()->isDoubleTy())
+        { //R is a int; change it to double;
             R = context.Builder.CreateUIToFP(R, llvm::Type::getDoubleTy(GlobalLLVMContext::getGlobalContext());
         }
         switch (op)
@@ -275,9 +277,9 @@ llvm::Value *AbstractTree::BinaryNode::CodeGen(CodeGenContext& context)
             return context.Builder.CreateFMul(L, R, "mul");
         case OpType::DIV:
             return context.Builder.CreateFDiv(L, R, "div");
-         case OpType::MOD:
-            return context.Builder.CreateFRem (L, R, "mod");
-        
+        case OpType::MOD:
+            return context.Builder.CreateFRem(L, R, "mod");
+
         case OpType::LT:
             return context.Builder.CreateFCmpULT(L, R, "lt_cmp");
         case OpType::LE:
@@ -293,7 +295,9 @@ llvm::Value *AbstractTree::BinaryNode::CodeGen(CodeGenContext& context)
         default:
             std::cout << "invalid binary operator" << std::endl;
         }
-    }else{// bool and char are also int
+    }
+    else
+    { // bool and char are also int
         switch (op)
         {
         case OpType::PLUS:
@@ -303,11 +307,11 @@ llvm::Value *AbstractTree::BinaryNode::CodeGen(CodeGenContext& context)
         case OpType::MUL:
             return context.Builder.CreateMul(L, R, "mul");
         case OpType::DIV:
-            return context.Builder.CreateSDiv(L, R, "div");//有符号除法
+            return context.Builder.CreateSDiv(L, R, "div"); //有符号除法
         case OpType::MOD:
-            return context.Builder.CreateSRem (L, R, "mod");
+            return context.Builder.CreateSRem(L, R, "mod");
         case OpType::LT:
-            return context.Builder.CreateICmpSLT(L, R, "lt_cmp");//统统用有符号比较 正常的字母小于128...
+            return context.Builder.CreateICmpSLT(L, R, "lt_cmp"); //统统用有符号比较 正常的字母小于128...
         case OpType::LE:
             return context.Builder.CreateICmpSLT(L, R, "le_cmp");
         case OpType::GT:
@@ -318,133 +322,129 @@ llvm::Value *AbstractTree::BinaryNode::CodeGen(CodeGenContext& context)
             return context.Builder.CreateICmpNE(L, R, "ne_cmp");
         case OpType::EQUAL:
             return context.Builder.CreateICmpEQ(L, R, "eq_cmp");
-        case OpType::AND:     
-            return context.Builder.CreateAnd( L, R, "and");  
-        case OpType::OR:     
-            return context.Builder.CreateOr( L, R, "or"); 
-        case OpType::XOR:     
-            return context.Builder.CreateXor(L, R, "xor"); 
-        
+        case OpType::AND:
+            return context.Builder.CreateAnd(L, R, "and");
+        case OpType::OR:
+            return context.Builder.CreateOr(L, R, "or");
+        case OpType::XOR:
+            return context.Builder.CreateXor(L, R, "xor");
+
         default:
             std::cout << "invalid binary operator" << std::endl;
-        
+        }
     }
-   
-}
 
-
-
-llvm::Value* AbstractTree::ConstExprNode::CodeGen(CodeGenContext& context)
-{
-    auto alloc = context.Builder.CreateAlloca(this->constType->toLLVMType(), 0, nullptr, this->id->name.c_str());
-    auto store = context.Builder.CreateStore(this->const_value->CodeGen(context), alloc);
-    return store;
-}
-
-llvm::Value* AbstractTree::ConstExprListNode::CodeGen(CodeGenContext& context)
-{
-    llvm::Value* ret;
-    for (auto x:this->const_expr_list)
+    llvm::Value *AbstractTree::ConstExprNode::CodeGen(CodeGenContext & context)
     {
-        ret = x->CodeGen(context);
+        auto alloc = context.Builder.CreateAlloca(this->constType->toLLVMType(), 0, nullptr, this->id->name.c_str());
+        auto store = context.Builder.CreateStore(this->const_value->CodeGen(context), alloc);
+        return store;
     }
-    return ret;
-}
 
-llvm::Value* AbstractTree::WhileStmtNode::CodeGen(CodeGenContext& context)
-{
-    llvm::BasicBlock* loopStartB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStart", context.curFunc);
-    llvm::BasicBlock* loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
-    llvm::BasicBlock* loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
-
-    context.Builder.CreateBr(loopStartB);
-    context.pushBlock(loopStartB);
-    // Loop Start, Cond
-    context.Builder.SetInsertPoint(loopStartB);
-    llvm::Value* test = this->condition->CodeGen(context);
-    llvm::Value* ret = context.Builder.CreateCondBr(test, loopStmtB, loopEndB);
-
-    context.pushBlock(loopStmtB);
-    context.Builder.SetInsertPoint(loopStmtB);
-    this->loopStmt->CodeGen(context);
-    context.Builder.CreateBr(loopStartB);
-
-    context.popBlock();
-    context.pushBlock(loopEndB);
-    context.Builder.SetInsertPoint(loopEndB);
-
-    return ret;
-}
-
-llvm::Value* AbstractTree::ForStmtNode::CodeGen(CodeGenContext& context)
-{
-    llvm::BasicBlock* loopEntryB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEntry", context.curFunc);
-    llvm::BasicBlock* loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
-    llvm::BasicBlock* loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
-    llvm::BasicBlock* loopExitB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopExit", context.curFunc);
-
-    context.Builder.CreateBr(loopEntryB);
-    context.pushBlock(loopEntryB);
-    context.Builder.SetInsertPoint(loopEntryB);
-    
-    AbstractTree::AssignStmtNode assign = new AbstractTree::AssignStmtNode(this->id, this->start);
-    assign->CodeGen(context);
-    context.Builder.CreateBr(loopStmtB);
-    context.popBlock();
-    context.pushBlock(loopStmtB);
-    
-    context.Builder.SetInsertPoint(loopStmtB);
-    this->loopStmt->CodeGen(context);
-    context.Builder.CreateBr(loopEndB);
-    context.popBlock();
-    context.pushBlock(loopEndB);
-
-    context.Builder.SetInsertPoint(loopEndB);
-    auto int1 = new AbstractTree::IntegerTypeNode(1);
-    AbstractTree::BinaryNode* binOP;
-    if (this->direction == 1)
+    llvm::Value *AbstractTree::ConstExprListNode::CodeGen(CodeGenContext & context)
     {
-        binOP = new AbstractTree::BinaryNode(this->id, AbstractTree::BinaryNode::OpType::PLUS, int1);
+        llvm::Value *ret;
+        for (auto x : this->const_expr_list)
+        {
+            ret = x->CodeGen(context);
+        }
+        return ret;
     }
-    else
+
+    llvm::Value *AbstractTree::WhileStmtNode::CodeGen(CodeGenContext & context)
     {
-        binOP = new AbstractTree::BinaryNode(this->id, AbstractTree::BinaryNode::OpType::MINUS, int1);
+        llvm::BasicBlock *loopStartB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStart", context.curFunc);
+        llvm::BasicBlock *loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
+        llvm::BasicBlock *loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
+
+        context.Builder.CreateBr(loopStartB);
+        context.pushBlock(loopStartB);
+        // Loop Start, Cond
+        context.Builder.SetInsertPoint(loopStartB);
+        llvm::Value *test = this->condition->CodeGen(context);
+        llvm::Value *ret = context.Builder.CreateCondBr(test, loopStmtB, loopEndB);
+
+        context.pushBlock(loopStmtB);
+        context.Builder.SetInsertPoint(loopStmtB);
+        this->loopStmt->CodeGen(context);
+        context.Builder.CreateBr(loopStartB);
+
+        context.popBlock();
+        context.pushBlock(loopEndB);
+        context.Builder.SetInsertPoint(loopEndB);
+
+        return ret;
     }
-    binOP->CodeGen(context);
-    auto testGE = new AbstractTree::BinaryNode(this->id, AbstractTree::BinaryNode::OpType::GT, this->end);
-    auto test = testGE->CodeGen(context);
-    auto ret = context.Builder.CreateCondBr(test, loopExitB,loopStmtB);
 
-    context.popBlock();
-    context.pushBlock(loopExitB);
-    context.Builder.SetInsertPoint(loopExitB);
+    llvm::Value *AbstractTree::ForStmtNode::CodeGen(CodeGenContext & context)
+    {
+        llvm::BasicBlock *loopEntryB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEntry", context.curFunc);
+        llvm::BasicBlock *loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
+        llvm::BasicBlock *loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
+        llvm::BasicBlock *loopExitB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopExit", context.curFunc);
 
-    return ret;
-}
+        context.Builder.CreateBr(loopEntryB);
+        context.pushBlock(loopEntryB);
+        context.Builder.SetInsertPoint(loopEntryB);
 
-llvm::Value* AbstractTree::RepeatStmtNode::CodeGen(CodeGenContext& context)
-{
-    llvm::BasicBlock* loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
-    llvm::BasicBlock* loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
+        AbstractTree::AssignStmtNode assign = new AbstractTree::AssignStmtNode(this->id, this->start);
+        assign->CodeGen(context);
+        context.Builder.CreateBr(loopStmtB);
+        context.popBlock();
+        context.pushBlock(loopStmtB);
 
-    context.Builder.CreateBr(loopStmtB);
-    context.pushBlock(loopStmtB);
-    loopStmt->CodeGen(context);
-    context.Builder.SetInsertPoint(loopStmtB);
-    llvm::Value* test = this->condition->CodeGen(context);
-    llvm::Value* ret = context.Builder.CreateCondBr(test, loopEndB，loopStmtB);
+        context.Builder.SetInsertPoint(loopStmtB);
+        this->loopStmt->CodeGen(context);
+        context.Builder.CreateBr(loopEndB);
+        context.popBlock();
+        context.pushBlock(loopEndB);
 
-    context.popBlock();
-    context.pushBlock(loopEndB);
-    context.Builder.SetInsertPoint(loopEndB);
+        context.Builder.SetInsertPoint(loopEndB);
+        auto int1 = new AbstractTree::IntegerTypeNode(1);
+        AbstractTree::BinaryNode *binOP;
+        if (this->direction == 1)
+        {
+            binOP = new AbstractTree::BinaryNode(this->id, AbstractTree::BinaryNode::OpType::PLUS, int1);
+        }
+        else
+        {
+            binOP = new AbstractTree::BinaryNode(this->id, AbstractTree::BinaryNode::OpType::MINUS, int1);
+        }
+        binOP->CodeGen(context);
+        auto testGE = new AbstractTree::BinaryNode(this->id, AbstractTree::BinaryNode::OpType::GT, this->end);
+        auto test = testGE->CodeGen(context);
+        auto ret = context.Builder.CreateCondBr(test, loopExitB, loopStmtB);
 
-    return ret;
-}
+        context.popBlock();
+        context.pushBlock(loopExitB);
+        context.Builder.SetInsertPoint(loopExitB);
 
-AbstractTree::ConstExprNode::ConstExprNode(IdNode* in_id,ConstValueNode* in_const_value)
-{
-    this->_type = CONST_EXPR;
-    this->id = in_id;
-    this->const_value = in_const_value;
-    this->constType = new TypeDeclNode(in_const_value->getConstType());
-}
+        return ret;
+    }
+
+    llvm::Value *AbstractTree::RepeatStmtNode::CodeGen(CodeGenContext & context)
+    {
+        llvm::BasicBlock *loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
+        llvm::BasicBlock *loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
+
+        context.Builder.CreateBr(loopStmtB);
+        context.pushBlock(loopStmtB);
+        loopStmt->CodeGen(context);
+        context.Builder.SetInsertPoint(loopStmtB);
+        llvm::Value *test = this->condition->CodeGen(context);
+        llvm::Value *ret = context.Builder.CreateCondBr(test, loopEndB，loopStmtB);
+
+        context.popBlock();
+        context.pushBlock(loopEndB);
+        context.Builder.SetInsertPoint(loopEndB);
+
+        return ret;
+    }
+
+    AbstractTree::ConstExprNode::ConstExprNode(IdNode * in_id, ConstValueNode * in_const_value)
+    {
+        this->_type = CONST_EXPR;
+        this->id = in_id;
+        this->const_value = in_const_value;
+        this->constType = new TypeDeclNode(in_const_value->getConstType());
+    }
