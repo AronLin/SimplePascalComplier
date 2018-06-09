@@ -255,9 +255,7 @@ llvm::Value *BinaryExprAST::codegen()
 {
     llvm::Value *L = lhs->codegen();
     llvm::Value *R = rhs->codegen();
-    if (op!=OpType::NOT&&(!L || !R))
-        return nullptr;
-    if(op==OpType::NOT&&!R)
+    if (!L || !R)
         return nullptr;
     if(L->getType()->isDoubleTy() || R->getType()->isDoubleTy()){
         //only arithmetic
@@ -277,6 +275,9 @@ llvm::Value *BinaryExprAST::codegen()
             return Builder.CreateFMul(L, R, "mul");
         case OpType::DIV:
             return Builder.CreateFDiv(L, R, "div");
+         case OpType::MOD:
+            return Builder.CreateFRem (L, R, "mod");
+        
         case OpType::LT:
             return Builder.CreateFCmpULT(L, R, "lt_cmp");
         case OpType::LE:
@@ -301,6 +302,8 @@ llvm::Value *BinaryExprAST::codegen()
             return Builder.CreateMul(L, R, "mul");
         case OpType::DIV:
             return Builder.CreateSDIV(L, R, "div");//有符号除法
+        case OpType::MOD:
+            return Builder.CreateSRem (L, R, "mod");
         case OpType::LT:
             return Builder.CreateICmpSLT(L, R, "lt_cmp");//统统用有符号比较 正常的字母小于128...
         case OpType::LE:
@@ -317,8 +320,8 @@ llvm::Value *BinaryExprAST::codegen()
             return Builder.CreateAnd( L, R, "and");  
         case OpType::OR:     
             return Builder.CreateOr( L, R, "or"); 
-        case OpType::NOT:     
-            return Builder.CreateNot(R, "not"); 
+        case OpType::XOR:     
+            return Builder.CreateNot(L, R, "xor"); 
         
         default:
             return LogErrorV("invalid binary operator");
