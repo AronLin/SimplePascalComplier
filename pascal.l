@@ -192,7 +192,7 @@ write {
     STORESTRING;
     return ID;
 }
-[ \t]+ {BeginToken(yytext); };//分隔符
+[ \t]+ {BeginToken(yytext);};//分隔符
 {INTNUM} {
     BeginToken(yytext); 
     STORESTRING;

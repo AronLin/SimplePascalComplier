@@ -14,8 +14,10 @@
   <component name="ChangeListManager">
     <list default="true" id="a9a5b1de-5da7-494d-9f61-a8f23dbadfc8" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AbstractTree.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/AbstractTree.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pas/1.pas" beforeDir="false" afterPath="$PROJECT_DIR$/pas/1.pas" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pascal.l" beforeDir="false" afterPath="$PROJECT_DIR$/pascal.l" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pascal.y" beforeDir="false" afterPath="$PROJECT_DIR$/pascal.y" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -31,26 +33,35 @@
       <file leaf-file-name="AbstractTree.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AbstractTree.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="224">
-              <caret line="476" column="26" selection-start-line="476" selection-start-column="22" selection-end-line="476" selection-end-column="26" />
+            <state relative-caret-position="118">
+              <caret line="539" column="20" selection-start-line="539" selection-start-column="16" selection-end-line="539" selection-end-column="20" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AbstractTree.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="AbstractTree.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AbstractTree.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="268">
+            <state relative-caret-position="1350">
               <caret line="90" column="88" selection-start-line="90" selection-start-column="88" selection-end-line="90" selection-end-column="88" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main.cpp">
+      <file leaf-file-name="Makefile" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Makefile">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="165">
-              <caret line="18" column="94" selection-start-line="18" selection-start-column="94" selection-end-line="18" selection-end-column="94" />
+              <caret line="11" column="36" selection-start-line="11" selection-start-column="36" selection-end-line="11" selection-end-column="36" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/main.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="135">
+              <caret line="9" column="19" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -61,8 +72,8 @@
       <file leaf-file-name="pascal.y" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pascal.y">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4035">
-              <caret line="269" column="1" selection-start-line="269" selection-start-column="1" selection-end-line="269" selection-end-column="1" />
+            <state relative-caret-position="34">
+              <caret line="345" column="15" selection-start-line="345" selection-start-column="15" selection-end-line="345" selection-end-column="15" />
             </state>
           </provider>
         </entry>
@@ -79,8 +90,8 @@
       <file leaf-file-name="pascal.l" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pascal.l">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1230">
-              <caret line="82" column="16" selection-start-line="82" selection-start-column="6" selection-end-line="82" selection-end-column="16" />
+            <state relative-caret-position="45">
+              <caret line="187" column="18" selection-start-line="187" selection-start-column="18" selection-end-line="187" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -132,7 +143,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>procstmtnode</find>
       <find>paradeclnode</find>
       <find>assign</find>
       <find>class routinedeclnode</find>
@@ -159,9 +169,10 @@
       <find>int32</find>
       <find>const_value</find>
       <find>else</find>
-      <find>stmt</find>
-      <find>realtypenode</find>
       <find>vardeclnode</find>
+      <find>realtypenode</find>
+      <find>stmt</find>
+      <find>error</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -178,15 +189,15 @@
         <option value="$PROJECT_DIR$/CodeGenContext.h" />
         <option value="$PROJECT_DIR$/token.cpp" />
         <option value="$PROJECT_DIR$/Makefile" />
-        <option value="$PROJECT_DIR$/pascal.l" />
         <option value="$PROJECT_DIR$/errorhandle.h" />
         <option value="$PROJECT_DIR$/errorhandle.cpp" />
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/CodeGenContext.cpp" />
-        <option value="$PROJECT_DIR$/main.cpp" />
         <option value="$PROJECT_DIR$/AbstractTree.h" />
-        <option value="$PROJECT_DIR$/pascal.y" />
         <option value="$PROJECT_DIR$/AbstractTree.cpp" />
+        <option value="$PROJECT_DIR$/main.cpp" />
+        <option value="$PROJECT_DIR$/pascal.l" />
+        <option value="$PROJECT_DIR$/pascal.y" />
       </list>
     </option>
   </component>
@@ -210,7 +221,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -222,6 +232,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -246,7 +257,7 @@
   </component>
   <component name="RunManager" selected="Application.Build All">
     <configuration name="Build All" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SimplePascalCompiler" RUN_TARGET_NAME="pascal" EXPLICIT_BUILD_TARGET_NAME="all" />
-    <configuration name="intrinsics_gen" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SimplePascalCompiler" TARGET_NAME="intrinsics_gen" CONFIG_NAME="Debug" />
+    <configuration name="intrinsics_gen" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SimplePascalCompiler" TARGET_NAME="intrinsics_gen" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SimplePascalCompiler" RUN_TARGET_NAME="pascal" />
     <configuration name="pascal" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SimplePascalCompiler" TARGET_NAME="pascal" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SimplePascalCompiler" RUN_TARGET_NAME="pascal" />
     <list>
       <item itemvalue="Application.Build All" />
@@ -274,7 +285,8 @@
       <workItem from="1528621141577" duration="4929000" />
       <workItem from="1528631815466" duration="5539000" />
       <workItem from="1528638131252" duration="9000" />
-      <workItem from="1528638220447" duration="1491000" />
+      <workItem from="1528638220447" duration="4452000" />
+      <workItem from="1528649073434" duration="1405000" />
     </task>
     <task id="LOCAL-00001" summary="update cmake">
       <created>1528558995221</created>
@@ -367,11 +379,18 @@
       <option name="project" value="LOCAL" />
       <updated>1528635427171</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Fix GlobalVariable init">
+      <created>1528639800785</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1528639800785</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="35833000" />
+    <option name="totallyTimeSpent" value="40199000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="25" width="1368" height="744" extended-state="6" />
@@ -397,23 +416,23 @@
       <window_info anchor="bottom" id="Find" order="1" />
     </layout>
     <layout-to-restore>
+      <window_info anchor="bottom" id="CMake" order="11" weight="0.221174" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Version Control" order="10" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info content_ui="combo" id="Project" order="0" weight="0.21888727" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.394081" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.423676" />
-      <window_info anchor="bottom" id="Messages" order="7" sideWeight="0.49926794" visible="true" weight="0.32866043" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50073206" side_tool="true" weight="0.32866043" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="CMake" order="11" weight="0.221174" />
+      <window_info anchor="bottom" id="Version Control" order="10" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Messages" order="7" sideWeight="0.49926794" visible="true" weight="0.32866043" />
       <window_info id="Favorites" order="2" side_tool="true" />
     </layout-to-restore>
   </component>
@@ -438,7 +457,8 @@
     <MESSAGE value="Add Funnction Call" />
     <MESSAGE value="Add function YACC" />
     <MESSAGE value="Switch" />
-    <option name="LAST_COMMIT_MESSAGE" value="Switch" />
+    <MESSAGE value="Fix GlobalVariable init" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix GlobalVariable init" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -735,13 +755,6 @@
     <entry file="file://$PROJECT_DIR$/AbstractTree.cpp">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/Makefile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="36" selection-start-line="11" selection-start-column="36" selection-end-line="11" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/token.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="214">
@@ -836,13 +849,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pascal.l">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1230">
-          <caret line="82" column="16" selection-start-line="82" selection-start-column="6" selection-end-line="82" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/errorhandle.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1875">
@@ -853,34 +859,48 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pascal.y">
+    <entry file="file://$PROJECT_DIR$/AbstractTree.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4035">
-          <caret line="269" column="1" selection-start-line="269" selection-start-column="1" selection-end-line="269" selection-end-column="1" />
+        <state relative-caret-position="1350">
+          <caret line="90" column="88" selection-start-line="90" selection-start-column="88" selection-end-line="90" selection-end-column="88" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.cpp">
+    <entry file="file://$PROJECT_DIR$/Makefile">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
-          <caret line="18" column="94" selection-start-line="18" selection-start-column="94" selection-end-line="18" selection-end-column="94" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
+          <caret line="11" column="36" selection-start-line="11" selection-start-column="36" selection-end-line="11" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pascal.l">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="187" column="18" selection-start-line="187" selection-start-column="18" selection-end-line="187" selection-end-column="18" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AbstractTree.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
-          <caret line="476" column="26" selection-start-line="476" selection-start-column="22" selection-end-line="476" selection-end-column="26" />
+        <state relative-caret-position="118">
+          <caret line="539" column="20" selection-start-line="539" selection-start-column="16" selection-end-line="539" selection-end-column="20" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AbstractTree.cpp">
+    <entry file="file://$PROJECT_DIR$/pascal.y">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="90" column="88" selection-start-line="90" selection-start-column="88" selection-end-line="90" selection-end-column="88" />
+        <state relative-caret-position="34">
+          <caret line="345" column="15" selection-start-line="345" selection-start-column="15" selection-end-line="345" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="19" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
