@@ -13,9 +13,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a9a5b1de-5da7-494d-9f61-a8f23dbadfc8" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/pas/2.ll" beforeDir="false" afterPath="$PROJECT_DIR$/pas/2.ll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pas/2.pas" beforeDir="false" afterPath="$PROJECT_DIR$/pas/2.pas" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pascal.y" beforeDir="false" afterPath="$PROJECT_DIR$/pascal.y" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -32,7 +30,7 @@
         <entry file="file://$PROJECT_DIR$/AbstractTree.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="386">
-              <caret line="798" column="33" lean-forward="true" selection-start-line="798" selection-start-column="33" selection-end-line="798" selection-end-column="33" />
+              <caret line="798" column="33" selection-start-line="798" selection-start-column="33" selection-end-line="798" selection-end-column="33" />
             </state>
           </provider>
         </entry>
@@ -62,7 +60,7 @@
         <entry file="file://$PROJECT_DIR$/pascal.y">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="132">
-              <caret line="93" column="32" selection-start-line="93" selection-start-column="32" selection-end-line="93" selection-end-column="32" />
+              <caret line="93" column="43" selection-start-line="93" selection-start-column="43" selection-end-line="93" selection-end-column="43" />
             </state>
           </provider>
         </entry>
@@ -259,7 +257,7 @@
       <workItem from="1528597688735" duration="12105000" />
       <workItem from="1528618673493" duration="10000" />
       <workItem from="1528619006080" duration="2019000" />
-      <workItem from="1528621141577" duration="4755000" />
+      <workItem from="1528621141577" duration="4929000" />
     </task>
     <task id="LOCAL-00001" summary="update cmake">
       <created>1528558995221</created>
@@ -338,15 +336,21 @@
       <option name="project" value="LOCAL" />
       <updated>1528630826810</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Add function YACC">
+      <created>1528631223443</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1528631223443</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28620000" />
+    <option name="totallyTimeSpent" value="28794000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="25" width="1368" height="744" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21888727" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -358,7 +362,7 @@
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.423676" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.423676" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -387,7 +391,8 @@
     <MESSAGE value="Fix AST::RepeatStmt" />
     <MESSAGE value="Revert to GlobalVariable and Alloca" />
     <MESSAGE value="Add Funnction Call" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add Funnction Call" />
+    <MESSAGE value="Add function YACC" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add function YACC" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -824,7 +829,7 @@
     <entry file="file://$PROJECT_DIR$/AbstractTree.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="386">
-          <caret line="798" column="33" lean-forward="true" selection-start-line="798" selection-start-column="33" selection-end-line="798" selection-end-column="33" />
+          <caret line="798" column="33" selection-start-line="798" selection-start-column="33" selection-end-line="798" selection-end-column="33" />
         </state>
       </provider>
     </entry>
@@ -838,7 +843,7 @@
     <entry file="file://$PROJECT_DIR$/pascal.y">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="132">
-          <caret line="93" column="32" selection-start-line="93" selection-start-column="32" selection-end-line="93" selection-end-column="32" />
+          <caret line="93" column="43" selection-start-line="93" selection-start-column="43" selection-end-line="93" selection-end-column="43" />
         </state>
       </provider>
     </entry>
