@@ -461,11 +461,11 @@ AbstractTree::ConstExprNode::ConstExprNode(IdNode *in_id, ConstValueNode *in_con
 // }
 
 llvm::Value *AbstractTree::ProcStmtNode::CodeGen(CodeGenContext &context){
-    Function* call = context.module->getFunction(this->id->name.c_str());
+    llvm::Function* call = context.module->getFunction(this->id->name.c_str());
     if(!call) throw std::domain_error("function or procedure " + this->id->name+" is not defined.");
     std::vector<llvm::Value *> arguments;
-    for(auto iter : *args){
-        arguments.push_back(iter->CodeGen(content));
+    for(auto iter : *args->getListPtr()){
+        arguments.push_back(iter->CodeGen(context));
     }
     return context.Builder.CreateCall(call, llvm::makeArrayRef(arguments));
 

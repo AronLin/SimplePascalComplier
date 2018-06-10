@@ -34,7 +34,7 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
-set(SOURCE_FILES AbstractTree.cpp CodeGenContext.cpp main.cpp)
+set(SOURCE_FILES AbstractTree.cpp CodeGenContext.cpp main.cpp errorhandle.cpp)
 add_executable(pascal ${SOURCE_FILES} ${BisonOutput} ${FlexOutput})
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)

@@ -5,6 +5,7 @@
 #include <string.h>
 #include "AbstractTree.h"
 #include "parser.hpp"
+#include "errorhandle.h"
 
 
 AbstractTree::ProgramNode* astRoot;
@@ -15,6 +16,8 @@ void yyerror(char const *str);
 
 
 %}
+
+%locations
 
 %union{
     char*                             debug;//yytext存储
@@ -399,8 +402,8 @@ factor:
 
 void yyerror(char const *str)
 {
-    PrintError(s);
-	parseError = 1;
+    PrintError(str);
+	ParseError = 1;
 }
 // int main(void)
 // {

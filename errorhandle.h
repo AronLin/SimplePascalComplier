@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <float.h>
+#include "AbstractTree.h"
 #include "parser.hpp"
 
 extern FILE* file;
@@ -27,7 +28,7 @@ extern void close_error_handle(void);
 extern void PrintRow(void); 
 extern int GetNextChar(char *b, int maxBuffer);
 extern void BeginToken(char*);
-extern void PrintError(char *s, ...);
+extern void PrintError(char const *s, ...);
 
 
 #endif //ERRORHANDLE_H
