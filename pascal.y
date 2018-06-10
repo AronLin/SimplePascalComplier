@@ -5,16 +5,19 @@
 #include <string.h>
 #include "AbstractTree.h"
 #include "parser.hpp"
+#include "errorhandle.h"
 
 
-AbstractTree::Node* astRoot;
-int yylex(void);
+AbstractTree::ProgramNode* astRoot;
+extern int yylex(void);
 void yyerror(char const *str);
 
 //abs chr odd ord pred sqr sqrt succ read write writeln
 
 
 %}
+
+%locations
 
 %union{
     char*                             debug;//yytext存储
@@ -23,23 +26,28 @@ void yyerror(char const *str);
     AbstractTree::ProgramNode*        ast_Program;
     AbstractTree::RoutineNode*        ast_Routine;
     AbstractTree::RoutineHeadNode*    ast_RoutineHead;
+    AbstractTree::LabelPartNode*      ast_LabelPart;
     AbstractTree::StmtNode*           ast_Stmt;
-    AbstractTree::StmtListNode*       ast_StmtList;
     AbstractTree::ExpNode*            ast_Exp;
-    AbstractTree::ExpListNode*        ast_ExpList;
     AbstractTree::VarDeclNode*        ast_VarDecl;
-    AbstractTree::VarDeclListNode*    ast_VarDeclList;
     AbstractTree::TypeDeclNode*       ast_TypeDecl;
+    AbstractTree::TypeDefineNode*     ast_TypeDefine;
+    AbstractTree::RoutineDeclNode*    ast_RoutineDecl;
     AbstractTree::RoutineBodyNode*    ast_RoutineBody;
+    AbstractTree::ParaDeclNode*       ast_ParaDecl;
     AbstractTree::ConstValueNode*     ast_ConstValue;
-    AbstractTree::IntegerTypeNode*    ast_IntegerType;
-    AbstractTree::RealTypeNode*       ast_RealType;
-    AbstractTree::CharTypeNode*       ast_CharType;
-    AbstractTree::BooleanTypeNode*    ast_BooleanType;
     AbstractTree::AssignStmtNode*     ast_AssignStmt;
-    AbstractTree::ProcStmtNode*       ast_ProcStmt;
-    AbstractTree::SysProcStmtNode*    ast_SysProcStmt;
+    AbstractTree::CaseStmtNode*       ast_CaseStmt;
+    AbstractTree::SwitchStmtNode*     ast_SwitchStmt;
+
+    AbstractTree::StmtListNode*       ast_StmtList;
+    AbstractTree::ExpListNode*        ast_ExpList;    
+    AbstractTree::VarDeclListNode*    ast_VarDeclList;    
     AbstractTree::NameListNode*       ast_NameList;
+    AbstractTree::ConstExprListNode*  ast_ConstDeclList;
+    AbstractTree::TypeDefineListNode* ast_TypeDefineList;
+    AbstractTree::RoutineDeclListNode* ast_RoutineList;
+    AbstractTree::ParaDeclListNode*   ast_ParaDeclList;
 }
 
 
@@ -56,26 +64,46 @@ void yyerror(char const *str);
 %token DOWNTO DO REPEAT TO THEN WHILE UNTIL FOR
 %token IF ELSE CASE OF GOTO //语句
 
-%start program
+%type <debug> ASSIGN LP RP LB RB DOT COMMA COLON SEMI
+%type <debug> ARRAY _BEGIN SYS_TYPE CONST END FUNCTION PROGRAM
+%type <debug> PROCEDURE RECORD VAR ID TYPE 
+%type <debug> EQUAL UNEQUAL GE GT LE LT AND OR NOT //布尔表达式符号
+%type <debug> PLUS MINUS MUL DIV DIVI MOD //运算符
+%type <debug> INTEGER REAL CHAR STRING SYS_BOOL SYS_CON //变量值
+%type <debug> READ SYS_PROC SYS_FUNCT //系统函数和过程
+%type <debug> DOWNTO DO REPEAT TO THEN WHILE UNTIL FOR
+%type <debug> IF ELSE CASE OF GOTO //语句
 
+
+%type <ast_LabelPart> label_part
 %type <ast_Program> program
 %type <ast_Id> program_head
-%type <ast_Routine> routine
+%type <ast_Routine> routine sub_routine
 %type <ast_RoutineHead> routine_head
 %type <ast_RoutineBody> routine_body
-%type <ast_VarDeclList> var_part var_decl_list
 %type <ast_VarDecl> var_decl
-%type <ast_NameList> name_list
-%type <ast_TypeDecl> type_decl simple_type_decl;
-%type <ast_StmtList> compound_stmt stmt_list;
-%type <ast_Stmt> stmt non_label_stmt;
+%type <ast_TypeDecl> type_decl simple_type_decl array_type_decl record_type_decl
+%type <ast_TypeDefine> type_definition
+%type <ast_RoutineDecl> function_decl function_head procedure_decl procedure_head
+%type <ast_ParaDecl> para_type_list
+%type <ast_Stmt> stmt non_label_stmt proc_stmt if_stmt else_clause 
+%type <ast_Stmt> for_stmt repeat_stmt while_stmt goto_stmt 
+%type <ast_SwitchStmt> case_expr_list case_stmt
 %type <ast_AssignStmt> assign_stmt
-%type <ast_ProcStmt> proc_stmt
-%type <ast_ExpList> expression_list
+%type <ast_CaseStmt> case_expr
 %type <ast_Exp> expr term factor expression
 %type <ast_ConstValue> const_value
-%type <debug> ID INTEGER REAL CHAR STRING SYS_BOOL SYS_CON SYS_TYPE SYS_PROC  SYS_FUNCT
 
+%type <ast_NameList> name_list
+%type <ast_ExpList> expression_list
+%type <ast_VarDeclList> var_part var_decl_list
+%type <ast_StmtList> compound_stmt stmt_list
+%type <ast_ConstDeclList> const_part const_expr_list
+%type <ast_TypeDefineList> type_decl_list type_part
+%type <ast_RoutineList> routine_part
+%type <ast_ParaDeclList> parameters para_decl_list
+
+%start program
 %%
 
 program: program_head routine DOT { $$ = new AbstractTree::ProgramNode($1, $2);astRoot=$$;}
@@ -83,13 +111,9 @@ program: program_head routine DOT { $$ = new AbstractTree::ProgramNode($1, $2);a
 program_head : PROGRAM ID SEMI { 
         $$ = new AbstractTree::IdNode($2);
     } 
-    | %%
-    {
-        char* temp=strdup("none");
-        $$=new AbstractTree::IdNode(temp);
-    }
+    |    { char* temp=strdup("none");  $$=new AbstractTree::IdNode(temp); }
 ;
-routine: routine_head routine_body { $$ = new AbstractTree::RoutineNode($1, $2); }
+routine: routine_head routine_body { $$ = new AbstractTree::RoutineNode($1, $2); std::cout << "Addr Routine: " << $$ << std::endl; }
 ;
 sub_routine: routine_head routine_body {$$=new AbstractTree::RoutineNode($1,$2);}
 ;
@@ -97,21 +121,20 @@ routine_head: label_part const_part type_part var_part routine_part {
     $$ = new AbstractTree::RoutineHeadNode($1,$2,$3,$4,$5);
     }
 ;
-label_part:
-    {$$=new AbstractTree::LabelPartNode();}
+label_part:  {$$=new AbstractTree::LabelPartNode();}
 ;
 const_part:
     CONST const_expr_list {$$=$2;}
-	| %%	{$$=new AbstractTree::ConstExprListNode();}
+	|   {$$=new AbstractTree::ConstExprListNode();}
 ;
 const_expr_list:
 	const_expr_list ID EQUAL const_value SEMI {
         $$=$1;
-        $$->const_expr_list.push_back(new ConstExprNode(new IdNode($1),$3));
+        $$->const_expr_list.push_back(new AbstractTree::ConstExprNode(new AbstractTree::IdNode($2),$4));
     }
 	| ID EQUAL const_value SEMI {
         $$=new AbstractTree::ConstExprListNode();
-        $$->const_expr_list.push_back(new ConstExprNode(new IdNode($1),$3));
+        $$->const_expr_list.push_back(new AbstractTree::ConstExprNode(new AbstractTree::IdNode($1),$3));
     }
 ;
 const_value:
@@ -119,19 +142,19 @@ const_value:
 	| REAL 		{ $$ = new AbstractTree::RealTypeNode(atof($1));}
 	| CHAR 		{ $$ = new AbstractTree::CharTypeNode($1);}
 //	| STRING 	{ $$ = new AbstractTree::StringTypeNode($1);}
-	| SYS_CON   { if (strcmp("maxint",$1) $$=new AbstractTree::IntegerTypeNode(32767));//maxint
+	| SYS_CON   { if (strcmp("maxint",$1) == 0) $$=new AbstractTree::IntegerTypeNode(32767);//maxint
                     else $$=new AbstractTree::IntegerTypeNode(32767);//There is only one SYS_CON
                 }
     | SYS_BOOL  { $$ = new AbstractTree::BooleanTypeNode($1);}
 ;
 type_part:
 	TYPE type_decl_list {$$=$2;}
-	| {$$=new AbstractTree::TypeDefineListNode()}
+	| {$$=new AbstractTree::TypeDefineListNode();}
 ;
 type_decl_list:
 	type_decl_list type_definition {
-        $1->type_define_list.push_back($2);
         $$=$1;
+        $$->type_define_list.push_back($2);
     }
 	| type_definition {
         $$=new AbstractTree::TypeDefineListNode();
@@ -140,7 +163,7 @@ type_decl_list:
 ;
 type_definition:
 	ID EQUAL type_decl SEMI {
-        $$=new AbstractTree::TypeDefineNode(new IdNode($1),$3);
+        $$=new AbstractTree::TypeDefineNode(new AbstractTree::IdNode($1),$3);
     }
 ;
 type_decl:
@@ -150,8 +173,8 @@ type_decl:
 ;
 simple_type_decl:
 	SYS_TYPE { $$ = new AbstractTree::TypeDeclNode($1);}	
-	| ID  {}//not accomplished
-	| LP name_list RP {}
+    | ID  {}//not accomplished
+    | LP name_list RP {}
     | INTEGER DOT DOT INTEGER 	{}
     | CHAR DOT DOT CHAR 	{}
     | SYS_BOOL DOT DOT SYS_BOOL {} 
@@ -179,7 +202,7 @@ name_list:
 ;
 var_part:
 	VAR var_decl_list { $$ = $2;}
-    | %% 		{$$=new AbstractTree::VarDeclListNode();}
+    |  	{$$=new AbstractTree::VarDeclListNode();}
 ;
 var_decl_list:
 	var_decl_list var_decl 	{ $$ = $1; $$->insert($2); }
@@ -197,7 +220,7 @@ routine_part: //做了修改，可以为空的话，function_decl 和 procedure_
         $$=$1;
         $$->insert($2);
     }
-    | %% {$$=new AbstractTree::RoutineDeclListNode();} 
+    |   {$$=new AbstractTree::RoutineDeclListNode();} 
 ;
 function_decl: 
 	function_head SEMI sub_routine SEMI {
@@ -208,7 +231,7 @@ function_decl:
 function_head:
 	FUNCTION ID parameters COLON simple_type_decl {
         $$=new AbstractTree::RoutineDeclNode(AbstractTree::RoutineDeclNode::FUNCTION,
-        new IdNode($2),$3,$5);
+        new AbstractTree::IdNode($2),$3,$5);
     } 
 ;
 procedure_decl:
@@ -220,12 +243,12 @@ procedure_decl:
 procedure_head:
 	PROCEDURE ID parameters {
         $$=new AbstractTree::RoutineDeclNode(AbstractTree::RoutineDeclNode::PROCEDURE,
-        new IdNode($2),$3,nullptr);
+        new AbstractTree::IdNode($2),$3,nullptr);
     }	
     ;
 parameters:
 	LP para_decl_list RP {$$=$2;}
-	| %% {new AbstractTree::ParaDeclListNode();}
+	|   {$$=new AbstractTree::ParaDeclListNode();}
     ;
 para_decl_list:
 	para_decl_list SEMI para_type_list 	{
@@ -248,7 +271,7 @@ para_type_list://这两个有啥不同我还没有发现，先写成一样
 
 
 routine_body:  
-	compound_stmt { $$ = new AbstractTree::RoutineBodyNode($1); }
+	compound_stmt { $$ = new AbstractTree::RoutineBodyNode($1); std::cout << "Addr RoutineBody: " << $$ << std::endl; }
 ;
 compound_stmt: 
 	_BEGIN stmt_list END { $$ = $2; }
@@ -264,7 +287,7 @@ stmt:
     }
 ;
 non_label_stmt: 
-	| assign_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
+	assign_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
 	| proc_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>($1); }
     | compound_stmt { $$ = dynamic_cast<AbstractTree::StmtNode*>$1;}
     | if_stmt {$$ = dynamic_cast<AbstractTree::StmtNode*>($1);}
@@ -292,8 +315,8 @@ if_stmt:
     }
     ;
 else_clause: 
-	ELSE stmt {$$=$2;}
-    | %%    {$$=nullptr;}	
+	ELSE stmt {$$=$2; std::cout << "ELSE" << std::endl; }
+    |     {$$=nullptr;}	
     ;
 repeat_stmt: 
 	REPEAT stmt_list UNTIL expression {
@@ -330,8 +353,8 @@ case_expr_list:
     }
     ;
 case_expr: 
-	const_value COLON stmt SEMI { $$ = new AbstractTree::CaseStmtNode($1,$3);}
-    | ID COLON stmt SEMI {$$=new AbstractTree::CaseStmtNode(new AbstractTree::IdNode($1),$3);}
+	const_value COLON stmt SEMI { $$ = new AbstractTree::CaseStmtNode(static_cast<AbstractTree::IntegerTypeNode*>($1),$3);}
+//    | ID COLON stmt SEMI {$$=new AbstractTree::CaseStmtNode(new AbstractTree::IdNode($1),$3);}
     ;
 goto_stmt: 
 	GOTO INTEGER {$$ = new AbstractTree::GotoStmtNode(atoi($2));}
@@ -359,13 +382,13 @@ term:
 	factor { $$ = $1; }
 	| term MUL factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::MUL,$3);}
 	| term DIV factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::DIV,$3);}
-    | term DIVI factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::DIVI,$3);}
+//    | term DIVI factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::DIVI,$3);}
     | term MOD factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::MOD,$3);}
     | term AND factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::AND,$3);} 
     ;
 factor: 
 	ID { $$ = new AbstractTree::IdNode($1); } 	
-    | ID LP expression_list RP {}//FUNCTION_CALL
+    | ID LP expression_list RP { $$ = new AbstractTree::FuncCallNode(new AbstractTree::IdNode($1), $3);}//FUNCTION_CALL
     | SYS_FUNCT {}
     | SYS_FUNCT LP expression_list RP {}
     | const_value { $$ = $1; }
@@ -379,7 +402,8 @@ factor:
 
 void yyerror(char const *str)
 {
-    fprintf(stderr,"%s\n",str);
+    PrintError(str);
+	ParseError = 1;
 }
 // int main(void)
 // {

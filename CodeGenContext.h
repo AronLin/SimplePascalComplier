@@ -19,7 +19,6 @@
 #include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
-#include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/IR/ValueSymbolTable.h>
 
@@ -59,6 +58,7 @@ public:
     llvm::IRBuilder<> Builder;
     llvm::Value* getValue(std::string name);
     llvm::Function* printf;
+    std::map<llvm::Function*, llvm::Function*> funcParent;
 
     std::map<std::string, llvm::Value*>& locals() { return blocks.top()->locals; }
     void putValue(std::string name, llvm::Value* value);
