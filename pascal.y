@@ -115,7 +115,8 @@ program_head : PROGRAM ID SEMI {
 ;
 routine: routine_head routine_body { $$ = new AbstractTree::RoutineNode($1, $2); std::cout << "Addr Routine: " << $$ << std::endl; }
 ;
-sub_routine: routine_head routine_body {$$=new AbstractTree::RoutineNode($1,$2);}
+ls
+: routine_head routine_body {$$=new AbstractTree::RoutineNode($1,$2);}
 ;
 routine_head: label_part const_part type_part var_part routine_part {
     $$ = new AbstractTree::RoutineHeadNode($1,$2,$3,$4,$5);

@@ -1,4 +1,0 @@
-/home/qian/SharedFolders/Compiler/Code/SimplePascalComplier/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/qian/SharedFolders/Compiler/Code/SimplePascalComplier/cmake-build-debug/CMakeFiles/pascal.dir
-/home/qian/SharedFolders/Compiler/Code/SimplePascalComplier/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/qian/SharedFolders/Compiler/Code/SimplePascalComplier/cmake-build-debug/CMakeFiles/intrinsics_gen.dir

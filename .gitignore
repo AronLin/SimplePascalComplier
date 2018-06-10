@@ -3,3 +3,4 @@ parser.cpp
 parser.hpp
 token.cpp
 pascal
+cmake-build-debug/

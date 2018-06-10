@@ -1,6 +1,0 @@
-/opt/clion/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/clang-6.0 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-6.0 -G "CodeBlocks - Unix Makefiles" /home/qian/SharedFolders/Compiler/Code/SimplePascalComplier
--- Found LLVM 6.0.1
--- Using LLVMConfig.cmake in: /usr/lib/llvm-6.0/cmake
--- Configuring done
--- Generating done
--- Build files have been written to: /home/qian/SharedFolders/Compiler/Code/SimplePascalComplier/cmake-build-debug
