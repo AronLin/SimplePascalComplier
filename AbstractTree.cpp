@@ -390,7 +390,7 @@ llvm::Value *AbstractTree::ForStmtNode::CodeGen(CodeGenContext &context)
     context.pushBlock(loopEntryB);
     context.Builder.SetInsertPoint(loopEntryB);
 
-    AbstractTree::AssignStmtNode* assign = new AbstractTree::AssignStmtNode(this->id, this->start);
+    AbstractTree::AssignStmtNode *assign = new AbstractTree::AssignStmtNode(this->id, this->start);
     assign->CodeGen(context);
     context.Builder.CreateBr(loopStmtB);
     context.popBlock();
@@ -453,24 +453,25 @@ AbstractTree::ConstExprNode::ConstExprNode(IdNode *in_id, ConstValueNode *in_con
 }
 
 // AbstractTree::LabelStmtNode::CodeGen(CodeGenContext &context)
-// {   
+// {
 //     context.Builder.CreateBr(context.labelBlock[label]);
 //     // llvm::BranchInst::Create(context.labelBlock[label],context.currentBlock());
 //     // context.pushBlock(context.labelBlock[label]);
 //     return stmt->CodeGen(context);
 // }
 
-llvm::Value *AbstractTree::ProcStmtNode::CodeGen(CodeGenContext &context){
-    llvm::Function* call = context.module->getFunction(this->id->name.c_str());
-    if(!call) throw std::domain_error("function or procedure " + this->id->name+" is not defined.");
+llvm::Value *AbstractTree::ProcStmtNode::CodeGen(CodeGenContext &context)
+{
+    llvm::Function *call = context.module->getFunction(this->id->name.c_str());
+    if (!call)
+        throw std::domain_error("function or procedure " + this->id->name + " is not defined.");
     std::vector<llvm::Value *> arguments;
-    for(auto iter : *args->getListPtr()){
+    for (auto iter : *args->getListPtr())
+    {
         arguments.push_back(iter->CodeGen(context));
     }
     return context.Builder.CreateCall(call, llvm::makeArrayRef(arguments));
-
 }
-
 
 // llvm::Value *AbstractTree::TypeDefineNode::CodeGen(CodeGenContext &context){
 //     TypeDefineNode::id
@@ -485,24 +486,94 @@ llvm::Value *AbstractTree::ProcStmtNode::CodeGen(CodeGenContext &context){
 //     return ret;
 // }
 llvm::Value *AbstractTree::ParaDeclNode::CodeGen(CodeGenContext &context)
-{   
+{
 
     //这里是函数的变量声明，只调用了CreateAlloca在stack上分配内存，还未调用CreateStore/Load存值
     llvm::Value *ret;
     for (auto x : nameList->list)
-    {   
-        auto alloc = context.Builder.CreateAlloca (this->type_decl->toLLVMType(), 0, x->name);
-        context.insert(x->name,alloc);
+    {
+        auto alloc = context.Builder.CreateAlloca(this->type_decl->toLLVMType(), 0, x->name);
+        context.insert(x->name, alloc);
         ret = alloc;
     }
     return ret;
 }
-llvm::Value* AbstractTree::ParaDeclListNode::CodeGen(CodeGenContext &context){
-    llvm::Value *ret;
-    for (auto i : list)
-    {
-        ret = i->CodeGen(context);
+// llvm::Value *AbstractTree::RoutineNode::CodeGen(CodeGenContext &context){
+//     std::vector
+// }
+llvm::Value *AbstractTree::RoutineDeclNode::CodeGen(CodeGenContext &context)
+{
+    std::vector<llvm::Type *> parameter_types;
+    for(auto iter : *(this->para_decl_list->list){
+        parameter_types.push_back(iter->type_decl->toLLVMType());
     }
-    return ret;
+    llvm::FunctionType *function_type; 
+    if(this->type == PROCEDURE){
+        //TODO:
+        //context or GlobalLLVMContext::getGlobalContext())
+        function_type = llvm::FunctionType::get(Type::llvm::Type::getVoidTy(GlobalLLVMContext::getGlobalContext()),
+                                                llvm::makeArrayRef(parameter_types), false); //不可变参数
+    }else{
+        function_type = llvm::FunctionType::get(this->type_decl->toLLVMType(),
+                                                llvm::makeArrayRef(parameter_types), false); //不可变参数
+    }
+    llvm::Function* function = Function::Create(function_type, llvm::Function::ExternalLinkage, this->id->name.c_str(), context.module);// module from where?
+
+    if (function->getName() != this->id->name ) {
+        // Delete the one we just made and get the existing one.
+        function->eraseFromParent();
+        function = context.module->getFunction(this->id->name);
+    }
+    // If F already has a body, reject this.
+    if (!function->empty()) {
+        //ErrorF("redefinition of function");
+        return 0;
+    }
+    llvm::BasicBlock *entryBB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "entry", function,NULL);
+    auto old_function = context.curFunc;
+    context.Builder.SetInsertPoint(entryBB);
+
+    auto old_block = context.curBlock();
+    // push block and start routine
+    context.pushBlock(block);
+
+    //initial parameters
+    llvm::Value* parameter_value;
+    auto parameter_iter = function->arg_begin();
+    for(auto iter : *(this->para_decl_list->list){
+        iter->CodeGen(context);
+        for (auto iter2 : iter->name_list->list)
+        {
+            parameter_value = parameter_iter++;
+            parameter_value->setName(iter2.c_str());
+            auto inst = new llvm::StoreInst(parameter_value, context.getValue(iter2), false, entryBB);
+        }
+        
+    }
+
+    //allocate return value
+    if(this->type == FUNCTION){
+        //TODO:
+        auto alloc = context.Builder.CreateAlloca(this->type_decl->toLLVMType(), 0, this->id->name);
+    }
+    sub_routine->CodeGen(context);
+
+    //func or proce
+    if (this->type == FUNCTION) {
+        auto return_load = context.Builder.CreateLoad(context.getValue(this->id->name), false, "");
+        llvm::ReturnInst::Create(GlobalLLVMContext::getGlobalContext(), return_load, context.currentBlock());
+    }
+    else if(this->type == PROCEDURE ) {
+        llvm::ReturnInst::Create(GlobalLLVMContext::getGlobalContext(), context.curBlock());
+        
+    }
+
+    // pop local block
+    while (context.curBlock() != old_block)
+        context.popBlock();
+    context.curFunc = old_function;
+    return function;
+}
+
 
 }
