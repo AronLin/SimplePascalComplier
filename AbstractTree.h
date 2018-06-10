@@ -386,6 +386,7 @@ class VarDeclNode : public Node
   public:
     NameListNode *nameList;
     TypeDeclNode *type;
+    bool isGlobal = false;
     VarDeclNode(NameListNode *names, TypeDeclNode *type) : nameList(names), type(type)
     {
         std::cout << "Cr VarDeclNode" << std::endl;
@@ -501,7 +502,7 @@ class RoutineDeclListNode : public Node
         list.push_back(node);
     }
 
-    virtual llvm::Value *CodeGen(CodeGenContext &context){};
+    virtual llvm::Value *CodeGen(CodeGenContext &context);
 };
 //v1: only for pascal left value? i.e : val_para_list int the PASCAL.doc
 class ParaDeclNode : public Node

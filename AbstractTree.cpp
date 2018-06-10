@@ -30,6 +30,10 @@ llvm::Value *AbstractTree::ProgramNode::CodeGen(CodeGenContext &context)
     // Important: IRBuilder InsertPoint should be reset everytime a new BB is created
     // IRBuilder tracks the insertion point of the Instruction
     context.Builder.SetInsertPoint(bb);
+    for (auto x: this->routine->routineHead->varDeclList->list)
+    {
+        x->isGlobal = true;
+    }
     return this->routine->CodeGen(context);
 }
 
@@ -74,14 +78,26 @@ llvm::Type *AbstractTree::TypeDeclNode::toLLVMType()
 llvm::Value *AbstractTree::VarDeclNode::CodeGen(CodeGenContext &context)
 {
     llvm::Value *ret;
-    for (auto x : nameList->list)
+    if (this->isGlobal)
     {
-        auto go = new llvm::GlobalVariable(*context.module, this->type->toLLVMType(), false,
-                                           llvm::GlobalValue::ExternalLinkage,
-                                           llvm::ConstantInt::get(llvm::Type::getInt32Ty(GlobalLLVMContext::getGlobalContext()), 0, true), x);
-        ret = go;
+        for (auto x : nameList->list)
+        {
+            auto go = new llvm::GlobalVariable(*context.module, this->type->toLLVMType(), false,
+                                               llvm::GlobalValue::ExternalLinkage,
+                                               llvm::ConstantInt::get(llvm::Type::getInt32Ty(GlobalLLVMContext::getGlobalContext()), 0, true), x);
+            ret = go;
+        }
+    }
+    else
+    {
+        for (auto x: nameList->list)
+        {
+            auto go = context.Builder.CreateAlloca(this->type->toLLVMType(), 0, nullptr, x);
+            ret = go;
+        }
     }
     return ret;
+
 }
 
 llvm::Value *AbstractTree::VarDeclListNode::CodeGen(CodeGenContext &context)
@@ -97,7 +113,10 @@ llvm::Value *AbstractTree::VarDeclListNode::CodeGen(CodeGenContext &context)
 llvm::Value *AbstractTree::RoutineHeadNode::CodeGen(CodeGenContext &context)
 {
     std::cout << "CG RoutineHeadNode" << std::endl;
-    return this->varDeclList->CodeGen(context);
+    this->constExprList->CodeGen(context);
+    auto ret = this->varDeclList->CodeGen(context);
+    this->routineDeclList->CodeGen(context);
+    return ret;
 }
 
 llvm::Value *AbstractTree::IdNode::CodeGen(CodeGenContext &context)
@@ -480,10 +499,10 @@ llvm::Value *AbstractTree::ParaDeclNode::CodeGen(CodeGenContext &context)
 
     //这里是函数的变量声明，只调用了CreateAlloca在stack上分配内存，还未调用CreateStore/Load存值
     llvm::Value *ret;
-    for (auto x : nameList->list)
+    for (auto x : name_list->list)
     {
-        auto alloc = context.Builder.CreateAlloca(this->type_decl->toLLVMType(), 0, x->name);
-        context.insert(x->name, alloc);
+        auto alloc = context.Builder.CreateAlloca(this->type_decl->toLLVMType(), 0, x);
+        context.putValue(x, alloc);
         ret = alloc;
     }
     return ret;
@@ -493,21 +512,22 @@ llvm::Value *AbstractTree::ParaDeclNode::CodeGen(CodeGenContext &context)
 // }
 llvm::Value *AbstractTree::RoutineDeclNode::CodeGen(CodeGenContext &context)
 {
+    std::cout << "CG for " << this->id->name << std::endl;
     std::vector<llvm::Type *> parameter_types;
-    for(auto iter : *(this->para_decl_list->list){
+    for(auto iter : this->para_decl_list->list){
         parameter_types.push_back(iter->type_decl->toLLVMType());
     }
     llvm::FunctionType *function_type; 
     if(this->type == PROCEDURE){
         //TODO:
         //context or GlobalLLVMContext::getGlobalContext())
-        function_type = llvm::FunctionType::get(Type::llvm::Type::getVoidTy(GlobalLLVMContext::getGlobalContext()),
+        function_type = llvm::FunctionType::get(llvm::Type::getVoidTy(GlobalLLVMContext::getGlobalContext()),
                                                 llvm::makeArrayRef(parameter_types), false); //不可变参数
     }else{
         function_type = llvm::FunctionType::get(this->type_decl->toLLVMType(),
                                                 llvm::makeArrayRef(parameter_types), false); //不可变参数
     }
-    llvm::Function* function = Function::Create(function_type, llvm::Function::ExternalLinkage, 
+    llvm::Function* function = llvm::Function::Create(function_type, llvm::Function::ExternalLinkage,
     this->id->name.c_str(), context.module);// module from where?
 
     if (function->getName() != this->id->name ) {
@@ -528,12 +548,12 @@ llvm::Value *AbstractTree::RoutineDeclNode::CodeGen(CodeGenContext &context)
 
     auto old_block = context.curBlock();
     // push block and start routine
-    context.pushBlock(block);
+    context.pushBlock(entryBB);
 
     //initial parameters
     llvm::Value* parameter_value;
     auto parameter_iter = function->arg_begin();
-    for(auto iter : *(this->para_decl_list->list){
+    for(auto iter : this->para_decl_list->list){
         iter->CodeGen(context);
         for (auto iter2 : iter->name_list->list)
         {
@@ -554,31 +574,36 @@ llvm::Value *AbstractTree::RoutineDeclNode::CodeGen(CodeGenContext &context)
     //func or proce
     if (this->type == FUNCTION) {
         auto return_load = context.Builder.CreateLoad(context.getValue(this->id->name), false, "");
-        llvm::ReturnInst::Create(GlobalLLVMContext::getGlobalContext(), return_load, context.currentBlock());
+        context.Builder.CreateRet(return_load);
     }
     else if(this->type == PROCEDURE ) {
-        llvm::ReturnInst::Create(GlobalLLVMContext::getGlobalContext(), context.curBlock());
-        
+        context.Builder.CreateRetVoid();
     }
 
     // pop local block
     while (context.curBlock() != old_block)
         context.popBlock();
+    context.Builder.SetInsertPoint(old_block);
     context.curFunc = old_function;
     return function;
 }
 
-llvm::Value *AbstractTree::RoutineHeadNode::CodeGen(CodeGenContext &context){
-    
-    constExprList->CodeGen();
-
-    varDeclList->CodeGen();
-
-    TypeDefineListNode *typeDefineNodeList;
-    RoutineDeclListNode *routineDeclList;
+llvm::Value* AbstractTree::ParaDeclListNode::CodeGen(CodeGenContext& context)
+{
+    llvm::Value* ret;
+    for (auto x: list)
+    {
+        ret = x->CodeGen(context);
+    }
+    return ret;
 }
 
-
-
-
-}
+llvm::Value* AbstractTree::RoutineDeclListNode::CodeGen(CodeGenContext& context)
+{
+    llvm::Value* ret;
+    for (auto x: list)
+    {
+        ret = x->CodeGen(context);
+    }
+    return ret;
+};
