@@ -517,7 +517,8 @@ llvm::Value *AbstractTree::RoutineDeclNode::CodeGen(CodeGenContext &context)
         function_type = llvm::FunctionType::get(this->type_decl->toLLVMType(),
                                                 llvm::makeArrayRef(parameter_types), false); //不可变参数
     }
-    llvm::Function* function = Function::Create(function_type, llvm::Function::ExternalLinkage, this->id->name.c_str(), context.module);// module from where?
+    llvm::Function* function = Function::Create(function_type, llvm::Function::ExternalLinkage, 
+    this->id->name.c_str(), context.module);// module from where?
 
     if (function->getName() != this->id->name ) {
         // Delete the one we just made and get the existing one.
@@ -531,6 +532,8 @@ llvm::Value *AbstractTree::RoutineDeclNode::CodeGen(CodeGenContext &context)
     }
     llvm::BasicBlock *entryBB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "entry", function,NULL);
     auto old_function = context.curFunc;
+    context.curFunc = function;
+    context.funcParent[function] = old_function;
     context.Builder.SetInsertPoint(entryBB);
 
     auto old_block = context.curBlock();
@@ -574,6 +577,18 @@ llvm::Value *AbstractTree::RoutineDeclNode::CodeGen(CodeGenContext &context)
     context.curFunc = old_function;
     return function;
 }
+
+llvm::Value *AbstractTree::RoutineHeadNode::CodeGen(CodeGenContext &context){
+    
+    constExprList->CodeGen();
+
+    varDeclList->CodeGen();
+
+    TypeDefineListNode *typeDefineNodeList;
+    RoutineDeclListNode *routineDeclList;
+}
+
+
 
 
 }

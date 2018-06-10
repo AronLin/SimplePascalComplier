@@ -485,7 +485,7 @@ class RoutineDeclNode : public Node
         //initial child
     }
 
-    virtual llvm::Value *CodeGen(CodeGenContext &context) {};
+    virtual llvm::Value *CodeGen(CodeGenContext &context) ;
 };
 class RoutineDeclListNode : public Node
 {
