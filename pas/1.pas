@@ -1,11 +1,13 @@
 program llvm;
 var a: integer;
+function mul(x: integer): integer;
 begin
-    a := 233;
-    case (a) of
-      222: writeln(222);
-      333: writeln(333);
-      233: writeln(444);
-      555: writeln(555);
-   end;  
+   if x = 1 then
+	mul := 1
+   else 
+	mul := x * mul(x - 1);
+end;  
+begin
+    a := mul(5);
+    writeln(a);  
 end.
