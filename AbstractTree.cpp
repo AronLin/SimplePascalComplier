@@ -207,49 +207,29 @@ llvm::Value *AbstractTree::RoutineBodyNode::CodeGen(CodeGenContext &context)
 
 llvm::Value *AbstractTree::IfStmtNode::CodeGen(CodeGenContext &context)
 {
-    llvm::Value *cond_value = condition->CodeGen(context);
-    if (!cond_value)
-        return nullptr;
+    llvm::Value* test = condition->CodeGen( context );
+    llvm::BasicBlock *btrue =  llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "thenStmt", context.curFunc);
+    llvm::BasicBlock *bfalse =  llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "elseStmt", context.curFunc);
+    llvm::BasicBlock *bmerge =  llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "mergeStmt", context.curFunc);
+    auto ret = context.Builder.CreateCondBr(test, btrue, bfalse);
 
-    llvm::Function *TheFunction = context.Builder.GetInsertBlock()->getParent();
-    llvm::BasicBlock *then_block = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "then", context.curFunc);
-    llvm::BasicBlock *else_block = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "else", context.curFunc);
-    llvm::BasicBlock *merge_block = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "merge", context.curFunc);
+    context.pushBlock(btrue);
+    context.Builder.SetInsertPoint(btrue);
+    thenStmt->CodeGen(context);
+    context.Builder.CreateBr(bmerge);
+    context.popBlock();
 
-    //条件分支
-    context.Builder.CreateCondBr(cond_value, then_block, else_block);
-    //
-    // Emit then value.
-    context.Builder.SetInsertPoint(then_block);
+    context.pushBlock(bfalse);
+    context.Builder.SetInsertPoint(bfalse);
+    if (elseStmt != nullptr)
+        elseStmt->CodeGen(context);
+    context.Builder.CreateBr(bmerge);
+    context.popBlock();
 
-    llvm::Value *then_value = thenStmt->CodeGen(context);
-    if (!then_value)
-        return nullptr;
+    context.pushBlock(bmerge);
+    context.Builder.SetInsertPoint(bmerge);
 
-    context.Builder.CreateBr(merge_block);
-    // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
-    then_block = context.Builder.GetInsertBlock();
-
-    // Emit else block.
-    TheFunction->getBasicBlockList().push_back(else_block);
-    context.Builder.SetInsertPoint(else_block);
-
-    llvm::Value *else_value = elseStmt->CodeGen(context);
-    if (!else_value)
-        return nullptr;
-
-    context.Builder.CreateBr(merge_block);
-    // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
-    else_block = context.Builder.GetInsertBlock();
-
-    // Emit merge block.
-    TheFunction->getBasicBlockList().push_back(merge_block);
-    context.Builder.SetInsertPoint(merge_block);
-    llvm::PHINode *PN = context.Builder.CreatePHI(llvm::Type::getDoubleTy(GlobalLLVMContext::getGlobalContext()), 2, "iftmp");
-
-    PN->addIncoming(then_value, then_block);
-    PN->addIncoming(else_value, else_block);
-    return PN;
+    return ret;
 }
 
 llvm::Value *AbstractTree::BinaryNode::CodeGen(CodeGenContext &context)
