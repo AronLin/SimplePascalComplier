@@ -484,3 +484,25 @@ llvm::Value *AbstractTree::ProcStmtNode::CodeGen(CodeGenContext &context){
 //     }
 //     return ret;
 // }
+llvm::Value *AbstractTree::ParaDeclNode::CodeGen(CodeGenContext &context)
+{   
+
+    //这里是函数的变量声明，只调用了CreateAlloca在stack上分配内存，还未调用CreateStore/Load存值
+    llvm::Value *ret;
+    for (auto x : nameList->list)
+    {   
+        auto alloc = context.Builder.CreateAlloca (this->type_decl->toLLVMType(), 0, x->name);
+        context.insert(x->name,alloc);
+        ret = alloc;
+    }
+    return ret;
+}
+llvm::Value* AbstractTree::ParaDeclListNode::CodeGen(CodeGenContext &context){
+    llvm::Value *ret;
+    for (auto i : list)
+    {
+        ret = i->CodeGen(context);
+    }
+    return ret;
+
+}

@@ -512,7 +512,7 @@ class ParaDeclNode : public Node
     ParaDeclNode(NameListNode *_name_list, TypeDeclNode *_type_decl) : name_list(_name_list), type_decl(_type_decl)
     {
     }
-    virtual llvm::Value *CodeGen(CodeGenContext &context) {};
+    virtual llvm::Value *CodeGen(CodeGenContext &context) ;
 };
 
 class ParaDeclListNode : public Node
@@ -521,7 +521,7 @@ class ParaDeclListNode : public Node
     std::vector<ParaDeclNode *> list;
     void insert(ParaDeclNode *node) { list.push_back(node); };
 
-    virtual llvm::Value *CodeGen(CodeGenContext &context){};
+    virtual llvm::Value *CodeGen(CodeGenContext &context);
 };
 
 class IfStmtNode : public StmtNode
