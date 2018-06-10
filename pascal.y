@@ -210,6 +210,7 @@ var_decl_list:
 ;
 var_decl:
 	name_list COLON type_decl SEMI { $$ = new AbstractTree::VarDeclNode($1, $3); }
+	| error SEMI
 ;
 routine_part: //做了修改，可以为空的话，function_decl 和 procedure_decl就有点多余了
 	routine_part function_decl {
@@ -279,6 +280,7 @@ compound_stmt:
 stmt_list: 
 	stmt_list  stmt  SEMI { $$ = $1; $$->insert($2); }
     | 	{ $$ = new AbstractTree::StmtListNode(); }
+	| stmt_list error SEMI
     ;
 stmt: 
 	non_label_stmt { $$ = $1; }
@@ -301,6 +303,7 @@ assign_stmt:
 	ID  ASSIGN  expression { $$ = new AbstractTree::AssignStmtNode(new AbstractTree::IdNode($1), $3); }
     | ID LB expression RB ASSIGN expression {}
     | ID DOT ID ASSIGN expression  {} 
+	|error
     ;
 proc_stmt: 
 	ID {$$=new AbstractTree::ProcStmtNode(new AbstractTree::IdNode($1),nullptr);}    
@@ -308,25 +311,29 @@ proc_stmt:
     | SYS_PROC	{$$ = new AbstractTree::SysProcStmtNode(new AbstractTree::IdNode($1), nullptr); }
     | SYS_PROC LP expression_list RP { $$ = new AbstractTree::SysProcStmtNode(new AbstractTree::IdNode($1), $3);}
     | READ LP factor RP {}//暂时没实现
+	| error 
     ;
 if_stmt: 
 	IF expression THEN stmt else_clause {
         $$=new AbstractTree::IfStmtNode($2,$4,$5);
     }
+	|error
     ;
 else_clause: 
-	ELSE stmt {$$=$2; std::cout << "ELSE" << std::endl; }
+	ELSE stmt {$$=$2;}
     |     {$$=nullptr;}	
     ;
 repeat_stmt: 
 	REPEAT stmt_list UNTIL expression {
         $$=new AbstractTree::RepeatStmtNode($2,$4);
     }
+	|error
     ;
 while_stmt: 
 	WHILE expression DO stmt {
         $$=new AbstractTree::WhileStmtNode($2,$4);
     }
+	|error
     ;
 for_stmt: //简化，省得给TO和DOWNTO分个int类型
 	FOR ID ASSIGN expression TO expression DO stmt {
@@ -335,12 +342,14 @@ for_stmt: //简化，省得给TO和DOWNTO分个int类型
     |FOR ID ASSIGN expression DOWNTO expression DO stmt {
         $$=new AbstractTree::ForStmtNode(new AbstractTree::IdNode($2),$4,-1,$6,$8);
     }
+	|error
 ;
 case_stmt: 
 	CASE expression OF case_expr_list END {
         $$=$4;
         $$->condition=$2;
     }
+	| error END
     ;
 case_expr_list: 
 	case_expr_list  case_expr {
@@ -355,9 +364,11 @@ case_expr_list:
 case_expr: 
 	const_value COLON stmt SEMI { $$ = new AbstractTree::CaseStmtNode(static_cast<AbstractTree::IntegerTypeNode*>($1),$3);}
 //    | ID COLON stmt SEMI {$$=new AbstractTree::CaseStmtNode(new AbstractTree::IdNode($1),$3);}
+	|error SEMI
     ;
 goto_stmt: 
 	GOTO INTEGER {$$ = new AbstractTree::GotoStmtNode(atoi($2));}
+	| error
     ;
 expression_list: 
 	expression_list COMMA expression { $$ = $1; $$->insert($3); } 
@@ -371,6 +382,7 @@ expression:
     | expression EQUAL expr {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::EQUAL,$3);}
     | expression UNEQUAL expr {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::UNEQUAL,$3);}
     | expr { $$ = $1; }
+	| error
     ;
 expr: 
 	expr PLUS term {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::PLUS,$3);}
@@ -385,6 +397,7 @@ term:
 //    | term DIVI factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::DIVI,$3);}
     | term MOD factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::MOD,$3);}
     | term AND factor {$$=new AbstractTree::BinaryNode($1,AbstractTree::BinaryNode::OpType::AND,$3);} 
+	| error
     ;
 factor: 
 	ID { $$ = new AbstractTree::IdNode($1); } 	
