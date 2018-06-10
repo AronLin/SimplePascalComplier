@@ -33,7 +33,7 @@ void PrintRow()
     if (row_number == 0) return;
     fprintf(stdout,"%6d |%.*s",row_number,Buffer_length,buffer);
 }
-void PrintError(char* s, ...)
+void PrintError(char const* s, ...)
 {
     static char errmsg[10000];
     va_list args;
@@ -76,8 +76,8 @@ void PrintError(char* s, ...)
 
     /*================================================================*/
     /* print it using variable arguments -----------------------------*/
-    va_start(args, errorstring);
-    vsprintf(errmsg, errorstring, args);
+    va_start(args, s);
+    vsprintf(errmsg, s, args);
     va_end(args);
     
     fprintf(stdout, "Error: %s\n", errmsg);

@@ -13,7 +13,7 @@ LDFLAGS = `$(LLVM_CONFIG) --ldflags`
 LIBS = `$(LLVM_CONFIG) --libs --system-libs`
 BIN_NAME = pascal
 
-OBJS = AbstractTree.o CodeGenContext.o token.o parser.o main.o
+OBJS = AbstractTree.o CodeGenContext.o token.o parser.o main.o errorhandle.o
 
 all: exec
 	$(CC) -o $(BIN_NAME) $(OBJS) $(LDFLAGS) $(LIBS)
@@ -29,8 +29,8 @@ yacc: pascal.y
 yacc_compile: yacc
 	$(CC) $(CXXFLAGS) -c parser.cpp
 
-exec: lex_compile yacc_compile main.cpp AbstractTree.cpp CodeGenContext.cpp
-	$(CC) $(CXXFLAGS) -c main.cpp AbstractTree.cpp CodeGenContext.cpp
+exec: lex_compile yacc_compile main.cpp AbstractTree.cpp CodeGenContext.cpp errorhandle.cpp
+	$(CC) $(CXXFLAGS) -c main.cpp AbstractTree.cpp CodeGenContext.cpp errorhandle.cpp
 
 clean:
 	rm $(OBJS) token.cpp token.hpp parser.cpp parser.hpp $(BIN_NAME) pas/$(BIN_NAME)

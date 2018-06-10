@@ -203,7 +203,7 @@ write {
     STORESTRING;
     return REAL;
 }
-. { BeginToken(yytext);parseError = 1; PrintError("Invalid Input");}//其余字符不被认可
+. { BeginToken(yytext);ParseError = 1; PrintError("Invalid Input");}//其余字符不被认可
 %%
 int yywrap(void)
 {
