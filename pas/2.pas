@@ -3,7 +3,11 @@ var a, i: integer;
 procedure addX(x: integer); 
 begin
     a := a + x;
-end;   
+end; 
+function addXF(x: integer): integer;
+begin
+   addXF := x + a;
+end;  
 begin
     a := 1;
     for i:= 1 to 200 do
@@ -13,6 +17,8 @@ begin
     while a <> 234 do
 	a := a + 1;
     addX(20);
+    writeln(a);
+    a := addXF(20);
     writeln(a);
     repeat
 	a := a - 1;

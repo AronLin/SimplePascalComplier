@@ -388,7 +388,7 @@ term:
     ;
 factor: 
 	ID { $$ = new AbstractTree::IdNode($1); } 	
-    | ID LP expression_list RP {}//FUNCTION_CALL
+    | ID LP expression_list RP { $$ = new AbstractTree::FuncCallNode(new AbstractTree::IdNode($1), $3);}//FUNCTION_CALL
     | SYS_FUNCT {}
     | SYS_FUNCT LP expression_list RP {}
     | const_value { $$ = $1; }

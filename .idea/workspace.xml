@@ -13,9 +13,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a9a5b1de-5da7-494d-9f61-a8f23dbadfc8" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AbstractTree.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/AbstractTree.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AbstractTree.h" beforeDir="false" afterPath="$PROJECT_DIR$/AbstractTree.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pas/2.ll" beforeDir="false" afterPath="$PROJECT_DIR$/pas/2.ll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pas/2.pas" beforeDir="false" afterPath="$PROJECT_DIR$/pas/2.pas" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pascal.y" beforeDir="false" afterPath="$PROJECT_DIR$/pascal.y" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -37,11 +37,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AbstractTree.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="AbstractTree.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AbstractTree.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="491">
-              <caret line="647" lean-forward="true" selection-start-line="647" selection-end-line="647" />
+            <state relative-caret-position="98">
+              <caret line="163" selection-start-line="163" selection-end-line="163" />
             </state>
           </provider>
         </entry>
@@ -58,11 +58,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pascal.y" pinned="false" current-in-tab="false">
+      <file leaf-file-name="pascal.y" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/pascal.y">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="256">
-              <caret line="391" column="16" selection-start-line="391" selection-start-column="16" selection-end-line="391" selection-end-column="16" />
+            <state relative-caret-position="132">
+              <caret line="93" column="32" selection-start-line="93" selection-start-column="32" selection-end-line="93" selection-end-column="32" />
             </state>
           </provider>
         </entry>
@@ -120,7 +120,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>repeatstmtnode</find>
       <find>forstmtnodew</find>
       <find>ast_routinedecl</find>
       <find>function_head</find>
@@ -150,6 +149,7 @@
       <find>Func</find>
       <find>Expnode</find>
       <find>procstmtnode::</find>
+      <find>factor</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -171,10 +171,10 @@
         <option value="$PROJECT_DIR$/errorhandle.cpp" />
         <option value="$PROJECT_DIR$/main.cpp" />
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
-        <option value="$PROJECT_DIR$/pascal.y" />
         <option value="$PROJECT_DIR$/CodeGenContext.cpp" />
         <option value="$PROJECT_DIR$/AbstractTree.h" />
         <option value="$PROJECT_DIR$/AbstractTree.cpp" />
+        <option value="$PROJECT_DIR$/pascal.y" />
       </list>
     </option>
   </component>
@@ -259,7 +259,7 @@
       <workItem from="1528597688735" duration="12105000" />
       <workItem from="1528618673493" duration="10000" />
       <workItem from="1528619006080" duration="2019000" />
-      <workItem from="1528621141577" duration="4513000" />
+      <workItem from="1528621141577" duration="4755000" />
     </task>
     <task id="LOCAL-00001" summary="update cmake">
       <created>1528558995221</created>
@@ -331,11 +331,18 @@
       <option name="project" value="LOCAL" />
       <updated>1528630248898</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Add Funnction Call">
+      <created>1528630826810</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1528630826810</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28378000" />
+    <option name="totallyTimeSpent" value="28620000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="25" width="1368" height="744" extended-state="6" />
@@ -351,7 +358,7 @@
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.423676" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.423676" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -379,7 +386,8 @@
     <MESSAGE value="Output IR to file" />
     <MESSAGE value="Fix AST::RepeatStmt" />
     <MESSAGE value="Revert to GlobalVariable and Alloca" />
-    <option name="LAST_COMMIT_MESSAGE" value="Revert to GlobalVariable and Alloca" />
+    <MESSAGE value="Add Funnction Call" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add Funnction Call" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -813,13 +821,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pascal.y">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="256">
-          <caret line="391" column="16" selection-start-line="391" selection-start-column="16" selection-end-line="391" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/AbstractTree.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="386">
@@ -829,8 +830,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/AbstractTree.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="491">
-          <caret line="647" lean-forward="true" selection-start-line="647" selection-end-line="647" />
+        <state relative-caret-position="98">
+          <caret line="163" selection-start-line="163" selection-end-line="163" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pascal.y">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="132">
+          <caret line="93" column="32" selection-start-line="93" selection-start-column="32" selection-end-line="93" selection-end-column="32" />
         </state>
       </provider>
     </entry>
