@@ -58,6 +58,7 @@ public:
     llvm::IRBuilder<> Builder;
     llvm::Value* getValue(std::string name);
     llvm::Function* printf;
+    std::map<llvm::Function*, llvm::Function*> funcParent;
 
     std::map<std::string, llvm::Value*>& locals() { return blocks.top()->locals; }
     void putValue(std::string name, llvm::Value* value);
