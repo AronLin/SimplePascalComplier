@@ -103,7 +103,7 @@ llvm::Value *AbstractTree::RoutineHeadNode::CodeGen(CodeGenContext &context)
 llvm::Value *AbstractTree::IdNode::CodeGen(CodeGenContext &context)
 {
     context.getValue(this->name);
-    return context.Builder.CreateLoad(context.getValue(this->name), this->name);
+    return context.Builder.CreateLoad(context.getValue(this->name));
 }
 
 // Need refinement, get first or last?
