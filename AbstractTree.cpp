@@ -84,11 +84,11 @@ llvm::Value *AbstractTree::VarDeclNode::CodeGen(CodeGenContext &context)
     {
         for (auto x : nameList->list)
         {
-            auto go = new llvm::GlobalVariable(*context.module, this->type->toLLVMType(), false,
-                                               llvm::GlobalValue::ExternalLinkage,
-                                               llvm::ConstantInt::get(
-                                                       llvm::Type::getInt32Ty(GlobalLLVMContext::getGlobalContext()), 0,
-                                                       true), x);
+            auto go = new llvm::GlobalVariable(*context.module, this->type->toLLVMType(), false, llvm::GlobalValue::CommonLinkage , 0, x);
+            if (this->type->sysName == AbstractTree::TypeDeclNode::TypeName::real)
+                go->setInitializer(llvm::ConstantFP::get(this->type->toLLVMType(), 0));
+            else
+                go->setInitializer(llvm::ConstantInt::get(this->type->toLLVMType(), 0));
             ret = go;
         }
     } else
@@ -146,7 +146,7 @@ llvm::Value *AbstractTree::IntegerTypeNode::CodeGen(CodeGenContext &context)
 
 llvm::Value *AbstractTree::RealTypeNode::CodeGen(CodeGenContext &context)
 {
-    return llvm::ConstantFP::get(context.Builder.getDoubleTy(), val);
+    return llvm::ConstantFP::get(GlobalLLVMContext::getGlobalContext(), llvm::APFloat(val));
 }
 
 llvm::Value *AbstractTree::CharTypeNode::CodeGen(CodeGenContext &context)

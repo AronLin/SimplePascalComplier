@@ -1,13 +1,9 @@
 program llvm;
-var a: integer;
-function mul(x: integer): integer;
+var a: real;
+    b: integer;
 begin
-   if x = 1 then
-	mul := 1
-   else 
-	mul := x * mul(x - 1);
-end;  
-begin
-    a := mul(5);
-    writeln(a);  
+    a := 0.5;
+    b := 100;
+    a := a * b;
+    writeln(a);
 end.
