@@ -581,7 +581,7 @@ class SwitchStmtNode : public StmtNode
     SwitchStmtNode() { condition = nullptr; }
     SwitchStmtNode(ExpNode *condition, std::vector<CaseStmtNode *> &list)
         : condition(condition), list(list) {}
-    virtual llvm::Value *CodeGen(CodeGenContext &context){};
+    virtual llvm::Value *CodeGen(CodeGenContext &context);
 };
 
 class CaseStmtNode : public StmtNode
@@ -591,7 +591,7 @@ class CaseStmtNode : public StmtNode
     StmtNode *Stmt;
     CaseStmtNode(ExpNode *condition, StmtNode *Stmt)
         : condition(condition), Stmt(Stmt) {}
-    virtual llvm::Value *CodeGen(CodeGenContext &context){};
+    virtual llvm::Value *CodeGen(CodeGenContext &context,llvm::SwitchInst* sw, llvm::BasicBlock* exitBB, llvm::Type* ty);
 };
 
 class LabelStmtNode : public StmtNode
