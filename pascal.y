@@ -315,7 +315,7 @@ if_stmt:
     }
     ;
 else_clause: 
-	ELSE stmt {$$=$2;}
+	ELSE stmt {$$=$2; std::cout << "ELSE" << std::endl; }
     |     {$$=nullptr;}	
     ;
 repeat_stmt: 
