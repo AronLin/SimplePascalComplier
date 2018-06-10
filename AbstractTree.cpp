@@ -498,9 +498,7 @@ llvm::Value *AbstractTree::ParaDeclNode::CodeGen(CodeGenContext &context)
     }
     return ret;
 }
-// llvm::Value *AbstractTree::RoutineNode::CodeGen(CodeGenContext &context){
-//     std::vector
-// }
+
 llvm::Value *AbstractTree::RoutineDeclNode::CodeGen(CodeGenContext &context)
 {
     std::vector<llvm::Type *> parameter_types;
@@ -584,11 +582,17 @@ llvm::Value *AbstractTree::RoutineHeadNode::CodeGen(CodeGenContext &context){
 
     varDeclList->CodeGen();
 
-    TypeDefineListNode *typeDefineNodeList;
+    //TypeDefineListNode *typeDefineNodeList;
     RoutineDeclListNode *routineDeclList;
+    for(auto iter : (*routineDeclList) ){
+        iter->CodeGen(context);
+    }
 }
 
-
+llvm::Value *AbstractTree::RoutineNode::CodeGen(CodeGenContext &context){
+    routineHead->CodeGen();
+    return routineBody->CodeGen();
+}
 
 
 }
