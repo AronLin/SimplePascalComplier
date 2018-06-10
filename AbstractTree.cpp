@@ -336,9 +336,9 @@ llvm::Value *AbstractTree::ConstExprListNode::CodeGen(CodeGenContext &context)
 
 llvm::Value *AbstractTree::WhileStmtNode::CodeGen(CodeGenContext &context)
 {
-    llvm::BasicBlock *loopStartB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStart", context.curFunc);
-    llvm::BasicBlock *loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
-    llvm::BasicBlock *loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
+    llvm::BasicBlock *loopStartB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "WHILEloopStart", context.curFunc);
+    llvm::BasicBlock *loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "WHILEloopStmt", context.curFunc);
+    llvm::BasicBlock *loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "WHILEloopEnd", context.curFunc);
 
     context.Builder.CreateBr(loopStartB);
     context.pushBlock(loopStartB);
@@ -361,10 +361,10 @@ llvm::Value *AbstractTree::WhileStmtNode::CodeGen(CodeGenContext &context)
 
 llvm::Value *AbstractTree::ForStmtNode::CodeGen(CodeGenContext &context)
 {
-    llvm::BasicBlock *loopEntryB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEntry", context.curFunc);
-    llvm::BasicBlock *loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
-    llvm::BasicBlock *loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
-    llvm::BasicBlock *loopExitB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopExit", context.curFunc);
+    llvm::BasicBlock *loopEntryB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "FORloopEntry", context.curFunc);
+    llvm::BasicBlock *loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "FORloopStmt", context.curFunc);
+    llvm::BasicBlock *loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "FORloopEnd", context.curFunc);
+    llvm::BasicBlock *loopExitB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "FORloopExit", context.curFunc);
 
     context.Builder.CreateBr(loopEntryB);
     context.pushBlock(loopEntryB);
@@ -408,19 +408,28 @@ llvm::Value *AbstractTree::ForStmtNode::CodeGen(CodeGenContext &context)
 
 llvm::Value *AbstractTree::RepeatStmtNode::CodeGen(CodeGenContext &context)
 {
-    llvm::BasicBlock *loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopStmt", context.curFunc);
-    llvm::BasicBlock *loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "loopEnd", context.curFunc);
+    llvm::BasicBlock *loopStmtB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "REPEATloopStmt", context.curFunc);
+    llvm::BasicBlock *loopEndB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "REPEATloopEnd", context.curFunc);
+    llvm::BasicBlock* loopExitB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "REPEATloopExit", context.curFunc);
 
     context.Builder.CreateBr(loopStmtB);
+
+    context.Builder.SetInsertPoint(loopStmtB);
     context.pushBlock(loopStmtB);
     loopStmt->CodeGen(context);
-    context.Builder.SetInsertPoint(loopStmtB);
-    llvm::Value *test = this->condition->CodeGen(context);
-    llvm::Value *ret = context.Builder.CreateCondBr(test, loopEndB, loopStmtB);
-
+    context.Builder.CreateBr(loopEndB);
     context.popBlock();
+
     context.pushBlock(loopEndB);
     context.Builder.SetInsertPoint(loopEndB);
+    llvm::Value *test = this->condition->CodeGen(context);
+    llvm::Value *ret = context.Builder.CreateCondBr(test, loopExitB, loopStmtB);
+    context.popBlock();
+
+    context.pushBlock(loopExitB);
+    context.Builder.SetInsertPoint(loopExitB);
+
+
 
     return ret;
 }
