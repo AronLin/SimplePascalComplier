@@ -14,9 +14,9 @@ FILE* file;
 
 int main()
 {
-    file = fopen("/home/qian/SharedFolders/Compiler/Code/SimplePascalComplier/pas/2.pas", "r");
+    file = fopen("/home/qian/SharedFolders/Compiler/Code/SimplePascalComplier/pas/1.pas", "r");
     std::error_code EC;
-    llvm::raw_fd_ostream ir("/home/qian/SharedFolders/Compiler/Code/SimplePascalComplier/pas/2.ll", EC, llvm::sys::fs::F_None);
+    llvm::raw_fd_ostream ir("/home/qian/SharedFolders/Compiler/Code/SimplePascalComplier/pas/1.ll", EC, llvm::sys::fs::F_None);
     init_error_handle();
     yyparse();
     close_error_handle();

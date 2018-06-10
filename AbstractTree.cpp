@@ -645,40 +645,41 @@ llvm::Value* AbstractTree::FuncCallNode::CodeGen(CodeGenContext& context)
 llvm::Value *AbstractTree::CaseStmtNode::CodeGen(CodeGenContext &context,llvm::SwitchInst* sw, llvm::BasicBlock* exitBB, llvm::Type* ty){
 
     llvm::Function* theFunction = context.Builder.GetInsertBlock()->getParent();
-    llvm::BasicBlock* caseBB = llvm::BasicBlock::Create(context, "case", theFunction);
+    llvm::BasicBlock* caseBB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "case", theFunction);
 
     context.Builder.SetInsertPoint(caseBB);
     
     llvm::Value * case_stmt = Stmt->CodeGen(context);
     llvm::IntegerType* intTy = llvm::dyn_cast<llvm::IntegerType>(ty);
 
-    sw->addCase(llvm::ConstantInt::get(intTy, l), caseBB);
+    sw->addCase(llvm::ConstantInt::get(llvm::Type::getInt32Ty(GlobalLLVMContext::getGlobalContext()), this->condition->val), caseBB);
 
-    return context.Builder.CreateBr(afterBB);
+    return context.Builder.CreateBr(exitBB);
 }
 
 llvm::Value* AbstractTree::SwitchStmtNode::CodeGen(CodeGenContext &context){
     //create exit block 
-    BasicBlock* exit_block = BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "exit", context.curFunc);
+    llvm::BasicBlock* exit_block = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "exit", context.curFunc);
 
     llvm::Value* condition_value  = condition->CodeGen(context);
-    llvm::Type*  ty = v->getType();
+    llvm::Type*  ty = condition_value->getType();
     if (!condition_value->getType()->isIntegerTy())
     {
-	return ErrorV(this, "Case label must be integral type");
+        throw std::domain_error("Case label must be integral type");
     }
 
     llvm::Function* Function = context.Builder.GetInsertBlock()->getParent();
-    llvm::BasicBlock* afterBB = llvm::BasicBlock::Create(context, "after", Function);
+    llvm::BasicBlock* afterBB = llvm::BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "after", Function);
     llvm::BasicBlock* defaultBB = afterBB;
     
     llvm::SwitchInst* sw = context.Builder.CreateSwitch(condition_value, defaultBB, this->list.size());
     for(auto case_stmt : this->list)
     {
-	    case_stmt->CodeGen(sw, afterBB, ty);
+	    case_stmt->CodeGen(context, sw, exit_block, ty);
     }
     context.Builder.SetInsertPoint(afterBB);
-
+    context.Builder.CreateBr(exit_block);
+    context.Builder.SetInsertPoint(exit_block);
     return afterBB;
     
     

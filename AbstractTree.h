@@ -719,11 +719,12 @@ class SwitchStmtNode : public StmtNode
 class CaseStmtNode : public StmtNode
 {
   public:
-    ExpNode *condition; //there might be ID or const_value,so we use ExpNode to represent them
+    IntegerTypeNode *condition; //there might be ID or const_value,so we use ExpNode to represent them
     StmtNode *Stmt;
-    CaseStmtNode(ExpNode *condition, StmtNode *Stmt)
+    CaseStmtNode(IntegerTypeNode *condition, StmtNode *Stmt)
         : condition(condition), Stmt(Stmt) {}
     virtual llvm::Value *CodeGen(CodeGenContext &context,llvm::SwitchInst* sw, llvm::BasicBlock* exitBB, llvm::Type* ty);
+    virtual llvm::Value* CodeGen(CodeGenContext& context) {};
 };
 
     class LabelStmtNode : public StmtNode

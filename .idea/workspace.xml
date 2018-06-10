@@ -14,6 +14,11 @@
   <component name="ChangeListManager">
     <list default="true" id="a9a5b1de-5da7-494d-9f61-a8f23dbadfc8" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AbstractTree.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/AbstractTree.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AbstractTree.h" beforeDir="false" afterPath="$PROJECT_DIR$/AbstractTree.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pas/1.pas" beforeDir="false" afterPath="$PROJECT_DIR$/pas/1.pas" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pascal.y" beforeDir="false" afterPath="$PROJECT_DIR$/pascal.y" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -29,17 +34,17 @@
       <file leaf-file-name="AbstractTree.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AbstractTree.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="386">
-              <caret line="798" column="33" selection-start-line="798" selection-start-column="33" selection-end-line="798" selection-end-column="33" />
+            <state relative-caret-position="-769">
+              <caret line="716" column="2" selection-start-line="716" selection-start-column="2" selection-end-line="716" selection-end-column="2" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AbstractTree.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="AbstractTree.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/AbstractTree.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="98">
-              <caret line="163" selection-start-line="163" selection-end-line="163" />
+            <state relative-caret-position="416">
+              <caret line="680" column="41" selection-start-line="680" selection-start-column="41" selection-end-line="680" selection-end-column="41" />
             </state>
           </provider>
         </entry>
@@ -47,8 +52,8 @@
       <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="19" column="5" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
+            <state relative-caret-position="270">
+              <caret line="18" column="94" selection-start-line="18" selection-start-column="94" selection-end-line="18" selection-end-column="94" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -56,11 +61,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pascal.y" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pascal.y" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pascal.y">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="132">
-              <caret line="93" column="43" selection-start-line="93" selection-start-column="43" selection-end-line="93" selection-end-column="43" />
+            <state relative-caret-position="231">
+              <caret line="363" column="14" selection-start-line="363" selection-start-column="14" selection-end-line="363" selection-end-column="14" />
             </state>
           </provider>
         </entry>
@@ -77,7 +82,7 @@
       <file leaf-file-name="pascal.l" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pascal.l">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2715">
+            <state relative-caret-position="333">
               <caret line="181" column="16" selection-start-line="181" selection-start-column="16" selection-end-line="181" selection-end-column="16" />
             </state>
           </provider>
@@ -86,7 +91,7 @@
       <file leaf-file-name="CodeGenContext.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/CodeGenContext.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
+            <state relative-caret-position="945">
               <caret line="63" column="17" selection-start-line="63" selection-start-column="9" selection-end-line="63" selection-end-column="17" />
               <folding>
                 <element signature="e#59#73#0" expanded="true" />
@@ -98,7 +103,7 @@
       <file leaf-file-name="CodeGenContext.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/CodeGenContext.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
+            <state relative-caret-position="270">
               <caret line="18" column="27" selection-start-line="18" selection-start-column="27" selection-end-line="18" selection-end-column="27" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -118,17 +123,13 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>forstmtnodew</find>
-      <find>ast_routinedecl</find>
-      <find>function_head</find>
-      <find>parameters</find>
       <find>function_decl</find>
       <find>sub_routine</find>
       <find>proc_stmt</find>
       <find>procstmtnode</find>
       <find>paradeclnode</find>
       <find>assign</find>
-      <find>class routinedeclnode</find>
+      <find />
       <find>ParaDeclListNode</find>
       <find>routineheadnode::codegen</find>
       <find>para_decl_list</find>
@@ -148,6 +149,10 @@
       <find>Expnode</find>
       <find>procstmtnode::</find>
       <find>factor</find>
+      <find>switch</find>
+      <find>int32</find>
+      <find>const_value</find>
+      <find>casestmtnode</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -167,12 +172,12 @@
         <option value="$PROJECT_DIR$/pascal.l" />
         <option value="$PROJECT_DIR$/errorhandle.h" />
         <option value="$PROJECT_DIR$/errorhandle.cpp" />
-        <option value="$PROJECT_DIR$/main.cpp" />
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/CodeGenContext.cpp" />
+        <option value="$PROJECT_DIR$/main.cpp" />
         <option value="$PROJECT_DIR$/AbstractTree.h" />
-        <option value="$PROJECT_DIR$/AbstractTree.cpp" />
         <option value="$PROJECT_DIR$/pascal.y" />
+        <option value="$PROJECT_DIR$/AbstractTree.cpp" />
       </list>
     </option>
   </component>
@@ -186,16 +191,17 @@
     <packageJsonPaths />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-1" />
-    <option name="y" value="25" />
-    <option name="width" value="1432" />
-    <option name="height" value="872" />
+    <option name="x" value="-25" />
+    <option name="y" value="41" />
+    <option name="width" value="1424" />
+    <option name="height" value="867" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -207,7 +213,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -258,6 +263,7 @@
       <workItem from="1528618673493" duration="10000" />
       <workItem from="1528619006080" duration="2019000" />
       <workItem from="1528621141577" duration="4929000" />
+      <workItem from="1528631815466" duration="3490000" />
     </task>
     <task id="LOCAL-00001" summary="update cmake">
       <created>1528558995221</created>
@@ -347,10 +353,11 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28794000" />
+    <option name="totallyTimeSpent" value="32284000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="25" width="1368" height="744" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21888727" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -371,6 +378,26 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Find" order="1" />
     </layout>
+    <layout-to-restore>
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.394081" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.21888727" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.423676" />
+      <window_info anchor="bottom" id="Messages" order="7" sideWeight="0.49926794" visible="true" weight="0.32866043" />
+      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50073206" side_tool="true" weight="0.32866043" />
+      <window_info anchor="bottom" id="Version Control" order="10" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="CMake" order="11" weight="0.221174" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+    </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
@@ -782,23 +809,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pascal.l">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2715">
-          <caret line="181" column="16" selection-start-line="181" selection-start-column="16" selection-end-line="181" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="19" column="5" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/llvm-6.0/include/llvm/IR/Value.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="197">
@@ -808,7 +818,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/CodeGenContext.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
+        <state relative-caret-position="945">
           <caret line="63" column="17" selection-start-line="63" selection-start-column="9" selection-end-line="63" selection-end-column="17" />
           <folding>
             <element signature="e#59#73#0" expanded="true" />
@@ -818,7 +828,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/CodeGenContext.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
+        <state relative-caret-position="270">
           <caret line="18" column="27" selection-start-line="18" selection-start-column="27" selection-end-line="18" selection-end-column="27" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
@@ -826,24 +836,41 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AbstractTree.h">
+    <entry file="file://$PROJECT_DIR$/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="386">
-          <caret line="798" column="33" selection-start-line="798" selection-start-column="33" selection-end-line="798" selection-end-column="33" />
+        <state relative-caret-position="270">
+          <caret line="18" column="94" selection-start-line="18" selection-start-column="94" selection-end-line="18" selection-end-column="94" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AbstractTree.cpp">
+    <entry file="file://$PROJECT_DIR$/pascal.l">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="98">
-          <caret line="163" selection-start-line="163" selection-end-line="163" />
+        <state relative-caret-position="333">
+          <caret line="181" column="16" selection-start-line="181" selection-start-column="16" selection-end-line="181" selection-end-column="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pascal.y">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="93" column="43" selection-start-line="93" selection-start-column="43" selection-end-line="93" selection-end-column="43" />
+        <state relative-caret-position="231">
+          <caret line="363" column="14" selection-start-line="363" selection-start-column="14" selection-end-line="363" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AbstractTree.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-769">
+          <caret line="716" column="2" selection-start-line="716" selection-start-column="2" selection-end-line="716" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AbstractTree.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="416">
+          <caret line="680" column="41" selection-start-line="680" selection-start-column="41" selection-end-line="680" selection-end-column="41" />
         </state>
       </provider>
     </entry>
