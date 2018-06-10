@@ -393,7 +393,8 @@ llvm::Value *AbstractTree::ForStmtNode::CodeGen(CodeGenContext &context)
     {
         binOP = new AbstractTree::BinaryNode(this->id, AbstractTree::BinaryNode::OpType::MINUS, int1);
     }
-    binOP->CodeGen(context);
+    AbstractTree::AssignStmtNode* assign2 = new AbstractTree::AssignStmtNode(this->id, binOP);
+    assign2->CodeGen(context);
     auto testGE = new AbstractTree::BinaryNode(this->id, AbstractTree::BinaryNode::OpType::GT, this->end);
     auto test = testGE->CodeGen(context);
     auto ret = context.Builder.CreateCondBr(test, loopExitB, loopStmtB);
