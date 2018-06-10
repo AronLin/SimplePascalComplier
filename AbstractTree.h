@@ -701,36 +701,30 @@ namespace AbstractTree
         virtual llvm::Value *CodeGen(CodeGenContext &context);
     };
 
-    class SwitchStmtNode : public StmtNode
+class SwitchStmtNode : public StmtNode
+{
+  public:
+    ExpNode *condition;
+    std::vector<CaseStmtNode *> list;
+    void insert(CaseStmtNode *node)
     {
-    public:
-        ExpNode *condition;
-        std::vector<CaseStmtNode *> list;
+        list.push_back(node);
+    }
+    SwitchStmtNode() { condition = nullptr; }
+    SwitchStmtNode(ExpNode *condition, std::vector<CaseStmtNode *> &list)
+        : condition(condition), list(list) {}
+    virtual llvm::Value *CodeGen(CodeGenContext &context);
+};
 
-        void insert(CaseStmtNode *node)
-        {
-            list.push_back(node);
-        }
-
-        SwitchStmtNode() { condition = nullptr; }
-
-        SwitchStmtNode(ExpNode *condition, std::vector<CaseStmtNode *> &list)
-                : condition(condition), list(list) {}
-
-        virtual llvm::Value *CodeGen(CodeGenContext &context) {};
-    };
-
-    class CaseStmtNode : public StmtNode
-    {
-    public:
-        ExpNode *condition; //there might be ID or const_value,so we use ExpNode to represent them
-        StmtNode *Stmt;
-
-        CaseStmtNode(ExpNode *condition, StmtNode *Stmt)
-                : condition(condition), Stmt(Stmt) {}
-
-        virtual llvm::Value *CodeGen(CodeGenContext &context) {};
-    };
+class CaseStmtNode : public StmtNode
+{
+  public:
+    ExpNode *condition; //there might be ID or const_value,so we use ExpNode to represent them
+    StmtNode *Stmt;
+    CaseStmtNode(ExpNode *condition, StmtNode *Stmt)
+        : condition(condition), Stmt(Stmt) {}
+    virtual llvm::Value *CodeGen(CodeGenContext &context,llvm::SwitchInst* sw, llvm::BasicBlock* exitBB, llvm::Type* ty);
+};
 
     class LabelStmtNode : public StmtNode
     {

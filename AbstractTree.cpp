@@ -523,9 +523,6 @@ llvm::Value *AbstractTree::ParaDeclNode::CodeGen(CodeGenContext &context)
     return ret;
 }
 
-// llvm::Value *AbstractTree::RoutineNode::CodeGen(CodeGenContext &context){
-//     std::vector
-// }
 llvm::Value *AbstractTree::RoutineDeclNode::CodeGen(CodeGenContext &context)
 {
     std::cout << "CG for " << this->id->name << std::endl;
@@ -644,4 +641,45 @@ llvm::Value* AbstractTree::FuncCallNode::CodeGen(CodeGenContext& context)
         arguments.push_back(iter->CodeGen(context));
     }
     return context.Builder.CreateCall(call, llvm::makeArrayRef(arguments));
+}
+llvm::Value *AbstractTree::CaseStmtNode::CodeGen(CodeGenContext &context,llvm::SwitchInst* sw, llvm::BasicBlock* exitBB, llvm::Type* ty){
+
+    llvm::Function* theFunction = context.Builder.GetInsertBlock()->getParent();
+    llvm::BasicBlock* caseBB = llvm::BasicBlock::Create(context, "case", theFunction);
+
+    context.Builder.SetInsertPoint(caseBB);
+    
+    llvm::Value * case_stmt = Stmt->CodeGen(context);
+    llvm::IntegerType* intTy = llvm::dyn_cast<llvm::IntegerType>(ty);
+
+    sw->addCase(llvm::ConstantInt::get(intTy, l), caseBB);
+
+    return context.Builder.CreateBr(afterBB);
+}
+
+llvm::Value* AbstractTree::SwitchStmtNode::CodeGen(CodeGenContext &context){
+    //create exit block 
+    BasicBlock* exit_block = BasicBlock::Create(GlobalLLVMContext::getGlobalContext(), "exit", context.curFunc);
+
+    llvm::Value* condition_value  = condition->CodeGen(context);
+    llvm::Type*  ty = v->getType();
+    if (!condition_value->getType()->isIntegerTy())
+    {
+	return ErrorV(this, "Case label must be integral type");
+    }
+
+    llvm::Function* Function = context.Builder.GetInsertBlock()->getParent();
+    llvm::BasicBlock* afterBB = llvm::BasicBlock::Create(context, "after", Function);
+    llvm::BasicBlock* defaultBB = afterBB;
+    
+    llvm::SwitchInst* sw = context.Builder.CreateSwitch(condition_value, defaultBB, this->list.size());
+    for(auto case_stmt : this->list)
+    {
+	    case_stmt->CodeGen(sw, afterBB, ty);
+    }
+    context.Builder.SetInsertPoint(afterBB);
+
+    return afterBB;
+    
+    
 }
