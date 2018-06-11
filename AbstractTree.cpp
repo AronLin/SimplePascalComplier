@@ -529,7 +529,10 @@ llvm::Value *AbstractTree::RoutineDeclNode::CodeGen(CodeGenContext &context)
     std::vector<llvm::Type *> parameter_types;
     for (auto iter : this->para_decl_list->list)
     {
-        parameter_types.push_back(iter->type_decl->toLLVMType());
+        for (int i = 0; i < iter->name_list->list.size(); i++)
+        {
+            parameter_types.push_back(iter->type_decl->toLLVMType());
+        }
     }
     llvm::FunctionType *function_type;
     if (this->type == PROCEDURE)

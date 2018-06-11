@@ -95,6 +95,7 @@ integer {
     return SYS_TYPE;
 }
 if {BeginToken(yytext); return IF;}
+mod { BeginToken(yytext); return MOD; }
 maxint {
     BeginToken(yytext); 
     STORESTRING;
